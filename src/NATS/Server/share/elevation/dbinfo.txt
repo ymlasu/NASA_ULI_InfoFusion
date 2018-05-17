@@ -1,0 +1,18 @@
+// Image Width
+7749
+
+// Image Height
+3321
+
+// Min Latitude
+22.182
+
+// Max Latitude
+49.8383327742
+
+// Min Longitude
+233.53
+
+// Max Longitude
+298.0503327742
+

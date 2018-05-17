@@ -1,0 +1,58 @@
+National Airspace Trajectory-Prediction System(NATS)
+
+Server Program Module
+
+This program module is responsible for all the computations related to aircraft trajectory propagation and data manipulation.  This module provides several functional interfaces in order to serve Java RMI communication in the server-client design architecture.  The client side program module contains corresponding functional interfaces corresponding to those on the server module.
+
+
+Contents of the zip file NATS-Server.zip
+========================================
+<dependency_library>    Dir    Dependency library
+<dist>                  Dir    NATS binary files
+<lib_precomp>           Dir    Precompiled dependency library.  You can use them if you have difficulty in compilation.
+<share>                 Dir    Background data
+README
+run                            Script to start NATS server
+
+
+Hardware Requirements
+=====================
+1. Intel/AMD 64bit CPU 1Ghz and up
+2. RAM capacity at least 1GB
+
+
+Operating System/Software Enviroment Requirements
+=================================================
+1. Linux 64bit
+   This software has been tested on:
+   # Ubuntu v12.04, v16.04 with gcc 4.8
+   # CentOS 6.9 with gcc 4.4
+   # CentOS 7 with gcc 4.8
+2. Java 1.7 and later
+3. Jasper
+   We have tested the software with v1.900.1(Please see directory "dependency_library")
+   You can use dependency_library/install_jasper.sh to install it.
+4. Grib API
+   We have tested the software with v1.11.0(Please see directory "dependency_library")
+   You can use dependency_library/install_grib.sh to install it.
+5. HDF5
+   We have tested the software with v1.8.11
+   This package is also provided for your reference.(Please look at the  "dependency_library" directory)
+   You can use dependency_library/install_hdf5.sh to install it.
+6. Python 2.7
+
+
+Starting the NATS server
+=========================
+This is the first step in using the NATS software. The following steps are required:
+
+1. Modify the run script
+   Edit NATS_SERVER_HOME with correct path on your machine.
+   Edit correct JDK/JRE path on your machine.(Please use Java 1.7 or later.)
+2. Execute the run script in command-line terminal.  Example: ./run
+   (It is suggested that you call the run script from the current directory path.)
+
+
+Stopping the NATS server
+======================
+This is generally the last step while using the NATS software. The NATS software can be stopped by pressing [Ctrl]-C in the command-line terminal. 

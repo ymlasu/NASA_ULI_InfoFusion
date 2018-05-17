@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export NATS_CLIENT_HOME=/your_path/NATS_Client
+
+/opt/java/64/jdk1.7.0_80/bin/java -cp $NATS_CLIENT_HOME/dist/nats-client.jar:$NATS_CLIENT_HOME/dist/nats-shared.jar -Xmx768m Sample_Java

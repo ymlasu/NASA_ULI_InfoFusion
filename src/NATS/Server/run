@@ -1,0 +1,7 @@
+#!/bin/sh
+
+export NATS_SERVER_HOME=${PWD}
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NATS_SERVER_HOME/dist
+
+/usr/bin/java -cp $NATS_SERVER_HOME/dist/nats-server.jar:$NATS_SERVER_HOME/dist/nats-shared.jar -Djava.library.path=$NATS_SERVER_HOME/dist -Xmx768m NATSServer 2017

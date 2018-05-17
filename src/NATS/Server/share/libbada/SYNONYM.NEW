@@ -1,0 +1,314 @@
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC SYNONYM.NEW CCCCCCCCCCCCCCC/
+CC                                                                    /
+CC                BADA SYNONYM FILE                                   /
+CC                                                                    /
+CC                                                                    /
+CC      File_name: SYNONYM.NEW                                        /
+CC                                                                    /
+CC      Creation_date: Apr 30 2002                                    /
+CC                                                                    /
+CC      Modification_date: May 18 2004                                /
+CC                                                                    /
+CC                                                                    /
+CC====== Aircraft List ===============================================/
+CC                                                                    / 
+CC   A/C    MANUFACTURER        NAME OR MODEL             FILE   OLD  /  
+CC   CODE                                                        CODE /
+CC                                                                    /
+CD * A10    FAIRCHILD           THUNDERBOLT II           FGTN__  A10A /
+CD * A124   ANTONOV             ANTONOV AN-124           B732__  AN4R /
+CD - A306   AIRBUS              A300B4-600               A306__  A306 /
+CD - A30B   AIRBUS              A300B4-200               A30B__  A300 /
+CD - A310   AIRBUS              A310                     A310__  EA31 /
+CD * A318   AIRBUS              A318                     A319__  A318 /
+CD - A319   AIRBUS              A319                     A319__  A319 /
+CD - A320   AIRBUS              A320                     A320__  EA32 /
+CD - A321   AIRBUS              A321                     A321__  A321 /
+CD - A332   AIRBUS              A330-200                 A332__  A332 /
+CD - A333   AIRBUS              A330-300                 A333__  A330 /
+CD * A342   AIRBUS              A340-200                 A343__  A342 /
+CD - A343   AIRBUS              A340-300                 A343__  A340 /
+CD * A345   AIRBUS              A340-500                 A343__  A345 /
+CD * A346   AIRBUS              A340-600                 A343__  A346 /
+CD * A3ST   AIRBUS              A-300ST Beluga           B732__  A3ST /
+CD * A4     MCDONNELL-DOUGLAS   SKYHAWK                  FGTN__  A4   /
+CD * A6     GRUMMAN             INTRUDER                 FGTN__  EA6B /
+CD * A7     A7                  A7                       FGTN__  A7   /
+CD * A748   BAE                 BAE 748                  AT72__  HN74 /
+CD * AA5    AMERICAN            AA-5 Traveler            P28A__  AA5  /
+CD * AC80   ROCKWELL            TURBO COMMANDER          BE20__  AC6T /
+CD * AC90   ROCKWELL            TURBO COMMANDER          BE20__  AC90 /
+CD * AC95   ROCKWELL            TURBO COMMANDER          BE20__  AC95 /
+CD * AEST   TED SMITH           AEROSTAR                 PAY3__  AEST /
+CD * AJET   DASSAULT            ALPHA JET                FGTN__  AJET /
+CD * AMX    EMBRAER             AMX                      FGTN__  AMX  /
+CD * AN12   ANTONOV             AN-12                    C130__  AN12 /
+CD * AN24   ANTONOV             AN-124                   F27___  AN24 /
+CD * AN26   ANTONOV             AN-26                    F27___  AN26 /
+CD * AN72   ANTONOV             AN-72                    F28___  AN74 /
+CD * ASTR   IAI                 IAI 1125 Astra           LJ45__  AJ25 /
+CD - AT43   ATR                 ATR 42-300               AT43__  ATR  /
+CD * AT44   ATR                 ATR 42-400               AT43__  AT44 /
+CD - AT45   ATR                 ATR 42-500               AT45__  AT45 /
+CD - AT72   ATR                 ATR 72                   AT72__  AT72 /
+CD * ATLA   DASSAULT            ATLANTIC                 C130__  ATLA /
+CD - ATP    BAE                 ADVANCED TURBOPROP       ATP___  BATP /
+CD * B1     ROCKWELL            B1 LANCER                FGTL__  B1   /
+CD * B190   BEECH               1900                     JS31__  BE02 /
+CD * B350   BEECH               B300 SUPER KING 350      BE20__  BE3B /
+CD * B461   BAE                 146-100/RJ               B462__  BA46 /
+CD - B462   BAE                 146-200/RJ               B462__  B462 /
+CD * B463   BAE                 146-300/RJ               B462__  B463 /
+CD * B52    Boeing              B-52 Stratofortress      FGTL__  B52  /
+CD * B701   BOEING              707-100                  B703__  B701 /
+CD - B703   BOEING              707-300                  B703__  B707 /
+CD - B712   BOEING              717-200                  B712__  B717 /
+CD * B720   BOEING              B720B                    B703__  B72S /
+CD * B721   BOEING              727-100                  B722__  B721 /
+CD - B722   BOEING              727-200                  B722__  B727 /
+CD * B731   BOEING              737-100                  B732__  T43A /
+CD - B732   BOEING              737-228                  B732__  B73A /
+CD - B733   BOEING              737-300                  B733__  B73B /
+CD - B734   BOEING              737-400                  B734__  B73F /
+CD - B735   BOEING              737-500                  B735__  B73V /
+CD - B736   BOEING              737-600                  B736__  B736 /
+CD - B737   BOEING              737-700                  B737__  B737 /
+CD - B738   BOEING              737-800                  B738__  B73C /
+CD * B739   BOEING              737-900                  B738__  B739 /
+CD * B741   BOEING              747-100                  B742__  E4A  /
+CD - B742   BOEING              747-200                  B742__  B74A /
+CD - B743   BOEING              747-300                  B743__  B743 /
+CD - B744   BOEING              747-400                  B744__  B74B /
+CD * B74D   BOEING              747-400 DOMESTIC         B744__  B74F /
+CD * B74S   BOEING              747-SP                   B744__  B74S /
+CD - B752   BOEING              757-200                  B752__  B757 /
+CD - B753   BOEING              757-300                  B753__  B753 /
+CD - B762   BOEING              767-200                  B762__  B767 /
+CD - B763   BOEING              767-300                  B763__  B763 /
+CD - B764   BOEING              767-400                  B764__  B764 /
+CD - B772   BOEING              777-200                  B772__  B777 /
+CD - B773   BOEING              777-300                  B773__  B773 /
+CD - BA11   BAE                 111, ALL SERIES          BA11__  BA11 /
+CD * BDOG   BAE                 SA-3 BULLDOG SERIES      P28A__  BDOG /
+CD * BE10   BEECHCRAFT          KING AIR 100             BE20__  BE1B /
+CD - BE20   BEECH               SUPER KING AIR 200       BE20__  BE2H /
+CD * BE30   BEECH               SUPER KING AIR 300       BE20__  BE3L /
+CD * BE33   BEECH               BONANZA 33               PA34__  BE33 /
+CD * BE36   BEECH               BONANZA 36               PA34__  BE36 /
+CD * BE40   BEECH               BE40                     FA10__  MU30 /
+CD * BE55   BEECH               BEECH 55 Baron           D228__  T42  /
+CD * BE58   BEECH               BARON 58                 PA27__  BE58 /
+CD * BE60   BEECH               DUKE 60                  C421__  BE60 /
+CD * BE76   BEECH               DUCHESSE                 PA27__  BE76 /
+CD * BE95   BEECH               TRAVELAIR 95             PA31__  BE95 /
+CD - BE99   BEECH               AIRLINER C99             BE99__  BE99 /
+CD - BE9L   BEECH               KING AIR 90              BE9L__  BE90 /
+CD * BER4   BERIEV              ALBATROS                 B722__  BE40 /
+CD * BN2P   PILATUS             ISLANDER BN2-A/B         PA31__  BN2  /
+CD - C130   LOCKHEED            HERCULES                 C130__  L382 /
+CD * C135   BOEING              STRATOLIFTER 717         B703__  C135 /
+CD * C141   LOCKHEED            STARLIFTER               DC87__  C141 /
+CD - C160   TRANSALL            C160                     C160__  ND16 /
+CD * C17    McDONNELL DOUGLAS   C17 GLOBE-MASTER         B763__  C17  /
+CD * C170   CESSNA              CESSNA 170               PA34__  C170 /
+CD * C172   CESSNA              SKYHAWK 172              P28A__  C172 /
+CD * C177   CESSNA              CARDINAL 177             P28A__  C177 /
+CD * C182   CESSNA              CARDINAL 182             P28A__  C182 /
+CD * C208   CESSNA              C208 Caravan             PA27__  C208 /
+CD * C210   CESSNA              CENTURION                PA31__  C210 /
+CD * C212   CASA                C-212  AVIOCAR           D228__  CS12 /
+CD * C303   CESSNA              CRUSADER 303             PA31__  C303 /
+CD * C30J   Lockheed Martin     C130 J                   C130__  C30J /
+CD * C310   CESSNA              CESSNA                   PA31__  RY65 /
+CD * C337   CESSNA              C-337 SUPER SKYMASTER    PA34__  RA37 /
+CD * C340   CESSNA              C-340/340A               PA31__  C340 /
+CD * C402   CESSNA              C402                     PA31__  C401 /
+CD * C414   CESSNA              CHANCELLOR 414           C421__  C414 /
+CD - C421   CESSNA              GOLDEN EAGLE 421         C421__  C421 /
+CD * C425   CESSNA              CORSAIR/CONQUEST         PAY2__  C425 /
+CD * C441   CESSNA              C441 Conquest            BE20__  C441 /
+CD * C5     LOCKHEED            GALAXY                   B742__  C5A  /
+CD * C500   CESSNA              CITATION                 C550__  C500 /
+CD * C501   CESSNA              CITATION                 C550__  C501 /
+CD * C525   CESSNA              CITATIONJET              C550__  C525 /
+CD * C526   CESSNA              CITATIONJET              C550__  C526 /
+CD - C550   CESSNA              CITATION II-S2           C550__  C550 /
+CD * C551   CESSNA              CITATION 2SP             C550__  C551 /
+CD - C560   CESSNA              CITATION V               C560__  C560 /
+CD * C56X   CESSNA              CITATION X               FA10__  C56X /
+CD * C650   CESSNA              CITATION III             LJ35__  C650 /
+CD * C72R   CESSNA              SKYHAWK 172              P28A__  C172 /
+CD - C750   CESSNA              C750 CITTATION 10        C750__  C750 /
+CD * C77R   CESSNA              CARDINAL 177             P28A__  RA77 /
+CD * C82R   CESSNA              SKYLANE 182              P28A__  C182 /
+CD - CL60   CANADAIR            CHALLENGER 600/601       CL60__  CL60 /
+CD * CN35   AIRTECH             CN-235                   AT43__  CN35 /
+CD * CONC   BAE-AEROSPATIALE    CONCORDE                 FGTN__  CONC /
+CD - CRJ1   CANADAIR            REGIONAL JET             CRJ1__  CL65 /
+CD * CRJ2   CANADAIR            REGIONAL JET             CRJ1__  CRJ2 /
+CD * CRJ7   CANADAIR            REGIONAL JET             CRJ1__  CRJ7 /
+CD * CVLT   CONVAIR             540/580/600/640          AT43__  CV58 /
+CD - D228   DORNIER             DO 228-100/200           D228__  D228 /
+CD * D28D   DORNIER             DO 28                    PA31__  DO8D /
+CD - D328   DORNIER             D328                     D328__  D328 /
+CD - DC10   MCDONNELL-DOUGLAS   DC-10, ALL SERIES        DC10__  DC10 /
+CD * DC3    DOUGLAS             DC-3                     DH8C__  C47  /
+CD * DC85   MCDONNELL-DOUGLAS   DC-8-50                  DC87__  DC85 /
+CD * DC86   MCDONNELL-DOUGLAS   DC-8-60                  DC87__  DC86 /
+CD - DC87   MCDONNELL-DOUGLAS   DC-8-70                  DC87__  DC8S /
+CD * DC91   MCDONNELL-DOUGLAS   DC-9-10                  DC94__  DC91 /
+CD * DC92   MCDONNELL-DOUGLAS   DC-9-20                  DC94__  DC92 /
+CD * DC93   MCDONNELL-DOUGLAS   DC-9-30                  DC94__  DC93 /
+CD - DC94   MCDONNELL-DOUGLAS   DC-9-40                  DC94__  DC9  /
+CD * DC95   MCDONNELL-DOUGLAS   DC-9-50                  DC94__  DC95 /
+CD - DH8A   DE HAVILLAND        DASH 8 -100              DH8A__  DH8A /
+CD * DH8B   DE HAVILLAND        DASH 8 -200              DH8C__  DH8B /
+CD - DH8C   DE HAVILLAND        DASH 8 -300              DH8C__  DHC8 /
+CD * DH8D   DE HAVILLAND        DASH 8 -400              DH8C__  DH8D /
+CD * E110   EMBRAER             BANDEIRANTE              D228__  E111 /
+CD - E120   EMBRAER             BRASILIA EMB-120         E120__  E120 /
+CD * E135   EMBRAER             EMBRAER RJ 135           FA50__  E135 /
+CD - E145   EMBRAER             EMB 145                  E145__  E145 /
+CD * E3CF   BOEING              E-3 SENTRY               B703__  E3   /
+CD * E3TF   BOEING              E-3 SENTRY               B703__  E3TF /
+CD * EC35   EUROCOPTER          EC-135                   P28A__  EC35 /
+CD * ETAR   DASSAULT            Etendard 4               FGTN__  ETAR /
+CD * EUFI                       EUROFIGHTER              FGTN__  EUFI /
+CD * F1     MITSUBISHI          MITSUBISHI F-1           FGTN__  MHF1 /
+CD - F100   FOKKER              FOKKER 100               F100__  FK10 /
+CD * F104   LOCKHEED            F104                     FGTN__  F104 /
+CD * F117   LOCKHEED            F-117 Nighthawk          FGTN__  F117 /
+CD * F14    GRUMMAN             TOMCAT                   FGTN__  F14  /
+CD * F15    MCDONNELL-DOUGLAS   F15 EAGLE                FGTN__  F15  /
+CD * F16    GENERAL DYNAMICS    F16 FIGHTING FALCON      FGTN__  F16  /
+CD * F18    MCDONNELL-DOUGLAS   F18 HORNET               FGTN__  F18  /
+CD - F27    FOKKER              FRIENDSHIP               F27___  FK27 /
+CD - F28    FOKKER              FOLLOWSHIP               F28___  FK28 /
+CD * F2TH   DASSAULT            FALCON 2000              F900__  F2TH /
+CD * F4     MCDONNELL-DOUGLAS   F4 PHANTOM               FGTN__  F4   /
+CD * F5                         NORTHROP F-5             FGTN__  F5   /
+CD - F50    FOKKER              FOKKER 50                F50___  FK50 /
+CD - F70    FOKKER              FOKKER 70                F70___  FK70 /
+CD - F900   DASSAULT-BREGUET    FALCON 900               F900__  DA90 /
+CD - FA10   DASSAULT-BREGUET    FALCON 10                FA10__  DA10 /
+CD - FA20   DASSAULT-BREGUET    FALCON 20                FA20__  DA20 /
+CD - FA50   DASSAULT-BREGUET    FALCON 10                FA50__  DA50 /
+CD - FGTH   GENERIC             MIL FIGHTER HEAVY        FGTH__  FGTH /
+CD - FGTL   GENERIC             MIL FIGHTER LIGHT        FGTL__  FGTL /
+CD - FGTN   GENERIC             MIL FIGHTER NORMAL       FGTN__  FGTR /
+CD * G222   FIAT                AERITALIA C27 SPARTAN    ATP___  G222 /
+CD * GALX   IAI                 1126 Galaxy              LJ45__  GALX /
+CD * GLAS   STODDARD-HAMILTON   GLASAIR                  P28A__  GL20 /
+CD * GLEX   BOMBARDIER          BD-700 Global Express    B744__  GLEX /
+CD * GLF2   GULFSTREAM          GULFSTREAM II            LJ45__  G2   /
+CD * GLF3   GULFSTREAM          GULFSTREAM III           LJ45__  GULF /
+CD * GLF4   GULFSTREAM          GULFSTREAM IV            LJ45__  G4   /
+CD * GLF5   GULFSTREAM          GULFSTREAM V C37         LJ45__  GLF5 /
+CD * H25A   BAE                 BAE 125-400/600          H25B__  H25A /
+CD - H25B   BAE                 BAE 125-700/800          H25B__  HS25 /
+CD * H25C   BAE                 BAE 125-1000             H25B__  BA10 /
+CD * HAR    BAE                 HARRIER                  FGTN__  SHAR /
+CD * HAWK   BAE                 FIGHTER                  FGTN__  HAWK /
+CD * HELI   GENERIC             HELICOPTER               P28A__  HELI /
+CD * IL18   ILYUSHIN            IL-18                    C130__  IL18 /
+CD * IL62   ILYUSHIN            IL-62 /-62M / MK         B703__  IL62 /
+CD * IL76   ILYUSHIN            IL-76                    A30B__  IL76 /
+CD * IL86   ILYUSHIN            IL-86                    DC87__  IL86 /
+CD * IL96   ILYUSHIN            IL-96  BETTER -86        DC87__  IL96 /
+CD * J328   Fairchild Dornier   328 Jet Envoy 3          F28___  J328 /
+CD * J728   FAIRCHILD DORNIER   D728 JET                 B738__  J728 /
+CD * JAGR   SEPECAT             JAGUAR                   FGTN__  JAG1 /
+CD * JS1    BAE                 JETSTREAM                JS31__  JS1  /
+CD * JS20   BAE                 JETSTREAM                JS31__  JS20 /
+CD * JS3    BAE                 JETSTREAM                JS31__  JS3  /
+CD - JS31   BAE                 JETSTREAM 31             JS31__  BA31 /
+CD * JS32   BAE                 JETSTREAM 31             JS31__  JS32 /
+CD - JS41   BAE                 JETSTREAM 41             JS41__  JSTB /
+CD * K35A   BOEING              STRATOTANKER KC-135A     B703__  K35A /
+CD * K35E   BOEING              STRATOTANKER KC-135D/E   B703__  K35E /
+CD * K35R   BOEING              STRATOTANKER K35R CFM56  B703__  C135 /
+CD - L101   LOCKHEED            TRISTAR L-1011           L101__  L101 /
+CD * L159                       AERO (2) L-159           FGTN__  L159 /
+CD * L188   LOCKHEED            ELECTRA/ORION            C130__  L188 /
+CD * L29A   LOCKHEED            JETSTAR                  CL60__  L329 /
+CD * L29B   LOCKHEED            L-1329 JETSTAR           CL60__  L295 /
+CD * L410   LET                 LET 410                  D228__  O410 /
+CD * LJ24   BOMBARDIER          LEARJET 24               FA10__  LR24 /
+CD * LJ25   BOMBARDIER          LEAR JET 25              LJ35__  LR25 /
+CD * LJ31   BOMBARDIER          LEARJET 31               LJ35__  LR31 /
+CD - LJ35   BOMBARDIER          LEARJET 35               LJ35__  LR35 /
+CD - LJ45   LEARJET             LJ45                     LJ45__  LJ45 /
+CD * LJ55   BOMBARDIER          LEARJET 55               LJ35__  LR55 /
+CD * LJ60   BOMBARDIER          LEAR JET 60              LJ45__  LR60 /
+CD * M20P   MOONEY              MARK 20                  TRIN__  MO20 /
+CD * M20T   MOONEY              MARK 20                  TRIN__  MO2K /
+CD - MD11   MCDONNELL-DOUGLAS   MD-11                    MD11__  MD11 /
+CD * MD81   MCDONNELL-DOUGLAS   MD-81                    MD83__  MD81 /
+CD - MD82   MCDONNELL-DOUGLAS   MD-82                    MD82__  MD82 /
+CD - MD83   MCDONNELL-DOUGLAS   MD-83                    MD83__  MD80 /
+CD * MD87   MCDONNELL-DOUGLAS   MD-87                    MD83__  MD87 /
+CD * MD88   MCDONNELL-DOUGLAS   MD-88                    MD83__  MD88 /
+CD * MD90   MCDONNELL-DOUGLAS   MD-90                    MD83__  MD90 /
+CD * MG21   MIKOYAN             MIG-21                   FGTN__  MG21 /
+CD * MG23   MIKOYAN             MIG-23                   FGTN__  MG23 /
+CD * MG25   MIKOYAN             MIG-25                   FGTN__  MG25 /
+CD * MG29   MIKOYAN             MIG-29                   FGTN__  MG29 /
+CD * MIR2   DASSAULT-BREGUET    MIRAGE 2000              FGTN__  MIR2 /
+CD * MIR4   DASSAULT-BREGUET    MIRAGE IV                FGTN__  MIR4 /
+CD * MRF1   DASSAULT-BREGUET    MIRAGE F1                FGTN__  F1   /
+CD - MU2    MITSUBISHI          MARQUISE/SOLITAIRE       MU2___  MU2  /
+CD * MU30   MITSUBISHI          MU-300                   C550__  MU30 /
+CD * N262   AEROSPATIALE        NORD 262                 JS41__  N262 /
+CD * NIM    HAWKER SIDDELEY     NIMROD                   B703__  NIM  /
+CD * P180   Piaggio             P180 Avanti              F70___  P180 /
+CD - P28A   PIPER               PA-28-140 ARCHER         P28A__  PA28 /
+CD * P28B   PIPER               PA-28-201T235/236        P28A__  P28B /
+CD * P28R   PIPER               PA-28R-180/200/201       TRIN__  PARO /
+CD * P28T   PIPER               PA-28RT ARROW 4          TRIN__  E711 /
+CD * P3     LOCKHEED            ORION                    C130__  P3C  /
+CD * P32R   PIPER               PA-32R Cherokee          PA34__  PA32 /
+CD * P68    PARTENAVIA          P-68,Victor,Observer     PA31__  PN68 /
+CD * PA18   PIPER               PA-18 SUPER CLUB         P28A__  U7   /
+CD * PA23   PIPER               APACHE PA23-150/160      PA27__  PA23 /
+CD - PA27   PIPER               AZTEC PA23-235/250       PA27__  PAZT /
+CD - PA31   PIPER               CHIEFTAIN                PA31__  E820 /
+CD * PA32   PIPER               PA-32 CHEROKEE SIX       PA34__  PA32 /
+CD - PA34   PIPER               PA34-200T SENECA-III     PA34__  PASE /
+CD * PA44   PIPER               PA-44 SEMINOLE           PA27__  PA44 /
+CD * PAY1   PIPER               PA-A-31T1-500 CHEYENNE I PA31__  PAY1 /
+CD - PAY2   PIPER               CHEYENNE II              PAY2__  P31T /
+CD - PAY3   PIPER               PAY3                     PAY3__  PA42 /
+CD * PAY4   PIPER               PAY4                     PAY3__  PAY4 /
+CD * PC12   PILATUS             PC-12                    PAY3__  PC12 /
+CD * R135   BOEING              RC-135                   B703__  R135 /
+CD * RJ1H   AVROLINER           AI(R) RJ-100             F28___  RJ1H /
+CD * RJ70   AVROLINER           AI(R) RJ-70              B462__  RJ70 /
+CD - RJ85                       RJ85 Avroliner           RJ85__  RJ85 /
+CD * S601   AEROSPATIAL         SB 601 CORVETTE          C550__  S601 /
+CD * S76    SIKORSKY            S-76                     P28A__  SK76 /
+CD * SB05   SAAB                SAAB 105                 C550__  SB05 /
+CD - SB20   SAAB                SAAB 2000                SB20__  SB20 /
+CD * SB32   SAAB                LANSEN                   FGTN__  SB32 /
+CD * SB35   SAAB                DRAKEN                   FGTN__  SB35 /
+CD * SB37   SAAB                VIGGEN                   FGTN__  SB37 /
+CD * SB39   SAAB                GRIPEN                   FGTN__  SB39 /
+CD * SBR1   ROCKWELL            SABRELINER               FA20__  N265 /
+CD - SF34   SAAB-SCANIA         SF 340                   SF34__  SF34 /
+CD * SH33   SHORTS              SH3-330                  SH36__  SH33 /
+CD - SH36   SHORTS              SH3-360                  SH36__  SH36 /
+CD * SW2    FAIRCHILD           MERLIN IIA/B IIIB/C IVA  SW3___  SW2  /
+CD - SW3    FAIRCHILD           MERLIN IVC, METRO III    SW3___  SW3  /
+CD * SW4    FAIRCHILD           MERLIN IIA/              SW3___  SW4  /
+CD - T134   TUPOLEV             TU134,134A/B             T134__  TU34 /
+CD - T154   TUPOLEV             TU154,154A/B/B2/C/M      T154__  TU54 /
+CD * T204   TUPOLEV             TU 204 204-200 204-220   B752__  TUP4 /
+CD * TBM7   TBM                 TBM-700                  PAY3__  TBM7 /
+CD * TOBA   AEROSPATIALE        TOBAGO TB-10             P28A__  TB10 /
+CD * TOR    PANAVIA             TORNADO                  FGTN__  MRC  /
+CD - TRIN   AEROSPATIALE        TRINIDAD TB-20           TRIN__  TB20 /
+CD * VC10   BAE                 VC10-1100                B703__  VC10 /
+CD * WW24   IAI                 IAI 1124 WESTWIND        H25B__  WW24 /
+CD * YK40   YAKOLEV             YAK-40                   DH8C__  YK40 /
+CD * YK42   YAKOLEV             YAK-42                   B462__  YK42 /
+CC ===================================================================/
+FI                                                                    /
