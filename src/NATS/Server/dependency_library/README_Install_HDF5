@@ -1,0 +1,40 @@
+Installation of HDF5 Library
+============================
+If the HDF5 library files in NATS distribution does not work on your machine, you have to build it by yourselves.
+The following installation commands are to build HDF5 from the source.
+It is tested by Optimal Synthesis on Ubuntu Linux 12.04
+
+
+Please unzip the HDF5 tar ball and read the installation document for detail instruction. 
+The following steps are only for your reference.  Your actual installation may vary due to different Linux configuration.
+
+
+# Build HDF5 from the source
+cd hdf5-1.8.11
+mkdir build
+
+# It is recommended to set two environment variables.  "-O1" can be changed to "-O3"(Some HDF5 versions only accept "-O1").
+export CFLAGS="-g -O1 -fPIC"
+export CXXFLAGS="-g -O1 -fPIC"
+
+./configure --prefix=/path/hdf5-1.8.11/build --enable-production --enable-debug=all --enable-cxx --enable-threadsafe --enable-unsupported --with-pthread=/usr/include,/usr/lib
+
+# Compile the source code
+# During the process, you may experience other dependency library requirements.  Please resolve them all so the compilation works well.
+make
+
+make test
+
+make install
+
+# Till here, we successfully have compiled HDF5 so files located in /path/hdf5-1.8.11/build/lib
+Please copy
+	libhdf5.so.8.0.0
+	libhdf5_cpp.so.8.0.0
+	libhdf5_hl.so.8.0.0
+	libhdf5_hl_cpp.so.8.0.0
+	to NATS_Server/dist/
+
+# In directory of NATS_Server/dist, please create a link
+cd NATS_Server/dist
+ln -s libhdf5.so.8.0.0 libhdf5.so.8
