@@ -6,15 +6,15 @@ dir=${PWD}
 sudo apt-get install default-jdk
 sudo apt-get install wget
 [ -a ./Anaconda3-2.4.0-Linux-x86_64.sh ] || wget https://repo.continuum.io/archive/Anaconda3-2.4.0-Linux-x86_64.sh
-chmod +x dependencies.sh
-./dependencies.sh
+sudo chmod +x dependencies.sh
+sudo ./dependencies.sh
 echo "finished PARA-ATM installation, starting NATS installation"
 
 #NATS server dependencies
 cd src/NATS/Server
 [ -d ./lib ] || mkdir lib
 cd dependency_library
-chmod +x *.sh
+sudo chmod +x *.sh
 choice="y"
 if [ -d ./jasper-1.900.1 ]
 then
@@ -53,13 +53,22 @@ echo "done installing NATS Server, starting database setup"
 #configure run file
 cd ../
 chmod +x run
+chmod +x utility/run_nodejs.sh
+chmod +x utility/node-v8.11.1-linux-x64/bin/node
 cd ../../../
 
 #NATS client dependencies
 which conda || export PATH="/home/${USER}/anaconda3/bin:$PATH"
 conda install -c conda-forge jpype1
+conda install pyqt=4
+
+export LANGUAGE=C
+export LC_ALL=C
+export LANG=C
+export LC_TYPE=C
 
 #set up database
+sudo service postgresql restart
 sudo -u postgres createuser paraatm_user
 sudo -u postgres createdb paraatm
 sudo -u postgres psql <<EOF
@@ -75,8 +84,9 @@ cp "$dir"/data/PARA_ATM_Database_Public.backup /tmp/PARA_ATM_Database_Public.bac
 sudo -u postgres pg_restore -d paraatm -1 /tmp/PARA_ATM_Database_Public.backup
 rm /tmp/PARA_ATM_Database_Public.backup
 
-sed -e "s:/NASA_ULI_InfoFusion/src/:$dir/src/:" "$dir"/src/PARA_ATM/Application/LaunchApp.py > tmp.txt
+sed -e "s:'.*/NASA_ULI_InfoFusion/src/':'$dir/src/':" "$dir"/src/PARA_ATM/Application/LaunchApp.py > tmp.txt
 mv tmp.txt "$dir"/src/PARA_ATM/Application/LaunchApp.py
+
 
 echo "Done installing PARA-ATM/NATS. Verify by running 'src/PARA_ATM/Application/LaunchApp.py'"
 echo "If it didn't work, try the steps in the readme or email michael.hartnett@swri.org"

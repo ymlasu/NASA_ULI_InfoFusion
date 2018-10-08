@@ -1,5 +1,7 @@
 National Airspace Trajectory-Prediction System(NATS)
 
+Version beta 1.0
+
 Client Program Module
 
 This program module allows the users to access the NATS functions implemented on the server through the Java Remote Method Invocation (RMI) technology. Users can create customized programs by calling server-side RMI functions to load flight plan, weather, Center/Sector definition databases, propagate aircraft trajectories in the National Airspace Ssystem (NAS,output trajectory data and create plots for visualization and analysis.  Please refer to dist/javadoc_client/com/osi/nats/api/package-frame.html for additional information on available functions (API).
@@ -10,7 +12,7 @@ Contents of the zip file NATS-Client.zip
 <data>               Dir    Runtime data directory
 <dist>               Dir    NATS binary files
 README
-run_Sample_Java             Script to run sample Java program
+README_Examples.txt
 
 
 Hardware Requirements
@@ -52,23 +54,16 @@ Running sample programs
 ===========================
 NATS interface functions are written in Java and provided through the server-client mechanism to the user for their software development.  Python and MATLAB interfaces are provided for interactive or batch computations by non-Java users.  Certain bridge plugins/wrapers are required to enable this functionality.
 ===========================
-1. Usage in Java
-   1.1 Modify the script runSample_Java
-       Edit NATS_CLIENT_HOME with correct path on your machine.
-       Edit correct JDK/JRE path on your machine.(Please use Java 1.7 and later.)
-   1.2 Execute ./runSample_Java
-       (It is suggested to call run script from the current directory path.)
-
-2. Usage with Python Jpype
+1. Usage with Python Jpype
    (Please install Jpype plugin ready first.)
    2.1 Set environment variable JAVA_HOME
-   2.2 Edit Sample_Python_Jpype.py and specify the correct path of nats-client.jar and nats-shared.jar
+   2.2 Edit basic_python_example_beta1.0.py and specify the correct path of nats-client.jar and nats-shared.jar
    2.3 Execute
-           python Sample_Python_Jpype.py
+           python basic_python_example_beta1.0.py
 
 Note: If you are running in a Python IDE, please make sure that you set JAVA_HOME and set the working directory to NATS_Client in the runtime configuration.
 
-3. Usage with MATLAB
+2. Usage with MATLAB
    3.1 Edit Sample_Matlab.m and specify the correct path of nats-client.jar and nats-shared.jar
    3.2 Run Sample_Matlab.m.
 
