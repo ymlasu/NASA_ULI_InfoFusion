@@ -1,0 +1,78 @@
+<!--
+
+    This software was developed for use in the SWIM Terminal Data Distribution System (STDDS)
+    for DOT/RITA/Volpe and is For Official Use Only.
+
+-->
+
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:common="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+    xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:tdes:towerdepartureeventreconstatusmessage"
+    targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:tdes:towerdepartureeventreconstatusmessage"
+    elementFormDefault="unqualified"
+    attributeFormDefault="unqualified">
+
+    <xs:import
+        namespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+        schemaLocation="../commontypes/CommonTypes.xsd" />
+        
+    <xs:element
+        name="ReconstitutionRequestStatusMessage">
+        <xs:annotation>
+            <xs:documentation>
+                ReconstitutionRequestStatusMessage is published by TDDS to signify the failure or acceptance of recon.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element 
+                    name="airportID"
+                    type="common:AirportIdentifier"/> 
+                <xs:element
+                    name="reasonForFailure"
+                    type="tns:ReconstitutionRequestFailureReason"
+                    minOccurs="0"
+                    maxOccurs="1"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:simpleType
+        name="ReconstitutionStatus">
+        <xs:restriction
+            base="xs:string"> 
+            <xs:enumeration value="RF">
+                <xs:annotation>
+                    <xs:documentation>
+                        Signifies a recon request failure.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="RA">
+                <xs:annotation>
+                    <xs:documentation>
+                        Signifies acceptance of a recon request.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType
+        name="ReconstitutionRequestFailureReason">
+        <xs:restriction
+            base="xs:string">
+            <xs:enumeration
+                value="CR">
+                <xs:annotation>
+                    <xs:documentation>
+                        Signifies failure of recon request due to 
+                        the client already receiving recon.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration> 
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

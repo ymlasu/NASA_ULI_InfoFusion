@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.faa.aero/nas/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:nas="http://www.faa.aero/nas/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 US Federal Aviation Administration (FAA) 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions and the disclaimer in the documentation and/or other materials 
+         provided with the distribution. 
+         * The name of US FAA or the names of its contributors may not be used to endorse 
+         or promote products derived from this specification without specific prior written 
+         permission. 
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+         IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+         INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+         TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+         BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+         CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+         ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
+         DAMAGE. 
+          
+         ========================================== 
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on the US FAA: http://www.faa.gov/ 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../core/base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/flight/3.0" schemaLocation="./../../core/flight/FlightObject.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../core/foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         Contains the definitions for NAS specific trajectory options that support the CTOP 
+         program. 
+      </documentation>
+   </annotation>
+
+   <complexType name="ConstrainedAirspaceEntryType">
+      <annotation>
+         <documentation>
+            Container for NAS Trajectory Option Constraints. 
+         </documentation>
+      </annotation>
+      <attribute name="earliestAirspaceEntryTime" type="ff:TimeType" use="optional" > 
+         <annotation>
+            <documentation>
+               .Airspace Entry Time - Earliest: The earliest time the flight could enter the constrained 
+               airspace. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="impactFca" type="fb:ConstrainedAirspaceType" use="optional" > 
+         <annotation>
+            <documentation>
+               Contains: 
+               .Airspace Identifier: Unique Identifier for the constrained airspace to be traversed 
+               by the trajectory option. 
+               .Trajectory Airspace Impact: Container for the list of constrained airspace areas 
+               to be traversed by the trajectory option. 
+            </documentation>
+         </annotation>
+      </attribute>
+   </complexType>
+   <element name="ConstrainedAirspaceEntry" type="nas:ConstrainedAirspaceEntryType" /> 
+
+   <simpleType name="ManualOverrideIndicatorType">
+      <annotation>
+         <documentation>
+            .Trajectory Manual Override Status: An indication whether a trajectory was either 
+            selected manually by a traffic manager from the available trajectory options or was 
+            entered manually by a traffic manager. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="MANUAL_OVERRRIDE"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="NasTrajectoryOptionType">
+      <annotation>
+         <documentation>
+            .Traffic Flow Management Collaborative Trajectory Options Program Information: A 
+            container for a Traffic Flow Management Collaborative Trajectory Options Program 
+            pertinent information for a flight. 
+            .Trajectory Option Set: A container for information pertinent to a single trajectory 
+            option for a flight. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:RankedTrajectoryType">
+            <sequence>
+               <element name="constrainedAirspaceEntry" type="nas:ConstrainedAirspaceEntryType" minOccurs="0" maxOccurs="unbounded" > 
+                  <annotation>
+                     <documentation>
+                        Container for NAS Trajectory Option Constraints. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="ctopIdentifier" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Collaborative Trajectory Options Program Name: The name for the Collaborative Trajectory 
+                     Options Program as defined by the traffic manager. 
+                     .Collaborative Trajectory Options Program Identifier: The Traffic Flow Management 
+                     System generated unique identifier for the Collaborative Trajectory Options Program. 
+                     
+                  </documentation>
+               </annotation>
+               <simpleType>
+                  <restriction base="fb:FreeTextType">
+                     <pattern value="CTP\d{3}"/>
+                  </restriction>
+               </simpleType>
+            </attribute>
+            <attribute name="ctopName" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Collaborative Trajectory Options Program Name: The name for the Collaborative Trajectory 
+                     Options Program as defined by the traffic manager. 
+                     .Collaborative Trajectory Options Program Identifier: The Traffic Flow Management 
+                     System generated unique identifier for the Collaborative Trajectory Options Program. 
+                     
+                  </documentation>
+               </annotation>
+               <simpleType>
+                  <restriction base="fb:FreeTextType">
+                     <maxLength value="30"/>
+                     <minLength value="1"/>
+                  </restriction>
+               </simpleType>
+            </attribute>
+            <attribute name="manualOverride" type="nas:ManualOverrideIndicatorType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Trajectory Manual Override Status: An indication whether a trajectory was either 
+                     selected manually by a traffic manager from the available trajectory options or was 
+                     entered manually by a traffic manager. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="minimumNotificationMinutes" type="fb:CountType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Trajectory Minimum Notification Time: The minimum notification time, relative to 
+                     off block departure time, the airspace user needs for a trajectory option to be assigned. 
+                     
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="relativeCost" type="fb:CountType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Trajectory Relative Cost: The relative cost of the trajectory option as compared 
+                     to another trajectory option. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="totalCost" type="fb:CountType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Trajectory Total Cost: The total cost the flight would incur if this were the assigned 
+                     trajectory option. It includes the Trajectory Relative Cost and the Traffic Flow 
+                     Management assigned delay for this trajectory option. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="validEndTime" type="ff:TimeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Trajectory Valid End Time: The latest runway departure time for which this trajectory 
+                     can be used by this flight. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="validStartTime" type="ff:TimeType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Trajectory Valid Start Time: The earliest runway departure time for which this trajectory 
+                     can be used by this flight. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="NasTrajectoryOption" type="nas:NasTrajectoryOptionType" substitutionGroup="fx:RankedTrajectory" /> 
+</schema>

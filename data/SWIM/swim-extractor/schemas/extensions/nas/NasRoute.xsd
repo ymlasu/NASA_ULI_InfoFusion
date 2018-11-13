@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   attributeFormDefault="unqualified"
+   elementFormDefault="unqualified"
+   targetNamespace="http://www.faa.aero/nas/3.0"
+   version="3.00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:fb="http://www.fixm.aero/base/3.0"
+   xmlns:ff="http://www.fixm.aero/foundation/3.0"
+   xmlns:fx="http://www.fixm.aero/flight/3.0"
+   xmlns:nas="http://www.faa.aero/nas/3.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   
+   <annotation>
+      <documentation>
+         Copyright (c) 2014 US Federal Aviation Administration (FAA) 
+         =========================================== 
+         All rights reserved. 
+          
+         Redistribution and use in source and binary forms, with or without modification, 
+         are permitted provided that the following conditions are met: 
+         * Redistributions of source code must retain the above copyright notice, this list 
+         of conditions and the disclaimer. 
+         * Redistributions in binary form must reproduce the above copyright notice, this 
+         list of conditions and the disclaimer in the documentation and/or other materials 
+         provided with the distribution. 
+         * The name of US FAA or the names of its contributors may not be used to endorse 
+         or promote products derived from this specification without specific prior written 
+         permission. 
+          
+         DISCLAIMER 
+          
+         THIS SPECIFICATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+         WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+         IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+         INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+         TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+         BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+         CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+         ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
+         DAMAGE. 
+          
+         ========================================== 
+         Editorial note: this license is an instance of the BSD license template as provided 
+         by the Open Source Initiative: 
+         http://www.opensource.org/licenses/bsd-license.php 
+          
+         The authoritative reference for FIXM is www.FIXM.aero. 
+          
+         Details on the US FAA: http://www.faa.gov/ 
+      </documentation>
+   </annotation>
+   <import namespace="http://www.fixm.aero/base/3.0" schemaLocation="./../../core/base/Base.xsd"/>
+   <import namespace="http://www.fixm.aero/flight/3.0" schemaLocation="./../../core/flight/FlightObject.xsd"/>
+   <import namespace="http://www.fixm.aero/foundation/3.0" schemaLocation="./../../core/foundation/Foundation.xsd"/>
+   <annotation>
+      <documentation>
+         Contains the NAS specific flightroute definition that extends the Core FIXM  flight 
+         route concepts. 
+      </documentation>
+   </annotation>
+
+   <complexType name="NasAdaptedArrivalRouteType">
+      <annotation>
+         <documentation>
+            Adapted Route Extension for Adapted Arrival Route 
+            .Fixed Airspace Volume Number Containing First Adapted Arrival Route Fix: Contains 
+            the uncombined Fixed Airspace Volume (FAV) number containing the first Adapted Arrival 
+            Route (AAR) fix. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="nas:NasAdaptedRouteType">
+            <sequence>
+               <element name="nasFavNumber" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Fixed Airspace Volume Number Containing First Adapted Arrival Route Fix: Contains 
+                        the uncombined Fixed Airspace Volume (FAV) number containing the first Adapted Arrival 
+                        Route (AAR) fix. 
+                     </documentation>
+                  </annotation>
+                  <simpleType>
+                     <list itemType="fb:FreeTextType"/>
+                  </simpleType>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="NasAdaptedArrivalRoute" type="nas:NasAdaptedArrivalRouteType" substitutionGroup="nas:NasAdaptedRoute" /> 
+
+   <complexType name="NasAdaptedRouteType">
+      <annotation>
+         <documentation>
+            Representation of converted route 
+         
+            .Adapted Departure Route Identifier: The identifier used to internally identify the 
+            Adapted Departure Route (ADR). 
+         </documentation>
+      </annotation>
+      <attribute name="nasRouteAlphanumeric" type="fb:FreeTextType" use="optional" > 
+         <annotation>
+            <documentation>
+               Route (AAR) to be provided to the controller at the time the auto-route is applied. 
+               
+               .Adapted Departure Arrival Route Clearance Support Alphanumerics: This field contains 
+               the route string with an Adapted Departure Arrival Route (ADAR) to be provided to 
+               the controller at the time the auto-route is applied. 
+               .Adapted Arrival Route Clearance Support Alphanumerics: This field contains the route 
+               string with an Adapted Arrival Route (AAR) to be provided to the controller at the 
+               time the auto-route is applied. 
+               .Adapted Departure Route Clearance Support Alphanumerics: This field contains the 
+               route string with an Adapted Departure Route (ADR) to be provided to the controller 
+               at the time the auto-route is applied. 
+            </documentation>
+         </annotation>
+      </attribute>
+      <attribute name="nasRouteIdentifier" use="optional" > 
+         <annotation>
+            <documentation>
+               .Adapted Departure Arrival Route Identifier: The five character identifier is used 
+               to internally identify an Adapted Departure Arrival Route (ADAR). 
+               .Adapted Departure Route Identifier: The identifier used to internally identify the 
+               Adapted Departure Route (ADR). 
+               .Adapted Arrival Route Identifier: The five character identifier used to internally 
+               identify an adapted arrival route. 
+            </documentation>
+         </annotation>
+         <simpleType>
+            <restriction base="fb:FreeTextType">
+               <pattern value="[A-Z0-9/\-\?\(\)\.,=\+ ]{5}"/>
+            </restriction>
+         </simpleType>
+      </attribute>
+   </complexType>
+   <element name="NasAdaptedRoute" type="nas:NasAdaptedRouteType" /> 
+
+   <complexType name="NasExpandedRouteType">
+      <annotation>
+         <documentation>
+            Extends Expanded Route with a Route Impact List 
+             
+            .Route Impact List: Current traffic flow management prediction of en route Air Traffic 
+            Control units (centres), sectors and airspace elements along the trajectory of a 
+            flight. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:ExpandedRouteType">
+            <sequence>
+               <element name="routeImpactList" type="nas:RouteImpactListType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Route Impact List: Current traffic flow management prediction of en route Air Traffic 
+                        Control units (centres), sectors and airspace elements along the trajectory of a 
+                        flight. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="NasExpandedRoute" type="nas:NasExpandedRouteType" substitutionGroup="fx:ExpandedRoute" /> 
+
+   <simpleType name="NasFlightRulesType">
+      <annotation>
+         <documentation>
+            .Flight Rules - NAS: The regulation, or combination of regulations, that governs 
+            all aspects of operations under which the pilot plans to fly in the NAS. 
+         </documentation>
+      </annotation>
+      <restriction base="xs:string">
+         <enumeration value="IFR">
+            <annotation>
+               <documentation>
+                  Instrument Flight Rules 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="VFR">
+            <annotation>
+               <documentation>
+                  Visual Flight Rules 
+               </documentation>
+            </annotation>
+         </enumeration>
+         <enumeration value="DVFR">
+            <annotation>
+               <documentation>
+                  Defense Visual Flight Rules 
+               </documentation>
+            </annotation>
+         </enumeration>
+      </restriction>
+   </simpleType>
+
+   <complexType name="NasRouteType">
+      <annotation>
+         <documentation>
+            Extends the core route type to replace ICAO fields with equivalent NAS-specific elements. 
+            
+         
+            .NAS Route: This element is the filed route. It only includes acknowledged auto routes. 
+            Once the flight is active, this element shows the currently cleared route the airplane 
+            will fly from the departure airport to the arrival airport. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:RouteType">
+            <sequence>
+               <element name="adaptedArrivalDepartureRoute" type="nas:NasAdaptedRouteType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Container for Adapted Arrival Departure Route information. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="adaptedDepartureRoute" type="nas:NasAdaptedRouteType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Container for Adapted Departure Route information. 
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="holdFix" type="fb:SignificantPointType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        .Hold Data Fix: The location for the flight to Hold along the filed route of flight. 
+                        
+                     </documentation>
+                  </annotation>
+               </element>
+               <element name="nasadaptedArrivalRoute" type="nas:NasAdaptedArrivalRouteType" minOccurs="0" maxOccurs="1" > 
+                  <annotation>
+                     <documentation>
+                        Container for Adapted Arrival Route information. 
+                     </documentation>
+                  </annotation>
+               </element>
+            </sequence>
+            <attribute name="atcIntendedRoute" type="fb:FreeTextType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .ATC Intended Route: The current cleared flight plan route with any unacknowledged 
+                     auto routes (preferential routes, transition fixes and A-line fixes) already applied. 
+                     
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="localIntendedRoute" type="fb:FreeTextType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Local Intended Route: The flight plan route that is coordinated to penetrated facilities. 
+                     It consists of the filed route (CMS field 10a) merged with any expected-to-be-applied-by-the-controlling-center 
+                     Adapted Departure Routes (ADRs), Adapted Departure Arrival Routes (ADARs) or Adapted 
+                     Arrival Routes (AARs) applied. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="nasRouteText" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Flight Plan Route: This element is the filed route. It only includes acknowledged 
+                     auto routes. Once the flight is active, this element shows the currently cleared 
+                     route the airplane will fly from the departure airport to the arrival airport. 
+                  </documentation>
+               </annotation>
+               <simpleType>
+                  <restriction base="fb:FreeTextType">
+                     <pattern value="[A-Z0-9/\.\+\*&amp;lt;&amp;gt;]+"/>
+                  </restriction>
+               </simpleType>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="NasRoute" type="nas:NasRouteType" substitutionGroup="fb:Feature" /> 
+
+   <complexType name="NasRoutePointType">
+      <annotation>
+         <documentation>
+            Contains NAS Route Point with additional NAS Flight Rules. 
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:AbstractRoutePointType">
+            <attribute name="nasFlightRules" type="nas:NasFlightRulesType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .Flight Rules - NAS: The regulation, or combination of regulations, that governs 
+                     all aspects of operations under which the pilot plans to fly in the NAS. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="NasRoutePoint" type="nas:NasRoutePointType" substitutionGroup="fx:AbstractRoutePoint" /> 
+
+   <complexType name="NasRouteSegmentType">
+      <annotation>
+         <documentation>
+            Extends the core ICAO flight segment information to add NAS extensions: 
+                   1. planned delay at fix,
+                   2. number of planned re-entries into the segment, 
+                   3. number of special re-entries into the segment.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="fx:RouteSegmentType">
+            <attribute name="reEntryCount" type="fb:CountType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     .NAS Route - Reentry for Military Route: An indication that a portion of a Military 
+                     Route is to be flown more than once.  The element includes an indication of which 
+                     adapted portion of the route as well as the number of times the fixes are to be flown. 
+                     It is filed in a NAS Route string and associated with a Military Route. There can 
+                     be up to two of these per Military Route in the NAS route string. 
+                  </documentation>
+               </annotation>
+            </attribute>
+            <attribute name="reEntrySpecial" type="fb:CountType" use="optional" > 
+               <annotation>
+                  <documentation>
+                     Count of the reentry Special route. 
+                  </documentation>
+               </annotation>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+   <element name="NasRouteSegment" type="nas:NasRouteSegmentType" substitutionGroup="fx:RouteSegment" /> 
+
+   <complexType name="RouteImpactListType">
+      <annotation>
+         <documentation>
+            .Route Impact List: Current traffic flow management prediction of en route Air Traffic 
+            Control units (centres), sectors and airspace elements along the trajectory of a 
+            flight. 
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="predictedAirway" minOccurs="0" maxOccurs="1" > 
+            <annotation>
+               <documentation>
+                  .Predicted Airways: Current prediction of the airways along the trajectory of a flight. 
+                  
+               </documentation>
+            </annotation>
+            <simpleType>
+               <list itemType="ff:AtsRouteType"/>
+            </simpleType>
+         </element>
+         <element name="predictedFix" type="fb:SignificantPointType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  .Predicted Fixes: Current prediction of fixes along the trajectory of a flight, where 
+                  these predictions are based on all the information available to the Traffic Flow 
+                  Management System (TFMS). 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="predictedSector" type="ff:UnitSectorAirspaceType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  .Predicted Sectors: Current prediction of the sectors along the trajectory of a flight. 
+                  
+               </documentation>
+            </annotation>
+         </element>
+         <element name="predictedUnit" type="ff:UnitSectorAirspaceType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  .Predicted Units: Current prediction of the en route Air Traffic Control units (centres) 
+                  along the trajectory of a flight. 
+               </documentation>
+            </annotation>
+         </element>
+         <element name="predictedWaypoint" type="fb:SignificantPointType" minOccurs="0" maxOccurs="unbounded" > 
+            <annotation>
+               <documentation>
+                  .Predicted Waypoints: Current prediction of the waypoints of the trajectory for a 
+                  flight, where these predictions are based on all the information available to the 
+                  Traffic Flow Management System (TFMS). 
+               </documentation>
+            </annotation>
+         </element>
+      </sequence>
+   </complexType>
+   <element name="RouteImpactList" type="nas:RouteImpactListType" /> 
+</schema>

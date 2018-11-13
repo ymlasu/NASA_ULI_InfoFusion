@@ -1,0 +1,100 @@
+<!-- This software was developed for use in the SWIM Terminal Data Distribution 
+    System (STDDS) for DOT/RITA/Volpe and is For Official Use Only. -->
+    
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:common="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+	xmlns:smestypes="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:smestypes"
+	targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	elementFormDefault="qualified">
+
+	<xsd:import namespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+		schemaLocation="../commontypes/CommonTypes.xsd" />
+
+	<xsd:import namespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:smestypes"
+		schemaLocation="SMESTypes.xsd" />
+
+	<xsd:element name="SurfaceMovementEventMessage">
+		<xsd:complexType>
+			<xsd:sequence>							
+				<xsd:element name="callsign" type="common:AircraftIdentifier" minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Flight Callsign or UNK if not available
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="track" type="xsd:short" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Fused Track Number
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>	
+				<xsd:element name="stid" type="xsd:long" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							STDDS Track Id
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>						
+				<xsd:element name="mode3ACode" type="common:BeaconCode" minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Mode 3A code received from ASDE-X
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="acAddress" type="xsd:hexBinary" minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Mode S Code received from ASDE-X
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>							
+				<xsd:element name="time" type="xsd:dateTime" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Time of the event
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>								
+				<xsd:element name="event" type="smestypes:surfaceEventType" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Type of event
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="position" type="smestypes:positionType" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							2D Position of the target
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>								
+				<xsd:element name="altitude" type="smestypes:altitudeType" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Altitude in feet
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>																
+				<xsd:element name="status" type="smestypes:flightStatusType"  minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Surface status of the flight
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="events" type="smestypes:surfaceEventListType"  minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							List of past events
+                        </xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>							
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

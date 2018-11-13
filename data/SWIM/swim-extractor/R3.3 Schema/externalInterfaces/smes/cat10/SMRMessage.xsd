@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+	targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:asdex="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:asdextypes"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	
+	<xs:include schemaLocation="../ASDEXTypes.xsd" />
+	
+	<xs:complexType name="smrReportType">
+		<xs:annotation>
+			<xs:documentation>ASDEX CAT10 SMR Message</xs:documentation>
+		</xs:annotation>
+			<xs:sequence>
+				<xs:element name="report" type="tns:basicReportType"/>
+				<xs:element name="rdpSource" type="tns:RDPSourceType" minOccurs="0"/>
+				<xs:element name="extent" type="tns:smrReportExpansionType" minOccurs="0"/>
+				<xs:element name="status" type="tns:smrStatusType" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute name="full" type="xs:boolean" use="optional">
+			<xs:annotation>
+					<xs:documentation>Indicates whether the message is a full update </xs:documentation>
+			</xs:annotation>
+			</xs:attribute>
+	</xs:complexType>
+	
+	<xs:complexType name="smrStatusType">
+		<xs:annotation>
+			<xs:documentation>Track Status Information </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="cnf" type="tns:cnfType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>"new" or "confirmed"</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="tre" type="tns:bitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Default=0; Drop=1 </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="mah" type="tns:bitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Default=0; Maneuver=1</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="tom" type="tns:tomType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>"0", "1", "2" or "3" </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="dou" type="tns:bitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>HighConfidence=0; LowConfidence=1</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="gho" type="tns:bitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Default=0; MultiPath=1</xs:documentation>
+				</xs:annotation>
+			</xs:element>			
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	
+	<xs:complexType name="smrReportExpansionType">
+		<xs:annotation>
+			<xs:documentation> Report Expansion Data </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="startRange" type="tns:rangeType" minOccurs="0"/>
+			<xs:element name="endRange" type="tns:rangeType" minOccurs="0"/>
+			<xs:element name="startAzimuth" type="tns:azimuthType" minOccurs="0"/>
+			<xs:element name="endAzimuth" type="tns:azimuthType" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+			
+	<xs:simpleType name="RDPSourceType">
+		<xs:restriction base="xs:unsignedShort">
+       		<xs:minInclusive value="0"/>
+       		<xs:maxInclusive value="1"/>
+     	</xs:restriction>
+	</xs:simpleType>
+		
+</xs:schema>
