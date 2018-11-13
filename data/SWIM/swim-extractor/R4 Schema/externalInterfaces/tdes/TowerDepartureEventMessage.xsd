@@ -1,0 +1,63 @@
+<!-- This software was developed for use in the SWIM Terminal Data Distribution 
+    System (STDDS) for DOT/RITA/Volpe and is For Official Use Only. This corresponds 
+    with Table 4 from the STDDS_NAS IRD -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:common="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:commontypes"
+    xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:tdes:towerdepartureevent"
+    targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:tdes:towerdepartureevent"
+    elementFormDefault="unqualified" attributeFormDefault="unqualified">
+
+    <xs:import namespace="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:commontypes"
+        schemaLocation="../commontypes/CommonTypes.xsd" />
+        
+    <xs:simpleType name="TowerFlightMessageType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DE">
+                <xs:annotation>
+                    <xs:documentation>
+                        Generic Departure Event.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="DR">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reconstituted Departure Event.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="TowerDepartureEventMessage">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>
+                    TowerDepartureEvent contains flight data published due to a departure event.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:sequence>
+                <xs:element name="eventTime" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="flightID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="aircraftID" type="common:AircraftIdentifier" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="computerID" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="departureAirport" type="common:AirportIdentifier" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="destinationAirport" type="common:AirportIdentifier"
+                    minOccurs="0" maxOccurs="1" />
+                <xs:element name="clearanceDeliveryTime"
+                    type="xs:dateTime" minOccurs="0" maxOccurs="1" />
+                <xs:element name="parkingGate" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="taxiStartTime" type="xs:dateTime"
+                    minOccurs="0" maxOccurs="1" />
+                <xs:element name="takeoffTime" type="xs:dateTime"
+                    minOccurs="0" maxOccurs="1" />
+                <xs:element name="takeoffRunway" type="common:RunwayIdentifier"
+                    minOccurs="0" maxOccurs="1" />
+                <xs:element name="enhancedData" type="common:enhancedData"
+					maxOccurs="1" minOccurs="0" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

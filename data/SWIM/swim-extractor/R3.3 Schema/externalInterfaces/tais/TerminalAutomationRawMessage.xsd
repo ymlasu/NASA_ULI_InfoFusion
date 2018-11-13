@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:tais:terminalautomationinformation"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:tais:terminalautomationinformation"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	<xs:element name="TARaw" type="xs:base64Binary">
+		<xs:annotation>
+			<xs:documentation>Full base64 encoded contents of a STARS AIG message</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+</xs:schema>

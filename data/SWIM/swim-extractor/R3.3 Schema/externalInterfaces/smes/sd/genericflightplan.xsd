@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="genericFlightInfoType">
+		<xs:annotation>
+			<xs:documentation>ASDE-X Generic Flight Plan Message</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="interface" type="tns:gfiFlightPlanInterfaceType"
+				minOccurs="0" />
+			<xs:element name="type" type="tns:gfiFlightType"
+				minOccurs="0" />
+			<xs:element name="flightId" type="tns:gfiFlightIdType"
+				minOccurs="0" />
+			<xs:element name="flightInfo" type="tns:gfiFlightInfoType"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="gfiFlightPlanInterfaceType">
+		<xs:annotation>
+			<xs:documentation>Flight Plan Interface Type</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="artsiiia" />
+			<xs:enumeration value="artsiiie" />
+			<xs:enumeration value="stars" />
+			<xs:enumeration value="gfp" />
+			<xs:enumeration value="microearts" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiFlightType">
+		<xs:annotation>
+			<xs:documentation>Identifies flight as arrival [A], departure [P] or
+				enroute [E] (STARS) or a numeric indicator (IIIE/GFP)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:complexType name="gfiFlightIdType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Flight Identification Information</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="aircraftId" type="tns:gfiAircraftId"
+				minOccurs="0" />
+			<xs:element name="mode3ACode" type="tns:gfiMode3ACodeType"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="gfiAircraftId">
+		<xs:annotation>
+			<xs:documentation>Call Sign</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z][0-9A-Z]{1,6}" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiMode3ACodeType">
+		<xs:annotation>
+			<xs:documentation>Mode 3/A Code</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-7]{4,4}" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="gfiFlightInfoType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Flight Information</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="acType" type="tns:gfiAcTypeType"
+				minOccurs="0" />
+			<xs:element name="category" type="tns:gfiCategoryType"
+				minOccurs="0" />
+			<xs:element name="flightRules" type="tns:gfiFlightRulesType"
+				minOccurs="0" />
+			<xs:element name="entryFix" type="tns:gfiFixType"
+				minOccurs="0" />
+			<xs:element name="exitFix" type="tns:gfiFixType"
+				minOccurs="0" />
+			<xs:element name="runway" type="tns:gfiRunwayType"
+				minOccurs="0" />
+			<xs:element name="airport" type="tns:gfiAirportType"
+				minOccurs="0" />
+			<xs:element name="scratchpad1" type="tns:gfiScratchPad1Type"
+				minOccurs="0" />
+			<xs:element name="scratchpad2" type="tns:gfiScratchPad2Type"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="gfiAcTypeType">
+		<xs:annotation>
+			<xs:documentation>Aircraft Type</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z][0-9A-Z]{1,3}" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiCategoryType">
+		<xs:annotation>
+			<xs:documentation>Aircraft Category</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+			<xs:maxLength value="1" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiFlightRulesType">
+		<xs:annotation>
+			<xs:documentation>Aircraft Flight Rules</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+			<xs:maxLength value="1" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiFixType">
+		<xs:annotation>
+			<xs:documentation>Paired Fix</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="5" />
+			<xs:minLength value="1" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiRunwayType">
+		<xs:annotation>
+			<xs:documentation>Assigned Runway</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+			<xs:maxLength value="3" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiAirportType">
+		<xs:annotation>
+			<xs:documentation>Origin or Destination Airport</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="3" />
+			<xs:maxLength value="4" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiScratchPad1Type">
+		<xs:annotation>
+			<xs:documentation>Scratchpad 1 Data</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10" />
+			<xs:minLength value="1" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gfiScratchPad2Type">
+		<xs:annotation>
+			<xs:documentation>Scratchpad 2 Data</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+			<xs:maxLength value="3" />
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

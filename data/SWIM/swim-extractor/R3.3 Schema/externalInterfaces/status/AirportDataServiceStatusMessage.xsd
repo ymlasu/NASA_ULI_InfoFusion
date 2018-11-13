@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This software was developed for use in the SWIM Terminal Data Distribution 
+	System (STDDS) for DOT/RITA/Volpe and is For Official Use Only. -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:status"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:status"
+	xmlns:common="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+	elementFormDefault="unqualified">
+
+	<xsd:import namespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+		schemaLocation="../commontypes/ServiceStatus.xsd" />
+
+	<xsd:element name="AirportDataServiceStatus">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="serviceStatus" type="common:ServiceStatus"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							The overall service status; either Available,
+							Degraded, or Unavailable
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="rvrLinks" type="tns:RVRExternalLinks"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							The list of external links and their
+							availability
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="RVRExternalLinks">
+		<xsd:sequence>
+			<xsd:element name="rvrLink" type="common:ExternalLink"
+				minOccurs="0" maxOccurs="25">
+				<xsd:annotation>
+					<xsd:documentation>
+						An individual external link
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+</xsd:schema>

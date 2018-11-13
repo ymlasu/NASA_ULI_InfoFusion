@@ -1,0 +1,867 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	
+	<xs:include schemaLocation="../ASDEXTypes.xsd" />
+	
+	<xs:simpleType name="airportType">
+		<xs:annotation>
+			<xs:documentation>The airport at which this message was produced
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z]{4,4}" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="positionReportType">
+		<xs:annotation>
+			<xs:documentation>ASDE-X System Track Report</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="seqNum" type="tns:seqNumType" />
+			<xs:element name="time" type="tns:timeType" />
+			<xs:element name="track" type="tns:trackType" />
+			<xs:element name="stid" type="tns:stidType" />
+			<xs:element name="flightId" type="tns:flightIdType"
+				minOccurs="0" />
+			<xs:element name="flightInfo" type="tns:flightInfoType"
+				minOccurs="0" />
+			<xs:element name="position" type="tns:positionType"
+				minOccurs="0" />
+			<xs:element name="movement" type="tns:movementType"
+				minOccurs="0" />
+			<xs:element name="status" type="tns:statusType" minOccurs="0" />
+			<xs:element name="slc" type="tns:slcType" minOccurs="0" />
+			<xs:element name="manual" type="tns:manualType" minOccurs="0" />
+			<xs:element name="targetExtent" type="tns:targetExtentType"
+				minOccurs="0" />
+			<xs:element name="plotCount" type="tns:plotCountType"
+				minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="full" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Indicates whether the message is a full update (as
+					opposed to a delta)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="seqNumType">
+		<xs:annotation>
+			<xs:documentation>ASDE-X sequence number
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:int" />
+	</xs:simpleType>
+	<xs:simpleType name="stidType">
+		<xs:annotation>
+			<xs:documentation>STDDS track id</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:long" />
+	</xs:simpleType>
+	<xs:complexType name="flightIdType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Flight Indentification Information
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="aircraftId" type="tns:aircraftIdType"
+				minOccurs="0" />
+			<xs:element name="mode3ACode" type="tns:mode3ACodeType"
+				minOccurs="0" />
+			<xs:element name="acAddress" type="tns:acAddressType"
+				minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="aircraftIdType">
+		<xs:annotation>
+			<xs:documentation>Call Sign</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:minLength value="1" />
+				<xs:maxLength value="8" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="flightInfoType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Flight Information
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="tgtType" type="tns:tgtTypeType"
+				minOccurs="0" />
+			<xs:element name="acType" type="tns:acTypeType" minOccurs="0" />
+			<xs:element name="wake" type="tns:wakeType" minOccurs="0" />
+			<xs:element name="fix" type="tns:fixType" minOccurs="0" />
+			<xs:element name="runway" type="tns:runwayType" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="tgtTypeType">
+		<xs:annotation>
+			<xs:documentation>Target Type</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="unknown" />
+				<xs:enumeration value="aircraft" />
+				<xs:enumeration value="vehicle" />
+				<xs:enumeration value="unknown_aircraft" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="acTypeType">
+		<xs:annotation>
+			<xs:documentation>Aircraft Type</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:minLength value="1" />
+				<xs:maxLength value="4" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="wakeType">
+		<xs:annotation>
+			<xs:documentation>Wake Turbulence Category</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:minLength value="1" />
+				<xs:maxLength value="1" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="fixType">
+		<xs:annotation>
+			<xs:documentation>Flight Plan Paired Fix</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:minLength value="1" />
+				<xs:maxLength value="3" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="runwayType">
+		<xs:annotation>
+			<xs:documentation>Predicted Runway</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:pattern value="(([1-9]|[12][0-9]|3[0-6])[LRC]{0,1})|filtered|unassigned" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="positionType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Position Information
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="x" type="tns:cartCoordType" minOccurs="0" />
+			<xs:element name="y" type="tns:cartCoordType" minOccurs="0" />
+			<xs:element name="extendedX" type="tns:extCartCoordType"
+				minOccurs="0" />
+			<xs:element name="extendedY" type="tns:extCartCoordType"
+				minOccurs="0" />
+			<xs:element name="latitude" type="tns:latitudeRemovableType"
+				minOccurs="0" />
+			<xs:element name="longitude" type="tns:longitudeRemovableType"
+				minOccurs="0" />
+			<xs:element name="altitude" type="tns:altitudeType"
+				minOccurs="0" />
+			<xs:element name="flightLevel" type="tns:flightLevelType"
+				minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="extCartCoordType">
+		<xs:annotation>
+			<xs:documentation>Extended Fused Track Position [Meters]
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableIntType">
+				<xs:minInclusive value="-1159548" />
+				<xs:maxInclusive value="1159548" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+		<xs:complexType name="latitudeRemovableType">
+		<xs:annotation>
+			<xs:documentation>Latitude [Decimal Degrees]</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableDoubleType">
+				<xs:minInclusive value="-90" />
+				<xs:maxInclusive value="90" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="longitudeRemovableType">
+		<xs:annotation>
+			<xs:documentation>Longitude [Decimal Degrees]</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableDoubleType">
+				<xs:minInclusive value="-180" />
+				<xs:maxInclusive value="180" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="altitudeType">
+		<xs:annotation>
+			<xs:documentation>Fused Track Height [Feet]</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="tns:removableDoubleType" />
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="movementType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Movement Information
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="speed" type="tns:speedType" minOccurs="0" />
+			<xs:element name="heading" type="tns:headingType"
+				minOccurs="0" />
+			<xs:element name="vx" type="tns:velocityType" minOccurs="0" />
+			<xs:element name="vy" type="tns:velocityType" minOccurs="0" />
+			<xs:element name="ax" type="tns:accelerationType"
+				minOccurs="0" />
+			<xs:element name="ay" type="tns:accelerationType"
+				minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="speedType">
+		<xs:annotation>
+			<xs:documentation>Speed [Knots]</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="tns:removableUnsignedShortType" />
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="headingType">
+		<xs:annotation>
+			<xs:documentation>Heading [Degrees]</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableDoubleType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="360" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="velocityType">
+		<xs:annotation>
+			<xs:documentation>Fused Track Velocity [Meters Per Second]
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableDoubleType">
+				<xs:minInclusive value="-8192" />
+				<xs:maxInclusive value="8192" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="accelerationType">
+		<xs:annotation>
+			<xs:documentation>Fused Track Acceleration [Meters Per Second Per
+				Second]</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableDoubleType">
+				<xs:minInclusive value="-31" />
+				<xs:maxInclusive value="31" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="statusType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Status Information
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="mon" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Monosensor Indicator (False Indicates Multisensor
+						or Coasted Track)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="gbs" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Ground Bit Set (False Indicates Ground Bit Not
+						Set or Unknown)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="mrh" type="tns:mrhType" minOccurs="0" />
+			<xs:element name="src" type="tns:srcType" minOccurs="0" />
+			<xs:element name="sim" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Simulated Track</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="tse" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Track Service Ends</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="spi" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>SPI Present</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="x" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ATCRBS X-bit Present</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="gm" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>GPS Position > 100 Feet from Multilat Position
+						Indicator</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="nc" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Non-cooperative Target Indicator (Multipath)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ls" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Coast Lost Sensor Support Indicator
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="aq" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Coast Association Question Indicator
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ap" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Coast in Apron Indicator</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="op" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Coast in Oscillation Period Indicator
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="tc" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Manual/Automatic Tag Conflict Indicator
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="da" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Duplicate Discrete Mode A Indicator
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="lv" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Local Vehicle Association</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="st" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Suspended Track Indicator</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="rt" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Reference Transmitter Track (maintenace only)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ss" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>SMR Source Fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ms" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Mode S Source Fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="as" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ADSB Source Fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="a9s" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ASR9 Source Fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="at" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ATCRBS Source Fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="si" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Safety Logic Processing Inhibited on Track
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="m3c" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Mode 3/A Code Has Changed</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="di" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Display Indicator</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="s1" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>SBS 1090ES ADSB source fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="su" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>SBS UAT ADSB source fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="af" type="tns:afType" minOccurs="0" />
+			<xs:element name="gnd" type="tns:gndType" minOccurs="0" />
+			<xs:element name="ua" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>UAT source fused</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="df" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Duplicate Flight Indicator</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="quality" type="tns:qualityType"
+				minOccurs="0" />
+			<xs:element name="aqUat" type="tns:addressQualifierType"
+				minOccurs="0" />
+			<xs:element name="lvUat" type="tns:linkVersionType"
+				minOccurs="0" />
+			<xs:element name="aq1090" type="tns:addressQualifierType"
+				minOccurs="0" />
+			<xs:element name="lv1090" type="tns:linkVersionType"
+				minOccurs="0" />
+			<xs:element name="aa" type="tns:statusBitType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ADSB Associated</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="av" type="tns:avType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>SBS ADSB Lat/Long Validation status
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sil" type="tns:silType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Source Integrity Level</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="nic" type="tns:nicType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Navigation Integrity Category</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NACp" type="tns:NACpType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Navigation Accuracy Category for Position
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="vs" type="tns:mrhType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Source of the data used to compute the vertical
+						rate
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ud" type="tns:udType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Vertical rate direction (up/down)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="vertRate" type="tns:vertRateType"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Vertical rate of the current track that depicts
+						whether the aircraft is climbing or descending
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="uncorrBaroAlt" type="tns:uncorrBaroAltType"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Most recent barometric pressure altitude reported
+						by the aircraft; coasted for a maximum time of 5 seconds.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="statusBitType">
+		<xs:annotation>
+			<xs:documentation>Bit-Field Entry [0 = False, 1 = True]
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="1" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="mrhType">
+		<xs:annotation>
+			<xs:documentation>Most Reliable Height</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="barometric" />
+				<xs:enumeration value="geometric" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="srcType">
+		<xs:annotation>
+			<xs:documentation>Fused Height Source</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="none" />
+				<xs:enumeration value="adsb" />
+				<xs:enumeration value="modec" />
+				<xs:enumeration value="multilat" />
+				<xs:enumeration value="ground" />
+				<xs:enumeration value="multiple" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="afType">
+		<xs:annotation>
+			<xs:documentation>Alert Filter Indicator</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="unfiltered" />
+				<xs:enumeration value="filtered" />
+				<xs:enumeration value="highlight" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="gndType">
+		<xs:annotation>
+			<xs:documentation>Ground Indicator</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="unknown" />
+				<xs:enumeration value="onground" />
+				<xs:enumeration value="arrival" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="qualityType">
+		<xs:annotation>
+			<xs:documentation>Track Quality</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="100" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="addressQualifierType">
+		<xs:annotation>
+			<xs:documentation>Address Qualifier from CAT033 Report
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="adsbicao" />
+				<xs:enumeration value="adsbsa" />
+				<xs:enumeration value="tisbicao" />
+				<xs:enumeration value="tisbtfi" />
+				<xs:enumeration value="vehicle" />
+				<xs:enumeration value="beacon" />
+				<xs:enumeration value="" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="linkVersionType">
+		<xs:annotation>
+			<xs:documentation>Link Version</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableUnsignedShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="7" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="slcType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Suspended, Local Aircraft Vehicle,
+				and Coasted Track Numbers</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="suspNum" type="tns:suspNumType"
+				minOccurs="0" />
+			<xs:element name="localAvNum" type="tns:localAvNumType"
+				minOccurs="0" />
+			<xs:element name="coastNum" type="tns:coastNumType"
+				minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="avType">
+		<xs:annotation>
+			<xs:documentation>SBS ADSB Lat/Long Validation status based on
+				comparison with other sensor data</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="unknown" />
+				<xs:enumeration value="invalid" />
+				<xs:enumeration value="reserved" />
+				<xs:enumeration value="valid" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="silType">
+		<xs:annotation>
+			<xs:documentation>Source Integrity Level : probability of exceeding
+				NIC Containment Radius</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableUnsignedShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="3" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="nicType">
+		<xs:annotation>
+			<xs:documentation>Navigation Integrity Category</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableUnsignedShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="11" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="NACpType">
+		<xs:annotation>
+			<xs:documentation>Navigation Accuracy Category for Position
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableUnsignedShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="11" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="udType">
+		<xs:annotation>
+			<xs:documentation>Vertical rate direction (up/down)</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:enumeration value="up" />
+				<xs:enumeration value="down" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="vertRateType">
+		<xs:annotation>
+			<xs:documentation>Vertical rate of the current track that depicts
+				whether the aircraft is climbing or descending
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="uncorrBaroAltType">
+		<xs:annotation>
+			<xs:documentation>: Most recent barometric pressure altitude reported
+				by the aircraft; coasted for a maximum time of 5 seconds.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="suspNumType">
+		<xs:annotation>
+			<xs:documentation>Suspended Track Number</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="26" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="localAvNumType">
+		<xs:annotation>
+			<xs:documentation>Local Aircraft Vehicle List Number
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableShortType">
+				<xs:minInclusive value="101" />
+				<xs:maxInclusive value="276" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="coastNumType">
+		<xs:annotation>
+			<xs:documentation>Coasted Track Number</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableShortType">
+				<xs:minInclusive value="300" />
+				<xs:maxInclusive value="999" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="manualType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Manually Entered Information
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="callNum" type="tns:callNumType"
+				minOccurs="0" />
+			<xs:element name="mode3ACode" type="tns:mode3ACodeType"
+				minOccurs="0" />
+			<xs:element name="acType" type="tns:acTypeType" minOccurs="0" />
+			<xs:element name="category" type="tns:categoryType" minOccurs="0"/>
+			<xs:element name="fix" type="tns:fixType" minOccurs="0" />
+			<xs:element name="scratchpad1" type="tns:scratchPadType" minOccurs="0"/>
+			<xs:element name="scratchpad2" type="tns:scratchPadType" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="callNumType">
+		<xs:annotation>
+			<xs:documentation>Aircraft Call Number</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:minLength value="1" />
+				<xs:maxLength value="8" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="categoryType">
+		<xs:annotation>
+			<xs:documentation>Aircraft Category Indicator</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:minLength value="1" />
+				<xs:maxLength value="4" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="scratchPadType">
+		<xs:annotation>
+			<xs:documentation>Scratchpad Data</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableStringType">
+				<xs:minLength value="1" />
+				<xs:maxLength value="7" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="targetExtentType">
+		<xs:annotation>
+			<xs:documentation>Aggregation of Target Extent Information
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="estimate" type="tns:smrEstimateType"
+				minOccurs="0" />
+			<xs:element name="startRange" type="tns:smrRangeType"
+				minOccurs="0" />
+			<xs:element name="endRange" type="tns:smrRangeType"
+				minOccurs="0" />
+			<xs:element name="startAzimuth" type="tns:smrAzimuthType"
+				minOccurs="0" />
+			<xs:element name="endAzimuth" type="tns:smrAzimuthType"
+				minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="r" type="tns:removableAttrType" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="smrEstimateType">
+		<xs:annotation>
+			<xs:documentation>Target Extent Estimate [Meters]
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableUnsignedShortType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="127" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="smrRangeType">
+		<xs:annotation>
+			<xs:documentation>SMR Target Extent Range</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="tns:removableUnsignedShortType" />
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="smrAzimuthType">
+		<xs:annotation>
+			<xs:documentation>SMR Target Extent Azimuth</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableDoubleType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="360" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="plotCountType">
+		<xs:annotation>
+			<xs:documentation>Plot count
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:restriction base="tns:removableIntType">
+				<xs:minInclusive value="0" />
+				<xs:maxInclusive value="14" />
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>

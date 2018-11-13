@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="genericflightplan.xsd" />
+	<xs:include schemaLocation="positionreport.xsd" />
+	<xs:include schemaLocation="systemstatus.xsd" />
+	<xs:include schemaLocation="../cat10/ADSBMessage.xsd" />
+	<xs:include schemaLocation="../cat10/MLATMessage.xsd" />
+	<xs:include schemaLocation="../cat10/SMRMessage.xsd" />
+	<xs:element name="asdexMsg">
+		<xs:annotation>
+			<xs:documentation>An ASDE-X Message</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="airport" type="tns:airportType" />
+				<xs:choice>
+					<xs:element name="positionReport" type="tns:positionReportType"
+						maxOccurs="unbounded" />
+					<xs:element name="adsbReport" type="tns:adsbReportType" maxOccurs="unbounded" />
+					<xs:element name="mlatReport" type="tns:mlatReportType" maxOccurs="unbounded" />
+					<xs:element name="smrReport" type="tns:smrReportType" maxOccurs="unbounded" />
+					<xs:element name="genericFlightInfo" type="tns:genericFlightInfoType" />
+					<xs:element name="systemStatus" type="tns:systemStatusType" />
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="v" type="xs:string" use="optional"
+				fixed="1.1" />
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,30 @@
+<!-- This software was developed for use in the SWIM Terminal Data Distribution 
+    System (STDDS) for DOT/RITA/Volpe and is For Official Use Only. -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:common="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:commontypes"
+    xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:tdes:datisdatamessage"
+    targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:tdes:datisdatamessage"
+    elementFormDefault="unqualified" attributeFormDefault="unqualified">
+
+    <xs:import namespace="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:commontypes"
+        schemaLocation="../commontypes/CommonTypes.xsd" />
+
+    <xs:element name="DATISData">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>
+                    DATISData contains DATIS data.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:sequence>
+                <xs:element name="airportID" type="common:AirportIdentifier"/>
+                <xs:element name="srcAddr" type="xs:string"/>
+                <xs:element name="DATISTime" type="xs:string" />
+                <xs:element name="dataHeader" type="xs:string" />
+                <xs:element name="dataBody" type="xs:string" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

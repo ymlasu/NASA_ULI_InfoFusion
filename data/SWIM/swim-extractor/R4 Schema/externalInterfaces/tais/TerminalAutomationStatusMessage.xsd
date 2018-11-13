@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:tais:terminalautomationinformation"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v4-0:tais:terminalautomationinformation"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified"
+	attributeFormDefault="unqualified">
+	<xs:element name="TAStatus">
+		<xs:annotation>
+			<xs:documentation>A parsed version of the AIG 100 message
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="src" type="xs:string" maxOccurs="1"
+					minOccurs="1">
+					<xs:annotation>
+						<xs:documentation>FAA TRACON identifier of the data source
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="mode" type="tns:modeType" maxOccurs="1"
+					minOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Mode of the input STARS system
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="errCode" type="xs:int" maxOccurs="1"
+					minOccurs="1">
+					<xs:annotation>
+						<xs:documentation>STARS Error code. This field can have values
+							from 0 to 255. A value of 0 indicates no error, while a value of
+							1 indicates RDP failure. Note: Error codes 2-255 are not assigned
+							a specific value at present.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="modeType">
+		<xs:annotation>
+			<xs:documentation>STARS mode</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="normal" />
+			<xs:enumeration value="test" />
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

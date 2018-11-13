@@ -1,0 +1,167 @@
+<!-- This software was developed for use in the SWIM Terminal Data Distribution 
+	System (STDDS) for DOT/RITA/Volpe and is For Official Use Only. -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	xmlns:common="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+	targetNamespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:smes:surfacemovementevent"
+	elementFormDefault="qualified">
+
+	<xsd:include schemaLocation="SafetyLogicTypes.xsd" />
+	
+	<xsd:import namespace="urn:us:gov:dot:faa:atm:terminal:entities:v3-0:commontypes"
+		schemaLocation="../commontypes/CommonTypes.xsd" />
+
+	<xsd:element name="SafetyLogicAlertReport">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="airport" type="common:AirportIdentifier"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							ICAO code of the source airport.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="alert" type="tns:AlertIdentifier"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Unique alphanumeric identifier assigned to alert
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="audio" type="tns:AlertString" minOccurs="0"
+					maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Audio alert string
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="curSeverity" type="tns:AlertSeverity"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Current Alert Severity as a result of Check
+							Alert before hysteresis.
+							Permissible values: “cautionary”,
+							“warning”, or “none”.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="cycleNum" type="xsd:unsignedLong" minOccurs="1"
+					maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							AXSL check alerts cycle number.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="encounter" type="tns:AlertEncounterType"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Type of encounter sensor generating alert.
+							Permissible values: “single target”,
+							“dual target”, “converging taxi”, “intersecting runway”.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="repSeverity" type="tns:AlertSeverity"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Reported Alert Severity after alert hysteresis.
+							Permissible values: “cautionary”,
+							“warning”, or “none”.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="situation" type="xsd:integer" minOccurs="1"
+					maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Alert situation. This field can have values of
+							0 to 65535
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="separation" type="tns:AlertSeparationType"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Separation type. Permissible values: “CSEP” or
+							“PSEP”
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="text" type="tns:AlertString" minOccurs="0"
+					maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Text alert string
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="time" type="xsd:dateTime" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Alert time
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="type" type="tns:AlertType"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Alert type. Permissible values: “ground” or
+							“arrival”.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="version" type="xsd:unsignedShort"
+					minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Version of the report.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="cleared" type="xsd:unsignedShort" minOccurs="0"
+					maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Flag indicating if the alert situation has
+							cleared.
+							Will be sent only in the last alert report sent for an alert
+							situation
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="location" type="tns:AlertLocation"
+					minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							Alert locations
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="track1" type="tns:AlertTrackData" minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+						Alert track1 data
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>		
+				<xsd:element name="track2" type="tns:AlertTrackData" minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+						Alert track1 data
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>		
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
