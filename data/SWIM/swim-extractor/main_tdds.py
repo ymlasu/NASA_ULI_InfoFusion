@@ -8,6 +8,7 @@ from functools import partial
 
 import pyxb
 import sqlite3
+import psycopg2
 
 from smes3 import smes3
 from smes4 import smes4
@@ -17,9 +18,7 @@ import exceptions
 
 class DatabaseManager(object):
     def __init__(self, db):
-        self.conn = sqlite3.connect(db)
-        self.conn.execute('pragma foreign_keys = on')
-        self.conn.commit()
+        self.conn = psycopg2.connect(db)
         self.cur = self.conn.cursor()
 
     def query(self, arg):
@@ -79,6 +78,7 @@ ASDEX_TYPES = {"mlatReport": process_basic_report,
 def process_asdex(message: Union[smes3.CTD_ANON_, smes4.CTD_ANON_]):
 
     # find which report type it is, and process if any exist
+    results = []
     for msg_type in ASDEX_TYPES:
         msg_list = getattr(message, msg_type)
         if len(msg_list) > 0:
@@ -101,14 +101,16 @@ def process_file(filename: str):
 
     # http://pyxb.sourceforge.net/userref_validating.html
     contents = None
+    i = 0
+    results = [[]]
     try:
         contents = smes3.CreateFromDocument(xml)
     except (pyxb.ValidationError, pyxb.UnrecognizedDOMRootNodeError):
         try:
             contents = smes4.CreateFromDocument(xml)
         except (pyxb.ValidationError, pyxb.UnrecognizedDOMRootNodeError):
-            pass
-            # print(filename)
+            #pass
+            print(filename)
 
     if contents is not None:
         if type(contents) in MESSAGE_TYPES:
@@ -117,31 +119,34 @@ def process_file(filename: str):
                 results = [results]
         else:
             print("UNCATEGORIZED")
-            raise exceptions.UnknownXMLContentException(f"Filename: {filename}")
+            raise exceptions.UnknownXMLContentException("Filename: {filename}")
             results = []
     else:
         print("UNKNOWN")
         results = []
         # raise exceptions.UnknownXMLContentException(f"Filename: {filename}")
+    if type(results) is not list:
+        results = [results]
     return results
 
 def makeDb(dbName,results):
-    dbmgr = DatabaseManager('{}.db'.format(dbName))
+    dbmgr = DatabaseManager('dbname=paraatm user=paraatm_user password=paraatm_user')
     dbmgr.query('DROP TABLE IF EXISTS asdex')
-    dbmgr.query('CREATE TABLE asdex (airport CHAR(4), track INTEGER, stid INTEGER,time);')
+    dbmgr.query('CREATE TABLE asdex (airport CHAR(4), track INTEGER, stid INTEGER,time TIMESTAMP);')
     dbmgr.query('DROP TABLE IF EXISTS smes')
-    dbmgr.query('CREATE TABLE smes (callsign, track INTEGER, stid INTEGER,time,lat,lon,alt,status,event);')
+    dbmgr.query('CREATE TABLE smes (callsign VARCHAR, track INTEGER, stid INTEGER,time TIMESTAMP,lat REAL,lon REAL,alt REAL,status VARCHAR,event VARCHAR);')
 
-    flat_list = [item for sublist in results for item in sublist]
-    print(flat_list)
+    flat_list = [item for sublist in results for item in sublist if sublist is not None]
     for data in flat_list:
         if isinstance(data,Extracted_ASDEX):
+            print('inserting asdex data')
             sql_command = "INSERT INTO asdex (airport,track,time) VALUES('{}',{},'{}');".format(data.airport,data.track,data.time)
             dbmgr.query(sql_command)
             if data.is_position_report:
-                sql_command = "INSERT INTO asdex (stid) VALUES({});".format(data.stid)
+                sql_command = "UPDATE asdex SET stid={} WHERE time='{}' AND track='{}' AND airport='{}';".format(data.stid,data.time,data.track,data.airport)
                 dbmgr.query(sql_command)
         if isinstance(data,Extracted_SMES):
+            print('inserting smes data')
             sql_command = "INSERT INTO smes (callsign,track,time,event,lat,lon,alt,status) VALUES('{}',{},'{}','{}',{},{},{},'{}');".format(data.callsign,data.track,data.time,data.event,data.position[0],data.position[1],data.altitude,data.status)
             dbmgr.query(sql_command)
 
@@ -155,17 +160,18 @@ def makeDb(dbName,results):
 def main():
     
     
-    os.chdir('../tdds/bin/data/2018-08-16')
+    os.chdir('../../tdds/bin/data/2018-11-19')
     start = time.time()
     
     #with Pool(cpu_count()) as p:
     with Pool(1) as p:
-        results=p.map(process_file, (item for item in os.listdir('.')[1000:1020] if os.path.isfile(item)))
+        results=p.map(process_file, (item for item in sorted(os.listdir('.')) if os.path.isfile(item)))
         
     end = time.time()
     print("Time elapsed: ", end - start)
 
-    makeDb('swim',results)
+    print(results)
+    makeDb('PARA_ATM_Database_Public',results)
 
 if __name__ == "__main__":
     main()

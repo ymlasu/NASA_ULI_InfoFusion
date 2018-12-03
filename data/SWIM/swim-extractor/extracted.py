@@ -6,6 +6,7 @@ from pyxb.binding.datatypes import dateTime
 
 class Extracted_FDPS:
     # should be in everything
+    '''
     source: str
     aircraft_id: str
     center: str
@@ -28,7 +29,7 @@ class Extracted_FDPS:
     assigned_altitude: Optional[float]
     speed: Optional[float]
     velocity: Optional[Tuple[float, float]]
-
+    '''
     def __init__(self,
                  source,
                  aircraft_id,
@@ -78,6 +79,7 @@ class Extracted_FDPS:
 
 
 class Extracted_SMES:
+    '''
     callsign: str
     track: int
     stid: int
@@ -86,7 +88,7 @@ class Extracted_SMES:
     position: Tuple[float, float]
     altitude: float
     status: str
-
+    '''
     def __init__(self,
                 callsign,
                 track,
@@ -113,12 +115,13 @@ class Extracted_SMES:
 
 
 class Extracted_ASDEX:
+    '''
     airport: str
     track: int
     time: dateTime
     is_position_report: bool
     stid: Optional[int]
-
+    '''
     def __init__(self,
                 airport,
                 track,
