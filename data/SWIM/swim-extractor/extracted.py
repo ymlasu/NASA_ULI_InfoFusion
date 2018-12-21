@@ -121,18 +121,21 @@ class Extracted_ASDEX:
     time: dateTime
     is_position_report: bool
     stid: Optional[int]
+    position: Optional[tuple]
     '''
     def __init__(self,
                 airport,
                 track,
                 time,
                 is_position_report,
-                stid=None):
+                stid=None,
+                position=None):
         self.airport = airport
         self.track = track
         self.time = time
         self.is_position_report = is_position_report
         self.stid = stid
+        self.position = position
 
     def __str__(self):
         """

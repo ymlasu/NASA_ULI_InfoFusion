@@ -1,5 +1,6 @@
 import os
 import time
+from sys import argv
 
 from multiprocessing import Pool
 from multiprocessing import cpu_count
@@ -52,22 +53,42 @@ def process_smes(message: Union[smes3.CTD_ANON, smes4.CTD_ANON]):
 # x_report because all the basic report containers have the same contents
 def process_basic_report(x_report, airport):
     basic_report = x_report.report.basicReport
-    data = Extracted_ASDEX(
-        airport = airport, 
-        track = basic_report.track,
-        time = basic_report.time,
-        is_position_report = False,
-    )
+    
+    try:
+        data = Extracted_ASDEX(
+            airport = airport, 
+            track = basic_report.track,
+            time = basic_report.time,
+            is_position_report = False,
+            position = (basic_report.position.lat,basic_report.position.lon),
+        )
+    except:
+        data = Extracted_ASDEX(
+            airport = airport,
+            track = basic_report.track,
+            time = basic_report.time,
+            is_position_report = False,
+        )
     return data
     
 def process_position_report(position_report, airport):
-    data = Extracted_ASDEX(
-        airport = airport, 
-        track = position_report.track,
-        time = position_report.time,
-        is_position_report = True,
-        stid = position_report.stid,
-    )
+    try:
+        data = Extracted_ASDEX(
+            airport = airport, 
+            track = position_report.track,
+            time = position_report.time,
+            is_position_report = True,
+            stid = position_report.stid,
+            position = (position_report.position.lat,position_report.position.lon),
+        )
+    except:
+        data = Extracted_ASDEX(
+            airport = airport,
+            track = position_report.track,
+            time = position_report.time,
+            is_position_report = True,
+            stid = position_report.stid,
+        )
     return data
 
 ASDEX_TYPES = {"mlatReport": process_basic_report,
@@ -131,36 +152,46 @@ def process_file(filename: str):
 
 def makeDb(dbName,results):
     dbmgr = DatabaseManager('dbname=paraatm user=paraatm_user password=paraatm_user')
-    dbmgr.query('DROP TABLE IF EXISTS asdex')
-    dbmgr.query('CREATE TABLE asdex (airport CHAR(4), track INTEGER, stid INTEGER,time TIMESTAMP);')
-    dbmgr.query('DROP TABLE IF EXISTS smes')
-    dbmgr.query('CREATE TABLE smes (callsign VARCHAR, track INTEGER, stid INTEGER,time TIMESTAMP,lat REAL,lon REAL,alt REAL,status VARCHAR,event VARCHAR);')
+    #dbmgr.query('DROP TABLE IF EXISTS asdex')
+    #dbmgr.query('CREATE TABLE asdex (airport CHAR(4), track INTEGER, stid INTEGER,time TIMESTAMP,lat REAL,lon REAL);')
+    #dbmgr.query('DROP TABLE IF EXISTS smes')
+    #dbmgr.query('CREATE TABLE smes (callsign VARCHAR, track INTEGER, stid INTEGER,time TIMESTAMP,lat REAL,lon REAL,alt REAL,status VARCHAR,event VARCHAR);')
 
     flat_list = [item for sublist in results for item in sublist if sublist is not None]
     for data in flat_list:
         if isinstance(data,Extracted_ASDEX):
-            print('inserting asdex data')
+            cmd = "SELECT time FROM asdex WHERE time='{}' and airport='{}' and track='{}';".format(data.time,data.airport,data.track)
+            dbmgr.cur.execute(cmd)
+            contents = dbmgr.cur.fetchall()
+            if contents:
+                print(contents)
             sql_command = "INSERT INTO asdex (airport,track,time) VALUES('{}',{},'{}');".format(data.airport,data.track,data.time)
             dbmgr.query(sql_command)
-            if data.is_position_report:
+            try:
                 sql_command = "UPDATE asdex SET stid={} WHERE time='{}' AND track='{}' AND airport='{}';".format(data.stid,data.time,data.track,data.airport)
                 dbmgr.query(sql_command)
+            except:
+                dbmgr.query('rollback')
+            try:
+                sql_command = "UPDATE asdex SET lat={},lon={} WHERE time='{}' AND track='{}' AND airport='{}';".format(data.position[0],data.position[1],data.time,data.track,data.airport)
+                dbmgr.query(sql_command)
+            except:
+                dbmgr.query('rollback')
         if isinstance(data,Extracted_SMES):
-            print('inserting smes data')
+            cmd = "SELECT time FROM smes WHERE time='{}' and lat='{}' and lon='{}';".format(data.time,data.position[0],data.position[1])
+            dbmgr.cur.execute(cmd)
+            contents = dbmgr.cur.fetchall()
+            if contents:
+                continue
             sql_command = "INSERT INTO smes (callsign,track,time,event,lat,lon,alt,status) VALUES('{}',{},'{}','{}',{},{},{},'{}');".format(data.callsign,data.track,data.time,data.event,data.position[0],data.position[1],data.altitude,data.status)
             dbmgr.query(sql_command)
 
-    for row in dbmgr.query('SELECT * FROM asdex'):
-        print(row)
-    for row in dbmgr.query('SELECT * FROM smes'):
-        print(row)
-
     del dbmgr
 
-def main():
+def main(argv):
     
     
-    os.chdir('../../tdds/bin/data/2018-11-19')
+    os.chdir(argv[1])
     start = time.time()
     
     #with Pool(cpu_count()) as p:
@@ -170,11 +201,7 @@ def main():
     end = time.time()
     print("Time elapsed: ", end - start)
 
-    print(results)
     makeDb('PARA_ATM_Database_Public',results)
 
 if __name__ == "__main__":
-    main()
-    
-
-    
+    main(argv)
