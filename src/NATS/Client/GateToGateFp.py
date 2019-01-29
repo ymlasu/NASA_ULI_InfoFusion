@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*
 '''
             NATIONAL AIRSPACE TRAJECTORY-PREDICTION SYSTEM (NATS)
           Copyright 2018 by Optimal Synthesis Inc. All rights reserved
@@ -15,6 +16,7 @@ import random
 import datetime
 from math import *
 from jpype import *
+
 
 #NATS dependencies and definitions
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -58,7 +60,7 @@ NATSClientFactory = JClass('NATSClientFactory')
 natsClient = NATSClientFactory.getNATSClient()
 
 #Change this to local installation of NATS_Server (eg. home/user/NATS/NATS_Server/)
-NATS_SERVER = "NATS_SERVER_LOCATION_HERE"
+NATS_SERVER = "../Server/"
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -381,11 +383,11 @@ def generate_save_flight_plan(flightData, trxLineSplit):
 
         while 1:
             #Get departure gate and runway inputs
-            FLIGHT_DEPARTURE_GATE = raw_input("\nDeparture gate at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureGateOptions) + "]: ")
-            FLIGHT_DEPARTURE_RUNWAY = raw_input("Departure runway at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureRunwayOptions) + "]: ")
+            #FLIGHT_DEPARTURE_GATE = raw_input("\nPlease provide departure gate at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureGateOptions) + "]: ")
+            #FLIGHT_DEPARTURE_RUNWAY = raw_input("Please provide departure runway at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureRunwayOptions) + "]: ")
 
-            #FLIGHT_DEPARTURE_GATE = departureGateOptions[0]
-            #FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[0]
+            FLIGHT_DEPARTURE_GATE = departureGateOptions[random.randint(0,len(departureGateOptions))]
+            FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[random.randint(0,len(departureRunwayOptions))]
 
             if FLIGHT_DEPARTURE_GATE in departureGateOptions or FLIGHT_DEPARTURE_RUNWAY in departureRunwayOptions:
                 break
@@ -495,11 +497,11 @@ def generate_save_flight_plan(flightData, trxLineSplit):
 
     while 1:
         #Get arrival gate and runway inputs
-        FLIGHT_ARRIVAL_GATE = raw_input("\nArrival gate at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalGateOptions) + "]: ")
-        FLIGHT_ARRIVAL_RUNWAY = raw_input("Arrival runway at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalRunwayOptions) + "]: ")
+        #FLIGHT_ARRIVAL_GATE = raw_input("\nPlease provide arrival gate at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalGateOptions) + "]: ")
+        #FLIGHT_ARRIVAL_RUNWAY = raw_input("Please provide arrival runway at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalRunwayOptions) + "]: ")
 
-        #FLIGHT_ARRIVAL_GATE = arrivalGateOptions[0]
-        #FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[0]
+        FLIGHT_ARRIVAL_GATE = arrivalGateOptions[random.randint(0,len(arrivalGateOptions))]
+        FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[random.randint(0,len(arrivalRunwayOptions))]
 
         if FLIGHT_ARRIVAL_GATE in arrivalGateOptions or FLIGHT_ARRIVAL_RUNWAY in arrivalRunwayOptions:
             break
