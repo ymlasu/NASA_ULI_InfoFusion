@@ -1,25 +1,55 @@
 Following are the description of the examples:
 
-1. GateToGateFp.py: This module can be run as a client program with NATS Server running in the background. The description is available in the GateToGateFpReadme.pdf file.
+1. sample/DEMO_MC_Simulation/Example_MC_code.py: This is the Monte Carlo simulation frontend. You can create samples and insert it in NATS for simulation.
+   sample/DEMO_MC_Simulation/NATS_header.py: This module contains all the frontmatter that has to be inserted in any given NATS Client program.
+   sample/DEMO_MC_Simulation/NATS_MonteCarlo_Interface.py: This is the Monte Carlo simulation backend. It takes in all the inputs from the Monte Carlo frontend, processes it, run the simulation and produces outputs in form of csv files.
+   sample/DEMO_MC_Simulation/PostProcessor.py: It is the visualization and post processing module for NATS simulations. It takes in MC simulation results and produces histograms and plots for state variables.
 
-2. SampleMonteCarlo.m: This is matlab code that can be run by opening it within MATLAB. The path needs to be set to NATS_Client in order for it to have access to the jar files. It simulates and saves trajectories inside NATS_Server/share/mcSimulation directory. Details are provided within the code comments.
+2. sample/DEMO_Procedure_Display/displayProcs.py: This module is used to display procedure. GIve it a list of airport(s). It will give out SIDs, STARs and Approaches in that order. Usage: python sample/DEMO_Procedure_Display/displayProcs.py <list of airports> eg: python sample/DEMO_Procedure_Display/displayProcs.py KSFO KMSP KDFW
+   sample/DEMO_Procedure_Display/Flight_Plan_Display_and_Creation.py: Shows how to create a flight plan with example going from SFO to PHX. 
+   sample/DEMO_Procedure_Display/NATS_header.py: This module contains all the frontmatter that has to be inserted in any given NATS Client program. 
+   sample/DEMO_Procedure_Display/PlotHelpers.py: Used for plotting procedures. It has a bunch of routines using matplotlib libraries. 
+   sample/DEMO_Procedure_Display/PostProcessor.py:  It is the visualization and post processing module for NATS simulations. It takes in MC simulation results and produces histograms and plots for state variables.
+   sample/DEMO_Procedure_Display/ProcedureDisplay.py: This is the backend that handles the display of procedures using displayProcs.py module. 
 
-3. PlotGraph.m: This is a supplementary function to SampleMonteCarlo module. It is used to plot out graphs for desired flight parameters.
+3. sample/DEMO_XPlane/XPlane_NATS_Integration_Client_beta1.2.py: The client code that reads data from a live X-Plane flight simulation, and feeds it into NATS for trajectory generation. This sample code can be used for extending real time simulation from other simulators as well.
 
-4. DEMO_Aircraft_Functions_beta1.0.py: Basic aircraft function examples.
+4. sample/basic_python_example_beta1.2.py: This program runs a basic simulation of NATS for a given flight plan. 
 
-5. DEMO_Airport_Functions_beta1.0.py: Basic airport function examples.
+5. sample/DEMO_Aircraft_Functions_beta1.2.py: Basic aircraft function examples.
 
-6. DEMO_Gate_To_Gate_Simulation_SFO_PHX_beta1.0.py: Gate-to-gate simulation from SFO to PHX.
+6. sample/DEMO_Aircraft_State_Change_beta1.2.py: Sample program demonstrating how to change aircraft state.
 
-7. DEMO_Simulation_100rec_beta1.0.py: Simulation of 100 flights for 24 hours period.
+7. sample/DEMO_Airport_Functions_beta1.2.py: Basic airport function examples.
 
-8. basic_python_example_beta1.0.py: This program runs a basic simulation of NATS for a given flight plan. 
+8. sample/DEMO_CDNR_beta1.2.py: Enable "Conflict Detection and Resolution" in flight simulation.
 
-9. Example_MC_code.py: This is the Monte Carlo simulation frontend. You can create samples and insert it in NATS for simulation.
+9. sample/DEMO_ControllerInterface_beta1.2.py: Demo of Controller module functionality.
 
-10. NATS_header.py: This module contains all the frontmatter that has to be inserted in any given NATS Client program.
+10. sample/DEMO_Gate_To_Gate_Simulation_SFO_PHX_beta1.2.py: Gate-to-gate simulation from SFO to PHX.
 
-11. NATS_MonteCarlo_Interface.py: This is the Monte Carlo simulation backend. It takes in all the inputs from the Monte Carlo frontend, processes it, run the simulation and produces outputs in form of csv files.
+11. sample/DEMO_SafetyMetricsInterface_beta1.2.py: Demo of SafetyMetrics module functionality.
 
-12. PostProcessor.py: It is the visualization and post processing module for NATS simulations. It takes in MC simulation results and produces histograms and plots for state variables.  
+12. sample/DEMO_Simulation_100rec_beta1.2.py: Simulation of 100 flights for 24 hours period.
+
+13. sample/DEMO_StrategicWeatherAvoidance_beta1.2.py: Strategic weather avoidance in flight simulation.
+
+14. sample/DEMO_TacticalWeatherAvoidance_beta1.2.py: Tactical weather avoidance in flight simulation.
+
+15. sample/GateToGateFp.py: This module can be run as a client program with NATS Server running in the background. The description is available in the GateToGateFpReadme.pdf file.
+
+16. sample/PlotGraph.m: This is a supplementary function to SampleMonteCarlo module. It is used to plot out graphs for desired flight parameters.
+
+17. sample/SampleMonteCarloController.m: MATLAB program of Monte Carlo simulation by changing Controller behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+18. sample/SampleMonteCarloPilot.m: MATLAB program of Monte Carlo simulation by changing Pilot behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+19. sample/SampleMonteCarloSafetyMetrics.m: MATLAB program of Monte Carlo simulation by changing safety metrics. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+20. sample/PathVisualizer.py: This python module is a helper function to plot trajectories on Google Map after the simulation goes through. Pre-requisite for this is Google Chrome or Mozilla Firefox browser.
+
+21. sample/DEMO_UI_TaxiRouteGenerator/arv_taxiplan_example.py: This example illustrates how to use NATS functions of airport interfaces.
+    sample/DEMO_UI_TaxiRouteGenerator/dep_taxiplan_example.py: This example illustrates how to use NATS functions for plotting airport layout and
+	design a user-designed taxi plan. This compares the user-designed taxiplan with the one
+	generated by the shortest path, which is a default method employed in NATS.
+    sample/DEMO_UI_TaxiRouteGenerator/PlotHelpers.py: Module to plot and read/write data, used as helper functions to the arrival and departure taxiplan generator.
