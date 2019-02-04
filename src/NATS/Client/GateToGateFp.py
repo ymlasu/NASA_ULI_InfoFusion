@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
 '''
             NATIONAL AIRSPACE TRAJECTORY-PREDICTION SYSTEM (NATS)
           Copyright 2018 by Optimal Synthesis Inc. All rights reserved
@@ -80,11 +80,12 @@ definedAirports = ["KABQ", "KATL", "KBDL", "KBOI", "KBOS", "KBUR", "KBWI", "KCLE
 indexedFlights = list(aircraftInterface.getAllAircraftId())
 
 #Get airport runway & procedure data
-depArrDataFile = open(NATS_SERVER + "/share/FlightPlanData/dep_arr_runway_data.csv")
+depArrDataFile = open(NATS_SERVER + "/share/FlightPlanData/dep_arr_runway_data.csv",newline='',encoding='utf-8')
 depArrData = list(csv.reader(depArrDataFile, delimiter=','))
 
-newTrx = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + str(datetime.datetime.now()) + "_updated_trx.trx", "a+")
-mflFile = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + str(datetime.datetime.now()) + "_mfl.trx", "a+")
+time = str(datetime.datetime.now())
+newTrx = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + time + "_updated_trx.trx", "a+")
+mflFile = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + time + "_mfl.trx", "a+")
 #--------------------Flight Parameters---------------------#
 FLIGHT_DEPARTED = False
 FLIGHT_TRACK_TIME = 0
@@ -391,7 +392,9 @@ def generate_save_flight_plan(flightData, trxLineSplit):
             #FLIGHT_DEPARTURE_RUNWAY = raw_input("Please provide departure runway at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureRunwayOptions) + "]: ")
             
             if not departure_gate:
-                departure_gate = random.randrange(len(departureGateOptions))
+                departure_gate = list(range(len(departureGateOptions)))
+                random.shuffle(departure_gate)
+            print(departure_gate)
             FLIGHT_DEPARTURE_GATE = departureGateOptions[departure_gate[0]]
             departure_gate.pop(0)
             FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[random.randint(0,len(departureRunwayOptions))]
@@ -508,7 +511,9 @@ def generate_save_flight_plan(flightData, trxLineSplit):
         #FLIGHT_ARRIVAL_RUNWAY = raw_input("Please provide arrival runway at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalRunwayOptions) + "]: ")
 
         if not arrival_gate:
-            arrival_gate = random.randrange(len(arrivalGateOptions))
+            arrival_gate = list(range(len(arrivalGateOptions)))
+            random.shuffle(arrival_gate)
+        print(arrival_gate)
         FLIGHT_ARRIVAL_GATE = arrivalGateOptions[arrival_gate[0]]
         arrival_gate.pop(0)
         FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[random.randint(0,len(arrivalRunwayOptions))]
@@ -755,10 +760,7 @@ def gate_to_gate_flight_plan(trxName = None):
             if flightData.split("\n")[-2].split(" ")[1] in indexedFlights:
                 #Verifying that FAA flight plan was accepted by NATS
                 print("Flight: " + flightData.split("\n")[-2].split(" ")[1])
-                try:
-                    generate_save_flight_plan(flightData, trxLineSplit)
-                except:
-                    pass
+                generate_save_flight_plan(flightData, trxLineSplit)
                 print("Flight Plan Saved for " + flightData.split("\n")[-2].split(" ")[1] + "\n")
 
     newTrx.close()
