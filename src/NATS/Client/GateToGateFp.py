@@ -397,7 +397,10 @@ def generate_save_flight_plan(flightData, trxLineSplit):
             print(departure_gate)
             FLIGHT_DEPARTURE_GATE = departureGateOptions[departure_gate[0]]
             departure_gate.pop(0)
-            FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[random.randint(0,len(departureRunwayOptions))]
+            if len(departureRunwayOptions) > 1:
+                FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[random.randint(0,len(departureRunwayOptions)-1)]
+            else:
+                FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[0]
 
             if FLIGHT_DEPARTURE_GATE in departureGateOptions or FLIGHT_DEPARTURE_RUNWAY in departureRunwayOptions:
                 break
@@ -516,7 +519,10 @@ def generate_save_flight_plan(flightData, trxLineSplit):
         print(arrival_gate)
         FLIGHT_ARRIVAL_GATE = arrivalGateOptions[arrival_gate[0]]
         arrival_gate.pop(0)
-        FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[random.randint(0,len(arrivalRunwayOptions))]
+        if len(arrivalRunwayOptions) > 1:
+            FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[random.randint(0,len(arrivalRunwayOptions))]
+        else:
+            FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[0]
 
         if FLIGHT_ARRIVAL_GATE in arrivalGateOptions or FLIGHT_ARRIVAL_RUNWAY in arrivalRunwayOptions:
             break
