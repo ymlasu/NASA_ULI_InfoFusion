@@ -115,6 +115,7 @@ FLIGHT_ARRIVAL_GATE = ""
 FLIGHT_GATE_TO_GATE_PLAN = []
 departure_gate = []
 arrival_gate = []
+
 #----------------------------------------------------------#
 
 def calculate_distance(xLat, xLon, yLat, yLon):

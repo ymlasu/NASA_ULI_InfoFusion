@@ -1,0 +1,23 @@
+National Airspace Trajectory-Prediction System(NATS)
+
+Version: beta 1.2
+
+Changes in this release:
+
+1. Fixed the simulation logic handling different aircraft departure times.
+
+2. Handled sessions between NATS Server and Client
+   Programs on client side have to execute function
+       natsClient.disConnect()
+   in order to end the connection with server.
+
+3. New feature of "Conflict Detection and Resolution"
+
+4. New feature of strategic and tactical weather avoidance
+   Strategic weather avoidance requires at least 12GB RAM to have good performance result.  Servers with small size of RAM may experience long period of execution due to Linux's swap partition I/O.
+
+5. Safety Metrics Interface Added.
+
+6. Controller Error Model Added.
+
+7. Individual Monte Carlo Simulation modules in Python and MATLAB have been added for Pilot, Controller, and SafetyMetrics Interfaces.
