@@ -110,9 +110,6 @@ FLIGHT_APPROACH_WAYPOINTS = []
 FLIGHT_ARRIVAL_RUNWAY = ""
 FLIGHT_ARRIVAL_GATE = ""
 FLIGHT_GATE_TO_GATE_PLAN = []
-departure_gate = []
-arrival_gate = []
-
 #----------------------------------------------------------#
 
 def calculate_distance(xLat, xLon, yLat, yLon):
@@ -384,15 +381,11 @@ def generate_save_flight_plan(flightData, trxLineSplit):
 
         while 1:
             #Get departure gate and runway inputs
-            #FLIGHT_DEPARTURE_GATE = raw_input("\nDeparture gate at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureGateOptions) + "]: ")
-            #FLIGHT_DEPARTURE_RUNWAY = raw_input("Departure runway at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureRunwayOptions) + "]: ")
-            
-            global departure_gate
-            if not departure_gate:
-                departure_gate = random.randrange(len(departureGateOptions))
-            FLIGHT_DEPARTURE_GATE = departureGateOptions[departure_gate[0]]
-            departure_gate.pop(0)
-            FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[random.randInt(0,len(departureRunwayOptions))]
+            FLIGHT_DEPARTURE_GATE = raw_input("\nDeparture gate at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureGateOptions) + "]: ")
+            FLIGHT_DEPARTURE_RUNWAY = raw_input("Departure runway at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureRunwayOptions) + "]: ")
+
+            #FLIGHT_DEPARTURE_GATE = departureGateOptions[0]
+            #FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[0]
 
             if FLIGHT_DEPARTURE_GATE in departureGateOptions or FLIGHT_DEPARTURE_RUNWAY in departureRunwayOptions:
                 break
@@ -505,12 +498,8 @@ def generate_save_flight_plan(flightData, trxLineSplit):
         FLIGHT_ARRIVAL_GATE = raw_input("\nArrival gate at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalGateOptions) + "]: ")
         FLIGHT_ARRIVAL_RUNWAY = raw_input("Arrival runway at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalRunwayOptions) + "]: ")
 
-        global arrival_gate
-        if not arrival_gate:
-            arrival_gate = random.randrange(len(arrivalGateOptions))
-        FLIGHT_ARRIVAL_GATE = arrivalGateOptions[arrival_gate[0]]
-        arrival_gate.pop(0)
-        FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[random.randInt(0,len(arrivalRunwayOptions))]
+        #FLIGHT_ARRIVAL_GATE = arrivalGateOptions[0]
+        #FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[0]
 
         if FLIGHT_ARRIVAL_GATE in arrivalGateOptions or FLIGHT_ARRIVAL_RUNWAY in arrivalRunwayOptions:
             break
