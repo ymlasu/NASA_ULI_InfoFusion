@@ -1,6 +1,6 @@
 National Airspace Trajectory-Prediction System(NATS)
 
-Version beta 1.2
+Version beta 1.3
 
 Client Program Module
 
@@ -68,6 +68,12 @@ Note: If you are running in a Python IDE, please make sure that you set JAVA_HOM
 2. Usage with MATLAB
    2.1 Edit sample/Sample_Matlab_beta1_2.m and specify the correct path of nats-client.jar and nats-shared.jar
    2.2 Run sample/Sample_Matlab_beta1_2.m.
+
+3. Usage with Octave
+   Please refer to "Scilab and Octave Documentation" file for installation and sample file.
+
+4. Usage with SciLab
+   Please refer to "Scilab and Octave Documentation" file for installation and sample file.
 
 
 Q & A

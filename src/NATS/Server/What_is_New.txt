@@ -1,23 +1,15 @@
 National Airspace Trajectory-Prediction System(NATS)
 
-Version: beta 1.2
+Version: beta 1.3
 
 Changes in this release:
 
-1. Fixed the simulation logic handling different aircraft departure times.
+1. Fixed bug of infinite value of ROCD if given high max flight level
 
-2. Handled sessions between NATS Server and Client
-   Programs on client side have to execute function
-       natsClient.disConnect()
-   in order to end the connection with server.
+2. Provide detail simulation in GO AROUND and all HOLD_PATTERN flight phases
 
-3. New feature of "Conflict Detection and Resolution"
+3. Add simulation handling the scenarios when aircrafts run out of runways in departing and landing
 
-4. New feature of strategic and tactical weather avoidance
-   Strategic weather avoidance requires at least 12GB RAM to have good performance result.  Servers with small size of RAM may experience long period of execution due to Linux's swap partition I/O.
+4. Fixed Gate-To-Gate Flight plan generator to parse the approach procedures that earlier had an issue.
 
-5. Safety Metrics Interface Added.
-
-6. Controller Error Model Added.
-
-7. Individual Monte Carlo Simulation modules in Python and MATLAB have been added for Pilot, Controller, and SafetyMetrics Interfaces.
+5. Added Scilab and GNU Octave support to use NATS functionalities.

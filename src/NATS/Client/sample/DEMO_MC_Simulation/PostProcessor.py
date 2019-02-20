@@ -45,15 +45,20 @@ class PostProcessor:
                  ac_name = 'ULI13-2553603', \
                  file_type = 'csv', plot_failure = False, \
                  failure_file = "conflict_manager.txt", \
-                 filenames_file = "file_list.txt"):
+                 filenames_file = "file_list.txt",
+                 auto_detect_server_folder_flag = False):
 
         '''MODIFY THIS TO THE LOCATION WHERE MC FILES ARE SITTING'''
         self.path_to_csv = file_path;
         if not os.path.exists(self.path_to_csv):
             print self.path_to_csv,' no such path exists.'
-            if not self.searchAndChangePath():
+            if not auto_detect_server_folder_flag:
                 print 'No NATS server folder found. Exiting.'
                 quit();
+            else:
+                if not self.searchAndChangePath():
+                    print 'No NATS server folder found. Exiting.'
+                    quit();
         
         '''THIS IS THE FILE TYPE IN WHICH THE OUTPUTS ARE SAVED'''
         self.file_type = file_type;

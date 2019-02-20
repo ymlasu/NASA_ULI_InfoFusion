@@ -1,3 +1,7 @@
+National Airspace Trajectory-Prediction System(NATS)
+
+Version beta 1.3
+
 Following are the description of the examples:
 
 1. sample/DEMO_MC_Simulation/Example_MC_code.py: This is the Monte Carlo simulation frontend. You can create samples and insert it in NATS for simulation.
@@ -14,7 +18,7 @@ Following are the description of the examples:
 
 3. sample/DEMO_XPlane/XPlane_NATS_Integration_Client_beta1.2.py: The client code that reads data from a live X-Plane flight simulation, and feeds it into NATS for trajectory generation. This sample code can be used for extending real time simulation from other simulators as well.
 
-4. sample/basic_python_example_beta1.2.py: This program runs a basic simulation of NATS for a given flight plan. 
+4. sample/basic_python_example_beta1.3.py: This program runs a basic simulation of NATS for a given flight plan. 
 
 5. sample/DEMO_Aircraft_Functions_beta1.2.py: Basic aircraft function examples.
 
@@ -30,26 +34,46 @@ Following are the description of the examples:
 
 11. sample/DEMO_SafetyMetricsInterface_beta1.2.py: Demo of SafetyMetrics module functionality.
 
-12. sample/DEMO_Simulation_100rec_beta1.2.py: Simulation of 100 flights for 24 hours period.
+12. sample/DEMO_SFO_PHX_Hold_Pattern_beta1.3.py: Demo of several hold patterns of a aircraft.
 
-13. sample/DEMO_StrategicWeatherAvoidance_beta1.2.py: Strategic weather avoidance in flight simulation.
+13. sample/DEMO_Simulation_100rec_beta1.2.py: Simulation of 100 flights for 24 hours period.
 
-14. sample/DEMO_TacticalWeatherAvoidance_beta1.2.py: Tactical weather avoidance in flight simulation.
+14. sample/DEMO_StrategicWeatherAvoidance_beta1.2.py: Strategic weather avoidance in flight simulation.
 
-15. sample/GateToGateFp.py: This module can be run as a client program with NATS Server running in the background. The description is available in the GateToGateFpReadme.pdf file.
+15. sample/DEMO_TacticalWeatherAvoidance_beta1.2.py: Tactical weather avoidance in flight simulation.
 
-16. sample/PlotGraph.m: This is a supplementary function to SampleMonteCarlo module. It is used to plot out graphs for desired flight parameters.
+16. sample/GateToGateFp.py: This module can be run as a client program with NATS Server running in the background. The description is available in the GateToGateFpReadme.pdf file.
 
-17. sample/SampleMonteCarloController.m: MATLAB program of Monte Carlo simulation by changing Controller behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+17. sample/Octave_SampleMonteCarloController_Beta_1.3.m: GNU Octave program of Monte Carlo simulation by changing Controller behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
 
-18. sample/SampleMonteCarloPilot.m: MATLAB program of Monte Carlo simulation by changing Pilot behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+18. sample/Octave_SampleMonteCarloPilot_Beta_1.3.m: GNU Octave program of Monte Carlo simulation by changing Pilot behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
 
-19. sample/SampleMonteCarloSafetyMetrics.m: MATLAB program of Monte Carlo simulation by changing safety metrics. It plots out the graph showing crucial flight parameters after simulation runs through.
+19. sample/Octave_SampleMonteCarloSafetyMetrics_Beta_1.3.m: GNU Octave program of Monte Carlo simulation by changing safety metrics. It plots out the graph showing crucial flight parameters after simulation runs through.
 
-20. sample/PathVisualizer.py: This python module is a helper function to plot trajectories on Google Map after the simulation goes through. Pre-requisite for this is Google Chrome or Mozilla Firefox browser.
+20. sample/Octave_SampleMonteCarloGroudParameters_Beta_1.3.m: GNU Octave program of Monte Carlo simulation by changing aircraft ground parameters. It plots out the graph showing crucial flight parameters after simulation runs through.
 
-21. sample/DEMO_UI_TaxiRouteGenerator/arv_taxiplan_example.py: This example illustrates how to use NATS functions of airport interfaces.
+21. sample/PlotGraph.m: This is a supplementary function to SampleMonteCarlo modules. It is used to plot out graphs for desired flight parameters.
+
+22. sample/SampleMonteCarloController_Beta_1_3.m: MATLAB program of Monte Carlo simulation by changing Controller behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+23. sample/SampleMonteCarloPilot_Beta_1_3.m: MATLAB program of Monte Carlo simulation by changing Pilot behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+24. sample/SampleMonteCarloSafetyMetrics_Beta_1_3.m: MATLAB program of Monte Carlo simulation by changing safety metrics. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+25. sample/SampleMonteCarloGroundParameters_Beta_1_3.m: MATLAB program of Monte Carlo simulation by changing aircraft ground parameters. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+26. sample/PathVisualizer.py: This python module is a helper function to plot trajectories on Google Map after the simulation goes through. Pre-requisite for this is Google Chrome or Mozilla Firefox browser.
+
+27. sample/Scilab_SampleMonteCarloController_Beta_1.3.sce: Scilab program of Monte Carlo simulation by changing Controller behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+28. sample/Scilab_SampleMonteCarloPilot_Beta_1.3.sce: Scilab program of Monte Carlo simulation by changing Pilot behavior. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+29. sample/Scilab_SampleMonteCarloSafetyMetrics_Beta_1.3.sce: Scilab program of Monte Carlo simulation by changing safety metrics. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+30. sample/Scilab_SampleMonteCarloGroudParameters_Beta_1.3.sce: Scilab program of Monte Carlo simulation by changing aircraft ground parameters. It plots out the graph showing crucial flight parameters after simulation runs through.
+
+31. sample/DEMO_UI_TaxiRouteGenerator/arv_taxiplan_example.py: This example illustrates how to use NATS functions of airport interfaces.
     sample/DEMO_UI_TaxiRouteGenerator/dep_taxiplan_example.py: This example illustrates how to use NATS functions for plotting airport layout and
-	design a user-designed taxi plan. This compares the user-designed taxiplan with the one
-	generated by the shortest path, which is a default method employed in NATS.
+	    design a user-designed taxi plan. This compares the user-designed taxiplan with the one
+	    generated by the shortest path, which is a default method employed in NATS.
     sample/DEMO_UI_TaxiRouteGenerator/PlotHelpers.py: Module to plot and read/write data, used as helper functions to the arrival and departure taxiplan generator.
