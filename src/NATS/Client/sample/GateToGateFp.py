@@ -58,7 +58,7 @@ NATSClientFactory = JClass('NATSClientFactory')
 natsClient = NATSClientFactory.getNATSClient()
 
 #Change this to local installation of NATS_Server (eg. home/user/NATS/NATS_Server/)
-NATS_SERVER = "NATS_SERVER_LOCATION_HERE"
+NATS_SERVER = "PLEASE_ENTER_NATS_SERVER_LOCATION_HERE"
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -68,7 +68,7 @@ airportInterface = environmentInterface.getAirportInterface()
 equipmentInterface = natsClient.getEquipmentInterface()
 aircraftInterface = equipmentInterface.getAircraftInterface()
 #This TRX location can be changed.
-aircraftInterface.load_aircraft("share/tg/trx/TRX_DEMO_SFO_PHX.trx", "share/tg/trx/TRX_DEMO_SFO_PHX_mfl.trx")
+aircraftInterface.load_aircraft("share/tg/trx/TRX_DEMO_SFO_PHX_GateToGate_noTaxiPlan.trx", "share/tg/trx/TRX_DEMO_SFO_PHX_mfl.trx")
 terminalAreaInterface = environmentInterface.getTerminalAreaInterface()
 
 #Airport scope
@@ -519,12 +519,16 @@ def generate_save_flight_plan(flightData, trxLineSplit):
         if(row[0].lower().startswith(("gate","park")) and row[0].endswith(FLIGHT_ARRIVAL_GATE)):
                 FLIGHT_ARRIVAL_GATE = row[0]
 
-    #Build ILS final approach path
-    if FLIGHT_ARRIVAL_RUNWAY[-1] in ['L', 'R', 'C']:
-        approachProcedure = "I" + FLIGHT_ARRIVAL_RUNWAY[-3:]
-    else:
-        approachProcedure = "I" + FLIGHT_ARRIVAL_RUNWAY[-2:]
+    #Input approach from user
+    while 1:
+        #Get approach procedure
+        approachProcedure = raw_input("\nPlease select approach procedure for arrival into " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(terminalAreaInterface.getAllApproaches(FLIGHT_ARRIVAL_AIRPORT)) + "]: ")
 
+
+        if approachProcedure in terminalAreaInterface.getAllApproaches(FLIGHT_ARRIVAL_AIRPORT):
+            break
+
+    
     approachProcedureLegs = list(terminalAreaInterface.getProcedure_leg_names("APPROACH", approachProcedure, FLIGHT_ARRIVAL_AIRPORT))
     appProcLegLoc = get_lat_lon(approachProcedureLegs)
     #First available ILS approach leg for landing

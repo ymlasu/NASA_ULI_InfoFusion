@@ -100,6 +100,7 @@ else:
     aircraftInterface.load_aircraft("share/tg/trx/TRX_DEMO_SFO_PHX_GateToGate.trx", "share/tg/trx/TRX_DEMO_SFO_PHX_mfl.trx")
     
     # Controller to set human error: delay time
+    # Users can try the following setting and see the difference in trajectory
     #controllerInterface.setDelayPeriod("SWA1897", AIRCRAFT_CLEARANCE_PUSHBACK, 7)
     #controllerInterface.setDelayPeriod("SWA1897", AIRCRAFT_CLEARANCE_TAKEOFF, 20)
     
@@ -114,14 +115,16 @@ else:
             break
         else:
             time.sleep(1)
-
+    
+    # Pilot to set error scenarios
+    # Users can try the following setting and see the difference in trajectory
     #pilotInterface.skipFlightPhase('SWA1897', 'FLIGHT_PHASE_CLIMB_TO_CRUISE_ALTITUDE')
     #pilotInterface.setActionRepeat('SWA1897', "VERTICAL_SPEED")
     #pilotInterface.setWrongAction('SWA1897', "AIRSPEED", "FLIGHT_LEVEL")
     #pilotInterface.setActionReversal('SWA1897', 'VERTICAL_SPEED')
     #pilotInterface.setPartialAction('SWA1897', 'COURSE', 200, 50)
     #pilotInterface.skipChangeAction('SWA1897', 'COURSE')
-    pilotInterface.setActionLag('SWA1897', 'COURSE', 10, 0.05, 60)
+    #pilotInterface.setActionLag('SWA1897', 'COURSE', 10, 0.05, 60)
 
     simulationInterface.resume()
 

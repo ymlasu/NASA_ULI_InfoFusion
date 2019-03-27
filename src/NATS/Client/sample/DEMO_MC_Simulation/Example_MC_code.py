@@ -241,7 +241,8 @@ MC_interface.MCManager(args)
 '''Post Processing and plotting the MC examples.'''
 for ac in ac_list:
     post_process = pp.PostProcessor(file_path = "../NATS_Server_20180909_1532", \
-                                    ac_name = ac);
+                                    ac_name = ac,
+                                    auto_detect_server_folder_flag = False);
 #     post_process.plotRoutine();
     post_process.plotSingleAircraftTrajectory();
     
