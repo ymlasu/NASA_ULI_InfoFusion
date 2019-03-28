@@ -134,7 +134,7 @@ Txy_Q_002,131,38.945338,-77.488826,n131,Txy,null,null,null,null
 Txy_Q_003,132,38.937826,-77.463232,n132,Txy,null,null,null,null
 Txy_Q_007,133,38.935432,-77.455163,n133,Txy,null,null,null,null
 Txy_Y9_Y11,134,38.939161,-77.459297,n134,Txy,null,null,null,null
-Rwy_01_010,135,38.93917,-77.459779,n135,Rwy,RW01C,Entry,RW19C,End
+Rwy_01_010,135,38.93917,-77.459779,n135,Rwy,RW1C,Entry,RW19C,End
 Rwy_01_009,136,38.940061,-77.45976,n136,Rwy,null,null,null,null
 Txy_Y_Z7,137,38.938249,-77.457338,n137,Txy,null,null,null,null
 Txy_Y_Y11,138,38.937838,-77.457352,n138,Txy,null,null,null,null
@@ -142,7 +142,7 @@ Txy_Z_Y11,139,38.937101,-77.456237,n139,Txy,null,null,null,null
 Txy_Z_Z7,140,38.938244,-77.456186,n140,Txy,null,null,null,null
 Txy_Z_Y9,141,38.939127,-77.456178,n141,Txy,null,null,null,null
 Txy_Z_Y8,142,38.940014,-77.456162,n142,Txy,null,null,null,null
-Rwy_01_001,143,38.970168,-77.459331,n143,Rwy,RW19C,Entry,RW01C,End
+Rwy_01_001,143,38.970168,-77.459331,n143,Rwy,RW19C,Entry,RW1C,End
 Rwy_01_002,144,38.969262,-77.459346,n144,Rwy,null,null,null,null
 Rwy_01_003,145,38.96046,-77.459481,n145,Rwy,null,null,null,null
 Rwy_01_004,146,38.958835,-77.459494,n146,Rwy,null,null,null,null
@@ -178,7 +178,7 @@ Txy_K2_K3,175,38.944336,-77.436703,n175,Txy,null,null,null,null
 Rwy_02_004,176,38.943614,-77.436151,n176,Rwy,null,null,null,null
 Rwy_02_003,177,38.945104,-77.436128,n177,Rwy,null,null,null,null
 Txy_K_K1,178,38.953981,-77.43846,n178,Txy,null,null,null,null
-Rwy_02_001,179,38.954838,-77.435983,n179,Rwy,RW19L,Entry,RW01R,End
+Rwy_02_001,179,38.954838,-77.435983,n179,Rwy,RW19L,Entry,RW1R,End
 Rwy_02_002,180,38.953948,-77.435992,n180,Rwy,null,null,null,null
 Rwy_02_006,181,38.938858,-77.436212,n181,Rwy,null,null,null,null
 Rwy_02_005,182,38.940144,-77.436206,n182,Rwy,null,null,null,null
@@ -188,7 +188,7 @@ Txy_K6_K7,185,38.934727,-77.436848,n185,Txy,null,null,null,null
 Rwy_02_008,186,38.933866,-77.436308,n186,Rwy,null,null,null,null
 Rwy_02_007,187,38.935501,-77.436264,n187,Rwy,null,null,null,null
 Rwy_02_009,188,38.925119,-77.436423,n188,Rwy,null,null,null,null
-Rwy_02_010,189,38.924229,-77.436443,n189,Rwy,RW01R,Entry,RW19L,End
+Rwy_02_010,189,38.924229,-77.436443,n189,Rwy,RW1R,Entry,RW19L,End
 Txy_K_K8,190,38.925148,-77.43889,n190,Txy,null,null,null,null
 Txy_K_K7,191,38.932273,-77.438777,n191,Txy,null,null,null,null
 Txy_Y_Z1,192,38.970135,-77.456877,n192,Txy,null,null,null,null
