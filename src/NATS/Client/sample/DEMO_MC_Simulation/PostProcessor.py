@@ -41,7 +41,7 @@ def linear_interpolation(xlow,xhigh,flow,fhigh,xeval):
 class PostProcessor:
 
 
-    def __init__(self,file_path = '../NATS_Server_20180420', \
+    def __init__(self,file_path = '../NATS_Server', \
                  ac_name = 'ULI13-2553603', \
                  file_type = 'csv', plot_failure = False, \
                  failure_file = "conflict_manager.txt", \

@@ -1,15 +1,44 @@
 National Airspace Trajectory-Prediction System(NATS)
 
-Version: beta 1.3
+Version: beta 1.4
 
 Changes in this release:
 
-1. Fixed bug of infinite value of ROCD if given high max flight level
+1. Added connection management between NATS Server and Client
+   (1) New Java library files must be included when writing client program.
+       Example,
+           In Python,
+               classpath = "dist/nats-client.jar:dist/nats-shared.jar:dist/json.jar:dist/rmiio-2.1.2.jar:dist/commons-logging-1.2.jar"
+           In MATLAB,
+               javaaddpath('dist/commons-logging-1.2.jar','-end');
+               javaaddpath('dist/json.jar','-end');
+               javaaddpath('dist/rmiio-2.1.2.jar','-end');
 
-2. Provide detail simulation in GO AROUND and all HOLD_PATTERN flight phases
+   (2) When writing client programs with NATS server running on a different machine, users have to add
+           natsClient.login("authentication_id")
+       functions to run API functions.
 
-3. Add simulation handling the scenarios when aircrafts run out of runways in departing and landing
+2. Provides Multi-User Simulation feature
+   A real-time simulation can process trajectory simulation synchronized with Universal Time (UTC) serving multiple clients.
+   Multi-user simulation allows normal users to get/set aircraft states, external aircrafts to send state data to NATS Server, and finally all trajectory data can be output together as a whole.  Sample files in NATS_Client/sample/DEMO_MultiUser are showing how the simulation is processed by multiple clients.  Different clients play as various roles to control the simulation and/or participate in it.
+   Please see detail in NATS_Client/sample/DEMO_MultiUser/README.doc
 
-4. Fixed Gate-To-Gate Flight plan generator to parse the approach procedures that earlier had an issue.
+   Reminder: Please configure the firewall setting of the computer where NATS Server resides so the TCP port can be visited.
 
-5. Added Scilab and GNU Octave support to use NATS functionalities.
+3. Strategic Weather Avoidance
+   (1) Added SIGMET file support in Strategic Weather Avoidance
+   (2) Improved algorithm for generating weather avoidance route.
+
+4. ADS-B live flight data acquisition and trajectory propagation within NATS. An RTL-SDR dongle (contact OSI for details) and antenna setup is required for this. 
+
+5. Functions for aircraft and cargo cost in $.
+
+6. Wake Vortex Hazard Envelope modeling.
+
+7. Merging and spacing of aircraft at the STAR entry meter fixes.
+
+8. Trajectory File Downloading
+   After simulation, clients can request to download the latest trajectory file from the server.
+   Please see sample file: NATS_Client/sample/DEMO_Gate_To_Gate_Simulation_SFO_PHX_beta1.4.py
+   
+9. Gate To Gate Flight Plan generator code updated, please read documentation at NATS_Client/sample/GateToGateFpReadMe.pdf for details.

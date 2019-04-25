@@ -1,6 +1,6 @@
 National Airspace Trajectory-Prediction System(NATS)
 
-Version beta 1.3
+Version beta 1.4
 
 Client Program Module
 
@@ -49,6 +49,7 @@ NATS client config file
 The config file is located at data/nats.config
 Two required required parameters are:
 1. Hostname/IP address of the target NATS server to connect to.
+   If NATS client is to connect to different machine, please set correct host name or IP address.
 2. Port number to connect to(default: 2017)
 
 
@@ -59,15 +60,15 @@ NATS interface functions are written in Java and provided through the server-cli
 1. Usage with Python Jpype
    (Please install Jpype plugin ready first.)
    1.1 Set the environment variable JAVA_HOME
-   1.2 Edit the sample/basic_python_example_beta1.2.py and specify the correct path of nats-client.jar and nats-shared.jar
+   1.2 Edit the sample/basic_python_example_beta1.4.py and specify the correct path of nats-client.jar, nats-shared.jar and json.jar
    1.3 Execute
-           python sample/basic_python_example_beta1.2.py
+           python sample/basic_python_example_beta1.4.py
 
 Note: If you are running in a Python IDE, please make sure that you set JAVA_HOME and set the working directory to NATS_Client in the runtime configuration.
 
 2. Usage with MATLAB
-   2.1 Edit sample/Sample_Matlab_beta1_2.m and specify the correct path of nats-client.jar and nats-shared.jar
-   2.2 Run sample/Sample_Matlab_beta1_2.m.
+   2.1 Edit sample/DEMO_Gate_To_Gate_Simulation_SFO_PHX_beta1_4.m and specify the correct path of nats-client.jar, nats-shared.jar and json.jar
+   2.2 Run sample/DEMO_Gate_To_Gate_Simulation_SFO_PHX_beta1_4.m.
 
 3. Usage with Octave
    Please refer to "Scilab and Octave Documentation" file for installation and sample file.
