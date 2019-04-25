@@ -9,7 +9,9 @@ import traceback
 client = str(Path(__file__).parent)+'/'
 os.environ['NATS_CLIENT_HOME']=client
 
-classpath = client+"dist/nats-client.jar:"+client+"dist/nats-shared.jar"
+classpath = client+"dist/nats-client.jar:"+client+"dist/nats-shared.jar:"+client+"dist/rmiio-2.1.2.jar:"+client+"dist/json.jar"
+
+print(classpath)
 
 startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % classpath)
 
@@ -107,11 +109,12 @@ try:
         millis = int(round(time.time() * 1000))
         print("Outputting trajectory data.  Please wait....")
         # The trajectory output file will be saved on NATS_Server side
-        simulationInterface.write_trajectories("Trajectory_SFO_PHX_beta1.0_" + str(millis) + ".csv")
+        simulationInterface.write_trajectories("Trajectory_SFO_PHX_beta1.0.csv")
     
     
         aircraftInterface.release_aircraft()
         environmentInterface.release_rap()
-except:
-    traceback.print_last()
+except Exception as e:
+    print(e)
+#    traceback.print_last()
 shutdownJVM()

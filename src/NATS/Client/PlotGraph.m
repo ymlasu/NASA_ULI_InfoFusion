@@ -9,11 +9,12 @@ Date: 08/20/2018
 %Clear Garbage Variables/Objects
 clear all;
 
-%NATS Server location (eg. /home/user/NATS/NATS_Server)
+%NATS Server location (eg. /home/user/NATS/NATS_Server).
+%Please Enter your local NATS Server location here
 NATS_Server = 'NATS_SERVER_LOCATION_HERE';
 
 %Flight for which trajectories need to be plotted
-aircraftID = 'AIRCRAFT_CALLSIGN_HERE';
+aircraftID = 'PLEASE_ENTER_AIRCRAFT_CALLSIGN_HERE';
 trajectoryCount = 10;
 
 %Iterate through the number of trajectories to be plotted
@@ -56,9 +57,9 @@ for currentTrajectory = 1:trajectoryCount
     
     %Plot altitude vs timestamp
     altitudeSubplot = subplot(3, 2, 1);
-    title(altitudeSubplot, 'Altitude vs. Timestamp');
+    title(altitudeSubplot, 'Altitude vs. Time');
     plot(timestampMatrix, altitudeMatrix);
-    xlabel('Timestamp (seconds)');
+    xlabel('Time (s)');
     ylabel('Altitude (feet)');
     %Optionally limit the x or y axis limits to focus on part of graph
     %xlim([9000 11000])
@@ -67,9 +68,9 @@ for currentTrajectory = 1:trajectoryCount
     
     %Plot true arispeed vs timestamp
     tasSubplot = subplot(3, 2, 2);
-    title(tasSubplot, 'True Airspeed vs. Timestamp');
+    title(tasSubplot, 'True Airspeed vs. Time');
     plot(timestampMatrix, trueAirSpeedMatrix);
-    xlabel('Timestamp (seconds)');
+    xlabel('Time (s)');
     ylabel('Cruise True Airspeed (knots)');
     %xlim([9000 11000])
     hold on;
@@ -87,9 +88,9 @@ for currentTrajectory = 1:trajectoryCount
     
     %Plot rate of climb/descent vs timestamp
     rocdSubplot = subplot(3, 2, 4);
-    title(rocdSubplot, 'Rate of Climb/Descent vs. Timestamp');
+    title(rocdSubplot, 'Rate of Climb/Descent vs. Time');
     plot(timestampMatrix, rocdMatrix);
-    xlabel('Timestamp (seconds)');
+    xlabel('Time (s)');
     ylabel('Rate of Climb/Descent (feet/minute)');
     %xlim([9000 11000])
     hold on;
@@ -97,9 +98,9 @@ for currentTrajectory = 1:trajectoryCount
 
     %Plot course angle vs timestamp
     courseSubplot = subplot(3, 2, 5);
-    title(courseSubplot, 'Course vs. Timestamp');
+    title(courseSubplot, 'Course vs. Time');
     plot(timestampMatrix, courseMatrix);
-    xlabel('Timestamp (seconds)');
+    xlabel('Time (s)');
     ylabel('Course (degree)');
     %xlim([9000 11000])
     hold on;
