@@ -49,6 +49,11 @@ class PostProcessor:
 
         '''MODIFY THIS TO THE LOCATION WHERE MC FILES ARE SITTING'''
         self.path_to_csv = file_path;
+        if not os.path.exists(self.path_to_csv):
+            print self.path_to_csv,' no such path exists.'
+            if not self.searchAndChangePath():
+                print 'No NATS server folder found. Exiting.'
+                quit();
         
         '''THIS IS THE FILE TYPE IN WHICH THE OUTPUTS ARE SAVED'''
         self.file_type = file_type;
@@ -71,6 +76,27 @@ class PostProcessor:
         else:
             self.failure_file_path = os.path.join(file_path,failure_file); 
             self.filenames_file = os.path.join(file_path,filenames_file)
+    
+    '''Change Path if wrong path given for NATS server'''
+    def searchAndChangePath(self):
+        parentidx = self.path_to_csv.rfind('/')
+        parent = self.path_to_csv[:parentidx]
+        parentfolders = os.listdir(parent);
+        
+        foldname = ''
+        for fname in parentfolders:
+            if 'NATS_Server' in fname:
+                foldname = fname
+        
+        if foldname == '':
+            return False;
+        else:
+            self.path_to_csv = parent +'/'+ foldname;
+            print 'Changing directory to',self.path_to_csv;
+            return True;
+            
+                
+                 
     
     '''Gets the list of all files with the given extension.
     Although only csv has been implemented. Can be extended to xml too.  
@@ -156,9 +182,9 @@ class PostProcessor:
                     tas_kts = np.float(lines[k][5])
                     heading_deg = np.float(lines[k][6])
                     fpa_deg = np.float(lines[k][7])
-                    sector_idx = np.int(lines[k][8])
-                    sector_names = lines[k][9]
-                    flight_mode = lines[k][10]            
+                    sector_idx = np.int(lines[k][9])
+                    sector_names = lines[k][10]
+                    flight_mode = lines[k][11]            
                     traj_prop = [timestamp,lat_deg,lon_deg,alt_ft,rocd_fps,tas_kts,
                                  heading_deg,fpa_deg,sector_idx,sector_names,flight_mode];
             

@@ -4,7 +4,7 @@ except ImportError:
     pass
 #------------PUT THE FOLLOWING IN EACH PROGRAM--------------------
 
-classpath = "dist/nats-client.jar:dist/nats-shared.jar"
+classpath = "dist/nats-client.jar:dist/nats-shared.jar:dist/json.jar:dist/rmiio-2.1.2.jar:dist/commons-logging-1.2.jar"
 
 startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % classpath)
 

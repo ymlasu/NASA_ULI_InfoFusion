@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
             NATIONAL AIRSPACE TRAJECTORY-PREDICTION SYSTEM (NATS)
           Copyright 2018 by Optimal Synthesis Inc. All rights reserved
@@ -15,6 +16,7 @@ import random
 import datetime
 from math import *
 from jpype import *
+
 
 #NATS dependencies and definitions
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -58,7 +60,7 @@ NATSClientFactory = JClass('NATSClientFactory')
 natsClient = NATSClientFactory.getNATSClient()
 
 #Change this to local installation of NATS_Server (eg. home/user/NATS/NATS_Server/)
-NATS_SERVER = "NATS_SERVER_LOCATION_HERE"
+NATS_SERVER = "../Server/"
 
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -68,7 +70,11 @@ airportInterface = environmentInterface.getAirportInterface()
 equipmentInterface = natsClient.getEquipmentInterface()
 aircraftInterface = equipmentInterface.getAircraftInterface()
 #This TRX location can be changed.
-aircraftInterface.load_aircraft("share/tg/trx/TRX_DEMO_SFO_PHX.trx", "share/tg/trx/TRX_DEMO_SFO_PHX_mfl.trx")
+fname = "share/tg/trx/TRX_DEMO_beta1.0_10rec_new"
+fname_noWpts = fname +"_noWpts.trx"
+trxFile = NATS_SERVER + "/"+fname+".trx"
+mfl = NATS_SERVER +"/"+fname +"_mfl.trx"
+aircraftInterface.load_aircraft(trxFile,mfl)
 terminalAreaInterface = environmentInterface.getTerminalAreaInterface()
 
 #Airport scope
@@ -78,11 +84,13 @@ definedAirports = ["KABQ", "KATL", "KBDL", "KBOI", "KBOS", "KBUR", "KBWI", "KCLE
 indexedFlights = list(aircraftInterface.getAllAircraftId())
 
 #Get airport runway & procedure data
-depArrDataFile = open(NATS_SERVER + "/share/FlightPlanData/dep_arr_runway_data.csv")
+depArrDataFile = open(NATS_SERVER + "/share/FlightPlanData/dep_arr_runway_data.csv",newline='',encoding='utf-8')
 depArrData = list(csv.reader(depArrDataFile, delimiter=','))
 
-newTrx = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + str(datetime.datetime.now()) + "_updated_trx.trx", "a+")
-mflFile = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + str(datetime.datetime.now()) + "_mfl.trx", "a+")
+time = str(datetime.datetime.now())
+newTrx = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + time + "_updated_trx.trx", "a+")
+mflFile = open(NATS_SERVER + "/share/FlightPlanData/FlightPlans/" + time + "_mfl.trx", "a+")
+
 #--------------------Flight Parameters---------------------#
 FLIGHT_DEPARTED = False
 FLIGHT_TRACK_TIME = 0
@@ -110,6 +118,9 @@ FLIGHT_APPROACH_WAYPOINTS = []
 FLIGHT_ARRIVAL_RUNWAY = ""
 FLIGHT_ARRIVAL_GATE = ""
 FLIGHT_GATE_TO_GATE_PLAN = []
+departure_gate = []
+arrival_gate = []
+
 #----------------------------------------------------------#
 
 def calculate_distance(xLat, xLon, yLat, yLon):
@@ -255,7 +266,10 @@ def process_waypoints(waypoint):
 
         #Waypoint pattern -> HBU.J146.GIJ
         elif re.match(airwayPattern, waypoint):
-            waypointData[-1]['name'] = waypointData[-1]['name'] + "." + (waypoint) + "." + waypointList[waypointList.index(waypoint) + 1]
+            if waypointList.index(waypoint)+1 != len(waypointList):
+                waypointData[-1]['name'] = waypointData[-1]['name'] + "." + (waypoint) + "." + waypointList[waypointList.index(waypoint) + 1]
+            else:
+                waypointData[-1]['name'] = waypointData[-1]['name'] + "." + (waypoint)
 
     return waypointData
 
@@ -292,6 +306,8 @@ def generate_save_flight_plan(flightData, trxLineSplit):
     global FLIGHT_GATE_TO_GATE_PLAN
     global FLIGHT_DEPARTURE_GATE
     global FLIGHT_ARRIVAL_GATE
+    global departure_gate
+    global arrival_gate
 
 
     #Set flight track time from FAA flight plan
@@ -354,8 +370,6 @@ def generate_save_flight_plan(flightData, trxLineSplit):
             for waypoint in FLIGHT_ROUTE[1:-1]:
                 FLIGHT_ENROUTE_WAYPOINTS.extend(process_waypoints(waypoint))
 
-    #print(FLIGHT_ENROUTE_WAYPOINTS)
-
     departureRunwayOptions = []
     departureGateOptions = []
     arrivalRunwayOptions = []
@@ -366,8 +380,7 @@ def generate_save_flight_plan(flightData, trxLineSplit):
             departureRunwayOptions.append(row[1])
         if row[0] == FLIGHT_ARRIVAL_AIRPORT and row[-1] == "arrival":
             arrivalRunwayOptions.append(row[1])
-
-
+            
     #---------------------------------------------------------------DEPARTURE PROCEDURES FOR ON-GROUND FLIGHTS BEGINS---------------------------------------------------------------#
     if not FLIGHT_DEPARTED:
 
@@ -380,27 +393,43 @@ def generate_save_flight_plan(flightData, trxLineSplit):
                 departureGateOptions.append(row[0].split("_")[1] + "_" + row[0].split("_")[2])
 
         while 1:
-            #Get departure gate and runway inputs
-            FLIGHT_DEPARTURE_GATE = raw_input("\nDeparture gate at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureGateOptions) + "]: ")
-            FLIGHT_DEPARTURE_RUNWAY = raw_input("Departure runway at " + FLIGHT_DEPARTURE_AIRPORT + "[" + ','.join(departureRunwayOptions) + "]: ")
-
-            #FLIGHT_DEPARTURE_GATE = departureGateOptions[0]
-            #FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[0]
+            
+            if not departure_gate:
+                departure_gate = list(range(len(departureGateOptions)))
+                random.shuffle(departure_gate)
+            FLIGHT_DEPARTURE_GATE = departureGateOptions[departure_gate[0]]
+            departure_gate.pop(0)
+            if len(departureRunwayOptions) > 1:
+                FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[random.randint(0,len(departureRunwayOptions)-1)]
+            else:
+                FLIGHT_DEPARTURE_RUNWAY = departureRunwayOptions[0]
 
             if FLIGHT_DEPARTURE_GATE in departureGateOptions or FLIGHT_DEPARTURE_RUNWAY in departureRunwayOptions:
                 break
-
+        print('FLIGHT_DEPARTURE_RUNWAY:',FLIGHT_DEPARTURE_RUNWAY)
+        rowNo = 1
         for row in departureAirportLayoutData:
-            if((row[6] == FLIGHT_DEPARTURE_RUNWAY) and (row[7] == "Entry")):
+            rowNo = rowNo+1
+            if((row[6].split(' ')[0] == FLIGHT_DEPARTURE_RUNWAY) and (row[7] == "Entry")):
+                print('FLIGHT_DEPARTURE_AIRPORT:',FLIGHT_DEPARTURE_AIRPORT)
+                print('FLIGHT_DEPARTURE_RUNWAY:', FLIGHT_DEPARTURE_RUNWAY)
+                print('Row:',rowNo)
                 departureRunwayEntryPoint = row[0]
+                print("departureRunwayEntryPoint Row:",row)
                 departureRunwayEntryPointLoc = [float(row[2]), float(row[3])]
 
-            if((row[8] == FLIGHT_DEPARTURE_RUNWAY) and (row[9] == "End")):
+            if((row[8].split(' ')[0] == FLIGHT_DEPARTURE_RUNWAY) and (row[9] == "End")):
+                print('FLIGHT_DEPARTURE_AIRPORT:',FLIGHT_DEPARTURE_AIRPORT)
+                print('FLIGHT_DEPARTURE_RUNWAY:', FLIGHT_DEPARTURE_RUNWAY)
+                print('Row:',rowNo)
                 departureRunwayTakeoffPoint = row[0]
+                print("departureTakeoffEntryPoint Row:",row)
                 departureRunwayTakeoffPointLoc = [float(row[2]), float(row[3])]
 
             if(row[0].lower().startswith(("gate","park")) and row[0].endswith(FLIGHT_DEPARTURE_GATE)):
                 FLIGHT_DEPARTURE_GATE = row[0]
+                print("FlightDepartureGate Row:",row)
+
 
         #Point till which aircraft maintains runway heading
         FLIGHT_TURN_TO_SID = [{'lat': -2 * departureRunwayEntryPointLoc[0] + 3 * departureRunwayTakeoffPointLoc[0], 'lon':-2 * departureRunwayEntryPointLoc[1] + 3 * departureRunwayTakeoffPointLoc[1], 'name': "TURN_TO_SID"}]
@@ -446,9 +475,11 @@ def generate_save_flight_plan(flightData, trxLineSplit):
                     sidLegFirstPoints.append(list(terminalAreaInterface.getWaypoints_in_procedure_leg("SID", sidProcName, FLIGHT_DEPARTURE_AIRPORT, sidLeg))[0])
                     sidNameLog.append(sidProcName)
                     sidLegsLog.append(sidLeg)
+                    
 
             if len(FLIGHT_ENROUTE_WAYPOINTS) > 0:
                 #Calculate closest SID leg to first point on en route plan
+                
                 optimalIndices = closest_waypoint(get_lat_lon(sidLegLastPoints), FLIGHT_ENROUTE_WAYPOINTS[0])
                 updatedSidFirstPoints = []
                 for index in optimalIndices:
@@ -495,11 +526,19 @@ def generate_save_flight_plan(flightData, trxLineSplit):
 
     while 1:
         #Get arrival gate and runway inputs
-        FLIGHT_ARRIVAL_GATE = raw_input("\nArrival gate at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalGateOptions) + "]: ")
-        FLIGHT_ARRIVAL_RUNWAY = raw_input("Arrival runway at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalRunwayOptions) + "]: ")
+        #FLIGHT_ARRIVAL_GATE = raw_input("\nPlease provide arrival gate at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalGateOptions) + "]: ")
+        #FLIGHT_ARRIVAL_RUNWAY = raw_input("Please provide arrival runway at " + FLIGHT_ARRIVAL_AIRPORT + "[" + ','.join(arrivalRunwayOptions) + "]: ")
 
-        #FLIGHT_ARRIVAL_GATE = arrivalGateOptions[0]
-        #FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[0]
+        if not arrival_gate:
+            arrival_gate = list(range(len(arrivalGateOptions)))
+            random.shuffle(arrival_gate)
+        print(arrival_gate)
+        FLIGHT_ARRIVAL_GATE = arrivalGateOptions[arrival_gate[0]]
+        arrival_gate.pop(0)
+        if len(arrivalRunwayOptions) > 1:
+            FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[random.randint(0,len(arrivalRunwayOptions))-1]
+        else:
+            FLIGHT_ARRIVAL_RUNWAY = arrivalRunwayOptions[0]
 
         if FLIGHT_ARRIVAL_GATE in arrivalGateOptions or FLIGHT_ARRIVAL_RUNWAY in arrivalRunwayOptions:
             break
@@ -713,9 +752,11 @@ def gate_to_gate_flight_plan(trxName = None):
     trxData = read_trx(trxName)
     trxLineSplit = trxData.split("\n")
     trxFlights = trxData.split("\n\n")[:-1]
+    print("Processing gate to gate flight plan.")
     for flightData in trxFlights:
-
+        print ("flightData:",flightData)
         if(flightData.split("\n")[-2].split(" ")[1] not in indexedFlights):
+            print("Flight not in indexed flights.")
             continue
 
         trxDepartureAirport = re.compile('[A-Z]+').findall(flightData.split("\n")[-1].split(" ")[5])[0]
@@ -741,17 +782,19 @@ def gate_to_gate_flight_plan(trxName = None):
         if trxArrivalAirport in definedAirports and trxDepartureAirport in definedAirports:
             #Only for airports defined within NATS
             if flightData.split("\n")[-2].split(" ")[1] in indexedFlights:
+                print("Flight in indexed flights.")
                 #Verifying that FAA flight plan was accepted by NATS
                 print("Flight: " + flightData.split("\n")[-2].split(" ")[1])
-                try:
-                    generate_save_flight_plan(flightData, trxLineSplit)
-                except:
-                    pass
+                generate_save_flight_plan(flightData, trxLineSplit)
                 print("Flight Plan Saved for " + flightData.split("\n")[-2].split(" ")[1] + "\n")
+            else:
+                print("Else 1")
+        else:
+            print("Else 2")
 
     newTrx.close()
     mflFile.close()
     depArrDataFile.close()
 
 #Call method with location for the original TRX file containing FAA flight plans
-gate_to_gate_flight_plan(NATS_SERVER + "/share/tg/trx/TRX_DEMO_SFO_PHX.trx")
+gate_to_gate_flight_plan(NATS_SERVER +fname_noWpts)

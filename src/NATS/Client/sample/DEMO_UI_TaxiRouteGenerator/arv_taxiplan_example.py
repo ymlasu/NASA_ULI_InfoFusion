@@ -16,7 +16,7 @@ import os
 #a directory where NATS_Client jar files are located.
 #client_dir='/home/jun/optisyn/p1703-Demo/0329/NATS_Client_20180329/'
 client_dir='PLEASE_ENTER_PATH_TO_NATS_CLIENT_HERE'
-classpath =client_dir+"dist/nats-client.jar"+":"+client_dir+"dist/nats-shared.jar"
+classpath =client_dir+"dist/nats-client.jar"+":"+client_dir+"dist/nats-shared.jar"+":"+client_dir+"dist/json.jar"+":"+client_dir+"dist/rmiio-2.1.2.jar"+":"+client_dir+"dist/commons-logging-1.2.jar"
 
 #b directory in which Center and Sector data are located
 data_dir = './data'
@@ -27,6 +27,8 @@ data_dir = './data'
 jp.startJVM(jp.getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % classpath)
 NATSClientFactory = jp.JClass('NATSClientFactory')
 natsClient = NATSClientFactory.getNATSClient()
+
+natsClient.login("admin")
 
 #----------------------------------------------------------------------------------------------
 # TaxiPlan for the arrival airport
@@ -195,6 +197,7 @@ if write_route_to_file:
 if write_arpt_to_kml:
     if arv_arpt_surf:
         arv_arpt_surf.write_airport_layout_to_kml()
+
 
 natsClient.disConnect()
 #JVM shutdown

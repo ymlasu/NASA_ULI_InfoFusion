@@ -71,10 +71,13 @@ class NATS_MonteCarlo_Interface:
         
         self.controllerInterface = self.entityInterface.getControllerInterface();
 
-
+        self.natsClient.login("admin")
         
     
-    def shutdownJVM(self):
+    def shutdownJVM(self):        
+        # Close connection from NATS Server
+        self.natsClient.disConnect()
+        
         shutdownJVM()
     
     def getNATSClient(self):
@@ -693,7 +696,7 @@ if __name__ == '__main__':
     args = [[curr_ac],args_dict[6],lat_vec,fpwpidx]
     MC_interface.runMCSims(args)
     
-    post_process = pp.PostProcessor(file_path = "../NATS_Server_20180903_2037", \
+    post_process = pp.PostProcessor(file_path = "../NATS_Server", \
                  ac_name = curr_ac);
     
     post_process.plotRoutine();

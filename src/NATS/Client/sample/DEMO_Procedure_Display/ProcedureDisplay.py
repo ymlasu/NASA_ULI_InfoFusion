@@ -66,8 +66,14 @@ class NATSInterface:
                 
         self.aircraftInterface = self.equipmentInterface.getAircraftInterface(); 
         
+        self.natsClient.login("admin")
+        
         
     def shutdownJVM(self):
+        
+        # Close connection from NATS Server
+        self.natsClient.disConnect()
+        
         shutdownJVM()
     
     def getNATSClient(self):

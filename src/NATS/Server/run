@@ -8,4 +8,4 @@ sh $NATS_SERVER_HOME/utility/run_nodejs.sh &
 
 sleep 1
 
-/opt/java/64/jdk1.7.0_80/bin/java -cp $NATS_SERVER_HOME/dist/nats-server.jar:$NATS_SERVER_HOME/dist/nats-shared.jar -Djava.library.path=$NATS_SERVER_HOME/dist -Xmx768m NATSServer 2017 $1
+/usr/bin/java -cp $NATS_SERVER_HOME/dist/nats-server.jar:$NATS_SERVER_HOME/dist/nats-shared.jar:$NATS_SERVER_HOME/dist/rmiio-2.1.2.jar:$NATS_SERVER_HOME/dist/commons-logging-1.2.jar -Djava.library.path=$NATS_SERVER_HOME/dist -Xmx768m NATSServer 2017 $1

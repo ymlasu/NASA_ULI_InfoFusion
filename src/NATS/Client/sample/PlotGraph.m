@@ -6,19 +6,7 @@ Author: Hari Iyer
 Date: 08/20/2018
 %}
 
-function plotRouteineCalled = PlotGraph(callsign, userTrajectoryCount)
-
-    %Auto detect NATS Server location
-    NATS_Server = '';
-    parentDir = dir('../');
-    isub = [parentDir(:).isdir];
-    directories = {parentDir(isub).name}';
-    for index=1:length(directories)
-        cellValue = directories(index);
-        if(~isempty(strfind(cellValue{1}, 'NATS_Server')))
-            NATS_Server = ['../' cellValue{1}];
-        end
-    end
+function plotRouteineCalled = PlotGraph(callsign, userTrajectoryCount, platform, NATS_Server)
 
     %Flight for which trajectories need to be plotted
     aircraftID = callsign;
@@ -27,9 +15,18 @@ function plotRouteineCalled = PlotGraph(callsign, userTrajectoryCount)
     %Iterate through the number of trajectories to be plotted
     for currentTrajectory = 1:trajectoryCount
         %Read trajectory files in  to a table and convert it to an array
-        CSVcontents = readtable([NATS_Server '/share/mcSimulation/' aircraftID '-Monte-Carlo-Sim-Trajectory_' num2str(currentTrajectory) '.csv'],'Delimiter',';','ReadVariableNames',false);
-        FlightParameters = table2array(CSVcontents);
+        if(platform == 'MATLAB')
+            CSVcontents = readtable([NATS_Server '/share/mcSimulation/' aircraftID '-Monte-Carlo-Sim-Trajectory_' num2str(currentTrajectory) '.csv'],'Delimiter',';','ReadVariableNames',false);
+            FlightParameters = table2array(CSVcontents);
+        else
+            %Graph plotting for visualizing vital flight parameter data 
+            S = fileread([NATS_Server '/share/mcSimulation/' aircraftID '-Octave-Monte-Carlo-Sim-Trajectory_' num2str(currentTrajectory) '.csv']);
+            FlightParameters = strsplit(S, '\n');            
+        end
 
+        if(platform == 'Octave')
+            FlightParameters(end) = [];
+        end
         %Initialize flight parameter variables
         trueAirSpeedReadings = cell(length(FlightParameters) - 10, 1);
         altitudeReadings = cell(length(FlightParameters) - 10, 1);
@@ -128,3 +125,4 @@ function plotRouteineCalled = PlotGraph(callsign, userTrajectoryCount)
 
     end
 end
+

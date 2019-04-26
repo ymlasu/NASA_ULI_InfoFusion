@@ -1,23 +1,44 @@
 National Airspace Trajectory-Prediction System(NATS)
 
-Version: beta 1.2
+Version: beta 1.4
 
 Changes in this release:
 
-1. Fixed the simulation logic handling different aircraft departure times.
+1. Added connection management between NATS Server and Client
+   (1) New Java library files must be included when writing client program.
+       Example,
+           In Python,
+               classpath = "dist/nats-client.jar:dist/nats-shared.jar:dist/json.jar:dist/rmiio-2.1.2.jar:dist/commons-logging-1.2.jar"
+           In MATLAB,
+               javaaddpath('dist/commons-logging-1.2.jar','-end');
+               javaaddpath('dist/json.jar','-end');
+               javaaddpath('dist/rmiio-2.1.2.jar','-end');
 
-2. Handled sessions between NATS Server and Client
-   Programs on client side have to execute function
-       natsClient.disConnect()
-   in order to end the connection with server.
+   (2) When writing client programs with NATS server running on a different machine, users have to add
+           natsClient.login("authentication_id")
+       functions to run API functions.
 
-3. New feature of "Conflict Detection and Resolution"
+2. Provides Multi-User Simulation feature
+   A real-time simulation can process trajectory simulation synchronized with Universal Time (UTC) serving multiple clients.
+   Multi-user simulation allows normal users to get/set aircraft states, external aircrafts to send state data to NATS Server, and finally all trajectory data can be output together as a whole.  Sample files in NATS_Client/sample/DEMO_MultiUser are showing how the simulation is processed by multiple clients.  Different clients play as various roles to control the simulation and/or participate in it.
+   Please see detail in NATS_Client/sample/DEMO_MultiUser/README.doc
 
-4. New feature of strategic and tactical weather avoidance
-   Strategic weather avoidance requires at least 12GB RAM to have good performance result.  Servers with small size of RAM may experience long period of execution due to Linux's swap partition I/O.
+   Reminder: Please configure the firewall setting of the computer where NATS Server resides so the TCP port can be visited.
 
-5. Safety Metrics Interface Added.
+3. Strategic Weather Avoidance
+   (1) Added SIGMET file support in Strategic Weather Avoidance
+   (2) Improved algorithm for generating weather avoidance route.
 
-6. Controller Error Model Added.
+4. ADS-B live flight data acquisition and trajectory propagation within NATS. An RTL-SDR dongle (contact OSI for details) and antenna setup is required for this. 
 
-7. Individual Monte Carlo Simulation modules in Python and MATLAB have been added for Pilot, Controller, and SafetyMetrics Interfaces.
+5. Functions for aircraft and cargo cost in $.
+
+6. Wake Vortex Hazard Envelope modeling.
+
+7. Merging and spacing of aircraft at the STAR entry meter fixes.
+
+8. Trajectory File Downloading
+   After simulation, clients can request to download the latest trajectory file from the server.
+   Please see sample file: NATS_Client/sample/DEMO_Gate_To_Gate_Simulation_SFO_PHX_beta1.4.py
+   
+9. Gate To Gate Flight Plan generator code updated, please read documentation at NATS_Client/sample/GateToGateFpReadMe.pdf for details.
