@@ -1,0 +1,653 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>groundSSD &mdash; NASA_ULI_InfoFusion  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="NASA_ULI_InfoFusion  documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> NASA_ULI_InfoFusion</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">NASA_ULI_InfoFusion</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>groundSSD</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for groundSSD</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">NASA NextGen NAS ULI Information Fusion</span>
+<span class="sd">        </span>
+<span class="sd">@organization: Southwest Research Institute</span>
+<span class="sd">@author: Michael Hartnett</span>
+<span class="sd">@date: 01/9/2019</span>
+
+<span class="sd">Find all aircraft in conflict based on state-space model</span>
+<span class="sd">@params</span>
+<span class="sd">cursor - to connect to database</span>
+<span class="sd">airportIATA - 3 letter airport ID</span>
+<span class="sd">separation - the distance threshold for conflict, in meters</span>
+
+<span class="sd">SSD calculations from https://github.com/TUDelft-CNS-ATM/bluesky by TU Delft</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">PARA_ATM</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyclipper</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s">&quot;ignore&quot;</span><span class="p">)</span>
+
+<span class="c">#conversion from miles to nautical miles</span>
+<span class="n">nm</span> <span class="o">=</span> <span class="mf">0.868976</span>
+<span class="c">#conversion from feet to meters</span>
+<span class="n">ft_per_m</span> <span class="o">=</span> <span class="mf">0.3048</span>
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../index.html#groundSSD.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Class Command wraps the command methods and functions to be executed. For user-defined commands, this name </span>
+<span class="sd">        should be kept the same (Command).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c">#Here, the database connector and the parameter are passed as arguments. This can be changed as per need.</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">map_object</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">cursor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">airportIATA</span> <span class="o">=</span> <span class="k">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NATS_path</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IFF_path</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="c">#map object for visualization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="o">=</span> <span class="n">map_object</span>
+        <span class="c">#default value: 1 second</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lookahead</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c">#lookahead time was passed</span>
+            <span class="k">if</span> <span class="s">&#39;.csv&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>   <span class="c">#using filename</span>
+                <span class="k">if</span> <span class="s">&#39;IFF&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="c">#IFF file</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">IFF_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>               <span class="c">#NATS sim file</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">NATS_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>                   <span class="c">#airport</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">airportIATA</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lookahead</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>                       <span class="c">#lookahead not passed, use default</span>
+            <span class="k">if</span> <span class="s">&#39;.csv&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>      <span class="c">#args is now handled as a string, not a list</span>
+                <span class="k">if</span> <span class="s">&#39;IFF&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">IFF_path</span> <span class="o">=</span> <span class="n">args</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">NATS_path</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">airportIATA</span> <span class="o">=</span> <span class="n">args</span>
+
+<div class="viewcode-block" id="Command.load_BADA"><a class="viewcode-back" href="../index.html#groundSSD.Command.load_BADA">[docs]</a>    <span class="k">def</span> <span class="nf">load_BADA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">statuses</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            returns dynamic sep dist and velocity constraints based on phase of flight</span>
+
+<span class="sd">            args:</span>
+<span class="sd">                statuses = a list of phases of flight</span>
+<span class="sd">            returns:</span>
+<span class="sd">                list of dicts of form {&#39;vmin&#39;:knots,&#39;vmax&#39;:knots,&#39;sep&#39;:meters}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">statuses</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="k">None</span><span class="p">:</span>  <span class="c">#TODO: currently assumes pushback for missing phase</span>
+                <span class="k">yield</span> <span class="p">{</span><span class="s">&#39;vmin&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;vmax&#39;</span><span class="p">:</span><span class="mi">4</span><span class="o">*</span><span class="n">nm</span><span class="p">,</span><span class="s">&#39;sep&#39;</span><span class="p">:</span><span class="mi">175</span><span class="o">*</span><span class="n">ft_per_m</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;onsurface&#39;</span> <span class="ow">or</span> <span class="s">&#39;GATE&#39;</span> <span class="ow">in</span> <span class="n">status</span> <span class="ow">or</span> <span class="s">&#39;PUSHBACK&#39;</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span> <span class="c">#pushback phase as labeled in TDDS and NATS</span>
+                <span class="k">yield</span> <span class="p">{</span><span class="s">&#39;vmin&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;vmax&#39;</span><span class="p">:</span><span class="mi">4</span><span class="o">*</span><span class="n">nm</span><span class="p">,</span><span class="s">&#39;sep&#39;</span><span class="p">:</span><span class="mi">175</span><span class="o">*</span><span class="n">ft_per_m</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;onramp&#39;</span> <span class="ow">or</span> <span class="s">&#39;DEPARTING&#39;</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span> <span class="c">#taxi</span>
+                <span class="k">yield</span> <span class="p">{</span><span class="s">&#39;vmin&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;vmax&#39;</span><span class="p">:</span><span class="mi">30</span><span class="o">*</span><span class="n">nm</span><span class="p">,</span><span class="s">&#39;sep&#39;</span><span class="p">:</span><span class="mi">200</span><span class="o">*</span><span class="n">ft_per_m</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>   <span class="c">#takeoff/landing, assuming no enroute data</span>
+                <span class="k">yield</span> <span class="p">{</span><span class="s">&#39;vmin&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;vmax&#39;</span><span class="p">:</span><span class="mi">200</span><span class="o">*</span><span class="n">nm</span><span class="p">,</span><span class="s">&#39;sep&#39;</span><span class="p">:</span><span class="mi">2640</span><span class="o">*</span><span class="n">ft_per_m</span><span class="p">}</span></div>
+
+    <span class="c">#NOTE we are not currently using this function. it is part of the more complex qdr and dist matrix calculation</span>
+<div class="viewcode-block" id="Command.rwgs84_matrix"><a class="viewcode-back" href="../index.html#groundSSD.Command.rwgs84_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">rwgs84_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">latd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate the earths radius with WGS&#39;84 geoid definition</span>
+<span class="sd">            In:  lat [deg] (latitude)</span>
+<span class="sd">            Out: R   [m]   (earth radius) &quot;&quot;&quot;</span>
+        <span class="n">lat</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">latd</span><span class="p">)</span>
+        <span class="n">a</span>      <span class="o">=</span> <span class="mf">6378137.0</span>       <span class="c"># [m] Major semi-axis WGS-84</span>
+        <span class="n">b</span>      <span class="o">=</span> <span class="mf">6356752.314245</span>  <span class="c"># [m] Minor semi-axis WGS-84</span>
+        <span class="n">coslat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+        <span class="n">sinlat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+        <span class="n">an</span>     <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">coslat</span>
+        <span class="n">bn</span>     <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">b</span> <span class="o">*</span> <span class="n">sinlat</span>
+        <span class="n">ad</span>     <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">coslat</span>
+        <span class="n">bd</span>     <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">sinlat</span>
+
+        <span class="n">anan</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">an</span><span class="p">,</span> <span class="n">an</span><span class="p">)</span>
+        <span class="n">bnbn</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">bn</span><span class="p">,</span> <span class="n">bn</span><span class="p">)</span>
+        <span class="n">adad</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">ad</span><span class="p">,</span> <span class="n">ad</span><span class="p">)</span>
+        <span class="n">bdbd</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">bd</span><span class="p">,</span> <span class="n">bd</span><span class="p">)</span>
+
+        <span class="c"># Calculate radius in meters</span>
+        <span class="n">r</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">anan</span> <span class="o">+</span> <span class="n">bnbn</span><span class="p">,</span> <span class="n">adad</span> <span class="o">+</span> <span class="n">bdbd</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">r</span></div>
+    
+    <span class="c">#straight from bluesky</span>
+<div class="viewcode-block" id="Command.area"><a class="viewcode-back" href="../index.html#groundSSD.Command.area">[docs]</a>    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This function calculates the area of the set of FRV or ARV &quot;&quot;&quot;</span>
+        <span class="c"># Initialize A as it could be calculated iteratively</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c"># Check multiple exteriors</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">vset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="c"># Calc every exterior separately</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vset</span><span class="p">)):</span>
+                <span class="n">A</span> <span class="o">+=</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_from_clipper</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_from_clipper</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">Area</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_to_clipper</span><span class="p">(</span><span class="n">vset</span><span class="p">[</span><span class="n">i</span><span class="p">]))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Single exterior</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_from_clipper</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_from_clipper</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">Area</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_to_clipper</span><span class="p">(</span><span class="n">vset</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="n">A</span></div>
+
+    <span class="c">#straight from bluesky</span>
+<div class="viewcode-block" id="Command.qdrdist_matrix_indices"><a class="viewcode-back" href="../index.html#groundSSD.Command.qdrdist_matrix_indices">[docs]</a>    <span class="k">def</span> <span class="nf">qdrdist_matrix_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; generate pairwise combinations between n objects &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ind1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">x</span><span class="p">,(</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ind2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ind1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">ind2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span> <span class="o">*-</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ind2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">ind2</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">ind2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ind1</span><span class="p">,</span><span class="n">ind2</span></div>
+
+<div class="viewcode-block" id="Command.qdrdist_matrix"><a class="viewcode-back" href="../index.html#groundSSD.Command.qdrdist_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">qdrdist_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate bearing and distance vectors, using WGS&#39;84</span>
+<span class="sd">        In:</span>
+<span class="sd">        latd1,lond1 en latd2, lond2 [deg] :positions 1 &amp; 2 (vectors)</span>
+<span class="sd">        Out:</span>
+<span class="sd">        qdr [deg] = heading from 1 to 2 (matrix)</span>
+<span class="sd">        d [nm]= distance from 1 to 2 in nm (matrix) &quot;&quot;&quot;</span>
+        <span class="n">re</span>      <span class="o">=</span> <span class="mf">6371000.</span>  <span class="c"># radius earth [m]</span>
+        <span class="n">dlat</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat2</span> <span class="o">-</span> <span class="n">lat1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">dlon</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">cavelat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat1</span> <span class="o">+</span> <span class="n">lat2</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">dangle</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">dlat</span><span class="p">,</span> <span class="n">dlat</span><span class="p">)</span> <span class="o">+</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlon</span><span class="p">),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">cavelat</span><span class="p">,</span> <span class="n">cavelat</span><span class="p">)))</span>
+        <span class="n">dist</span>    <span class="o">=</span> <span class="n">re</span> <span class="o">*</span> <span class="n">dangle</span>
+
+        <span class="n">qdr</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">dlon</span><span class="p">,</span> <span class="n">cavelat</span><span class="p">),</span> <span class="n">dlat</span><span class="p">))</span> <span class="o">%</span> <span class="mf">360.</span>
+
+        <span class="k">return</span> <span class="n">qdr</span><span class="p">,</span> <span class="n">dist</span>    <span class="c">#this is the simplified version of angle and dist calc</span>
+        
+        <span class="c">#begin more complex calculation</span>
+        <span class="c">#runtime is &gt;2x the above version</span>
+        <span class="n">prodla</span> <span class="o">=</span>  <span class="n">lat1</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">lat2</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="n">prodla</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">prodla</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rwgs84_matrix</span><span class="p">(</span><span class="n">lat1</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">lat2</span><span class="p">))</span>
+        
+        <span class="n">a</span> <span class="o">=</span> <span class="mf">6378137.0</span>
+        
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">condition</span><span class="p">),</span> <span class="n">r</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span>
+          <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat1</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rwgs84_matrix</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span><span class="o">+</span><span class="n">a</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span>
+           <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat2</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rwgs84_matrix</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span><span class="o">+</span><span class="n">a</span><span class="p">)))),</span>
+          <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">+</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat2</span><span class="p">)))))</span><span class="c">#+(lat1 == 0.)*0.000001))))  # different hemisphere</span>
+        
+        <span class="n">diff_lat</span> <span class="o">=</span> <span class="n">lat2</span><span class="o">-</span><span class="n">lat1</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">diff_lon</span> <span class="o">=</span> <span class="n">lon2</span><span class="o">-</span><span class="n">lon1</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">sin1</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">diff_lat</span><span class="p">))</span>
+        <span class="n">sin2</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">diff_lon</span><span class="p">))</span>
+        
+        <span class="n">sinlat1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat1</span><span class="p">))</span>
+        <span class="n">sinlat2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat2</span><span class="p">))</span>
+        <span class="n">coslat1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat1</span><span class="p">))</span>
+        <span class="n">coslat2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat2</span><span class="p">))</span>
+        
+        <span class="n">sin10</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sin1</span><span class="o">/</span><span class="mf">2.</span><span class="p">))</span>
+        <span class="n">sin20</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sin2</span><span class="o">/</span><span class="mf">2.</span><span class="p">))</span>
+        <span class="n">sin1sin1</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">sin10</span><span class="p">,</span> <span class="n">sin10</span><span class="p">)</span>
+        <span class="n">sin2sin2</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">sin20</span><span class="p">,</span> <span class="n">sin20</span><span class="p">)</span>
+        <span class="n">sqrt</span> <span class="o">=</span>  <span class="n">sin1sin1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">((</span><span class="n">coslat1</span><span class="o">.</span><span class="n">T</span><span class="o">*</span><span class="n">coslat2</span><span class="p">),</span> <span class="n">sin2sin2</span><span class="p">)</span>
+        
+        <span class="n">dist_c</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sqrt</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">sqrt</span><span class="p">)))</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">dist_c</span><span class="p">)</span>
+        
+        <span class="n">sin21</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sin2</span><span class="p">)</span>
+        <span class="n">cos21</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">sin2</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">sin21</span><span class="p">,</span> <span class="n">coslat2</span><span class="p">)</span>
+        
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">coslat1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">sinlat2</span><span class="p">)</span>
+        
+        <span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">sinlat1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">coslat2</span><span class="p">)</span>
+        <span class="n">x3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">cos21</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x1</span><span class="o">-</span><span class="n">x3</span>
+        
+        <span class="n">qdr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">qdr</span><span class="p">,</span><span class="n">dist</span></div>
+        
+<div class="viewcode-block" id="Command.conflict"><a class="viewcode-back" href="../index.html#groundSSD.Command.conflict">[docs]</a>    <span class="k">def</span> <span class="nf">conflict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">traffic</span><span class="p">,</span><span class="n">ac_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            constructs SSDs for the current timeframe, populates FRV and ARV, and calculates FPF for aircraft in conflict</span>
+<span class="sd">            args:</span>
+<span class="sd">                traffic = pandas dataframe at the current time</span>
+<span class="sd">                ac_info = the output of load_bada command</span>
+<span class="sd">            returns:</span>
+<span class="sd">                FPF = pandas dataframe of aircraft in the current timeframe and each respective FPF measure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#convert string in dataframe to float</span>
+        <span class="n">lat</span><span class="p">,</span><span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">traffic</span><span class="p">[</span><span class="s">&#39;latitude&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">traffic</span><span class="p">[</span><span class="s">&#39;longitude&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">gsnorth</span><span class="p">,</span><span class="n">gseast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">traffic</span><span class="p">[</span><span class="s">&#39;y&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">traffic</span><span class="p">[</span><span class="s">&#39;x&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">hsep</span> <span class="o">=</span> <span class="n">ac_info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;sep&#39;</span><span class="p">]</span>
+        <span class="c"># Local variables, will be put into asas later</span>
+        <span class="n">FRV_loc</span>          <span class="o">=</span> <span class="p">[</span><span class="k">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">)</span>
+        <span class="n">ARV_loc</span>          <span class="o">=</span> <span class="p">[</span><span class="k">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">)</span>
+        <span class="c"># For calculation purposes</span>
+        <span class="n">ARV_calc_loc</span>     <span class="o">=</span> <span class="p">[</span><span class="k">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">)</span>
+        <span class="n">FRV_area_loc</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ARV_area_loc</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="c">#constants</span>
+        <span class="n">N_angle</span> <span class="o">=</span> <span class="mi">180</span>
+        <span class="n">alpham</span>  <span class="o">=</span> <span class="mf">0.4999</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">betalos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span>
+        <span class="n">adsbmax</span> <span class="o">=</span> <span class="mi">65</span> <span class="o">*</span> <span class="mi">5280</span> <span class="o">*</span> <span class="n">ft_per_m</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">betalos</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">N_angle</span><span class="p">)</span>
+        <span class="c">#segments of the unit circle</span>
+        <span class="n">xyc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angles</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angles</span><span class="p">))),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">N_angle</span><span class="p">)))</span>
+        <span class="n">circle_tup</span><span class="p">,</span><span class="n">circle_lst</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(),[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">)):</span>
+            
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            if ac_info[i][&#39;vmax&#39;] == 30*nm: #taxi</span>
+<span class="sd">                heading = traffic.iloc[i][&#39;heading&#39;]</span>
+<span class="sd">                #put between 0-360</span>
+<span class="sd">                if heading &lt; 0:</span>
+<span class="sd">                    heading += 360</span>
+<span class="sd">                #find center of jet blast</span>
+<span class="sd">                opp_heading_ind = heading//2 - 90</span>
+<span class="sd">                #build ellipsoid part of outer circle</span>
+<span class="sd">                for j in range(45):</span>
+<span class="sd">                    xyc[opp_heading_ind-45+j] = xyc[opp_heading_ind-45+j] * (1+j/45)</span>
+<span class="sd">                for j in range(45):</span>
+<span class="sd">                    xyc[opp_heading_ind+j] = xyc[opp_heading_ind+j] * (2-j/45)</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+
+            <span class="n">circle_tup</span><span class="o">+=</span><span class="p">((</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">xyc</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]))),</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span> <span class="p">,</span> <span class="n">xyc</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmin&#39;</span><span class="p">])),),)</span>
+            <span class="n">circle_lst</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">xyc</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]))),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">list</span> <span class="p">,</span> <span class="n">xyc</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmin&#39;</span><span class="p">])),])</span>
+       
+        <span class="c">#only one aircraft reported in this timeframe</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c">#generate the dist matrix pairs</span>
+        <span class="n">ind1</span><span class="p">,</span> <span class="n">ind2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qdrdist_matrix_indices</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">))</span>
+        <span class="c">#do the same thing in a way that we can pass to the next function in python3</span>
+        <span class="n">lat1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">lat</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">lon1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">lon</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">lat2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lat2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">lat2</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="p">))])</span>
+        <span class="n">lon2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lon2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">lon2</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">))])</span>
+        <span class="c">#calculate the distance matrix and angles between aircraft</span>
+        <span class="n">qdr</span><span class="p">,</span><span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qdrdist_matrix</span><span class="p">(</span><span class="n">lat1</span><span class="p">,</span><span class="n">lon1</span><span class="p">,</span><span class="n">lat2</span><span class="p">,</span><span class="n">lon2</span><span class="p">)</span>
+        <span class="n">qdr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">qdr</span><span class="p">)</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+        <span class="n">qdr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">qdr</span><span class="p">)</span>
+        <span class="c">#exclude 0 distance AKA same aircraft</span>
+        <span class="n">dist</span><span class="p">[(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">hsep</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hsep</span>
+        <span class="n">dist</span><span class="p">[</span><span class="n">dist</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">hsep</span><span class="o">+</span><span class="mi">1</span>
+        <span class="c"># Calculate vertices of Velocity Obstacle (CCW)</span>
+        <span class="c"># These are still in relative velocity space, see derivation in appendix</span>
+        <span class="c"># Half-angle of the Velocity obstacle [rad]</span>
+        <span class="c"># Include safety margin</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">hsep</span> <span class="o">/</span> <span class="n">dist</span><span class="p">)</span>
+        <span class="c"># Limit half-angle alpha to 89.982 deg. Ensures that VO can be constructed</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">alpha</span> <span class="o">&gt;</span> <span class="n">alpham</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpham</span>
+        <span class="c"># Relevant sin/cos/tan</span>
+        <span class="n">sinqdr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">qdr</span><span class="p">)</span>
+        <span class="n">cosqdr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">qdr</span><span class="p">)</span>
+        <span class="n">tanalpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">cosqdrtanalpha</span> <span class="o">=</span> <span class="n">cosqdr</span> <span class="o">*</span> <span class="n">tanalpha</span>
+        <span class="n">sinqdrtanalpha</span> <span class="o">=</span> <span class="n">sinqdr</span> <span class="o">*</span> <span class="n">tanalpha</span>
+    
+        <span class="c">#conflict = (traffic.iloc[ind1[list(np.where(dist==hsep)[0])]],traffic.iloc[ind2[list(np.where(dist==hsep)[0])]])</span>
+        <span class="n">FPFs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">)):</span>
+            <span class="c"># Relevant x1,y1,x2,y2 (x0 and y0 are zero in relative velocity space)</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="p">(</span><span class="n">sinqdr</span> <span class="o">+</span> <span class="n">cosqdrtanalpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="p">(</span><span class="n">sinqdr</span> <span class="o">-</span> <span class="n">cosqdrtanalpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span>
+            <span class="n">y1</span> <span class="o">=</span> <span class="p">(</span><span class="n">cosqdr</span> <span class="o">-</span> <span class="n">sinqdrtanalpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span>
+            <span class="n">y2</span> <span class="o">=</span> <span class="p">(</span><span class="n">cosqdr</span> <span class="o">+</span> <span class="n">sinqdrtanalpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span>
+            
+            <span class="k">if</span>  <span class="k">True</span><span class="p">:</span> <span class="c">#(dist==hsep).any(): #envision this as if acid in conflict[&#39;callsign&#39;], but doesn&#39;t work like i thought</span>
+                <span class="c"># SSD for aircraft i</span>
+                <span class="c"># Get indices that belong to aircraft i</span>
+                <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">ind1</span> <span class="o">==</span> <span class="n">i</span><span class="p">,</span><span class="n">ind2</span> <span class="o">==</span> <span class="n">i</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c"># Check whether there are any aircraft in the vicinity</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c"># No aircraft in the vicinity</span>
+                    <span class="c"># Map them into the format ARV wants. Outercircle CCW, innercircle CW</span>
+                    <span class="n">ARV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">circle_lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">FRV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">ARV_calc_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ARV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="c"># Calculate areas and store in asas</span>
+                    <span class="n">FRV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">ARV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span> <span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmin&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># The i&#39;s of the other aircraft</span>
+                    <span class="n">i_other</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">traffic</span><span class="p">)),</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="c"># Aircraft that are within ADS-B range</span>
+                    <span class="n">ac_adsb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dist</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">adsbmax</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c"># Now account for ADS-B range in indices of other aircraft (i_other)</span>
+                    <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">ac_adsb</span><span class="p">]</span>
+                    <span class="n">i_other</span> <span class="o">=</span> <span class="n">i_other</span><span class="p">[</span><span class="n">ac_adsb</span><span class="p">]</span>
+                
+                <span class="c"># VO from 2 to 1 is mirror of 1 to 2. Only 1 to 2 can be constructed in</span>
+                <span class="c"># this manner, so need a correction vector that will mirror the VO</span>
+                <span class="n">fix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">i_other</span><span class="p">))</span>
+                <span class="n">fix</span><span class="p">[</span><span class="n">i_other</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="c"># Relative bearing [deg] from [-180,180]</span>
+                <span class="c"># (less required conversions than rad in RotA)</span>
+                <span class="n">fix_ang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">i_other</span><span class="p">))</span>
+                <span class="n">fix_ang</span><span class="p">[</span><span class="n">i_other</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">180.</span>
+
+                <span class="c">#current and potential x velocities for other aircraft</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">gseast</span><span class="p">[</span><span class="n">i_other</span><span class="p">],</span>
+                                    <span class="n">x1</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">*</span> <span class="n">fix</span> <span class="o">+</span> <span class="n">gseast</span><span class="p">[</span><span class="n">i_other</span><span class="p">],</span>
+                                    <span class="n">x2</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">*</span> <span class="n">fix</span> <span class="o">+</span> <span class="n">gseast</span><span class="p">[</span><span class="n">i_other</span><span class="p">]))</span>
+                <span class="c">#current and potential y velocities for other aircraft</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">gsnorth</span><span class="p">[</span><span class="n">i_other</span><span class="p">],</span>
+                                    <span class="n">y1</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">*</span> <span class="n">fix</span> <span class="o">+</span> <span class="n">gsnorth</span><span class="p">[</span><span class="n">i_other</span><span class="p">],</span>
+                                    <span class="n">y2</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">*</span> <span class="n">fix</span> <span class="o">+</span> <span class="n">gsnorth</span><span class="p">[</span><span class="n">i_other</span><span class="p">]))</span>
+                <span class="c"># Reshape [(ntraf-1)x3] and put arrays in one array [(ntraf-1)x3x2]</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">i_other</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">i_other</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+
+                <span class="c"># Make a clipper object</span>
+                <span class="n">pc</span> <span class="o">=</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">Pyclipper</span><span class="p">()</span>
+                <span class="c"># Add circles (ring-shape) to clipper as subject</span>
+                <span class="n">pc</span><span class="o">.</span><span class="n">AddPaths</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_to_clipper</span><span class="p">(</span><span class="n">circle_tup</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">PT_SUBJECT</span><span class="p">,</span> <span class="k">True</span><span class="p">)</span>
+
+                <span class="c"># Add each other other aircraft to clipper as clip</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">i_other</span><span class="p">)[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">traffic</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">traffic</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="s">&#39;callsign&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">traffic</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">traffic</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="s">&#39;callsign&#39;</span><span class="p">]:</span>
+                        <span class="k">continue</span>
+                    
+                    <span class="c"># Scale VO when not in LOS</span>
+                    <span class="k">if</span> <span class="k">True</span><span class="p">:</span><span class="c">#dist[ind[j]] &gt; hsep:</span>
+                        <span class="c"># Normally VO shall be added of this other a/c</span>
+                        <span class="n">VO</span> <span class="o">=</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_to_clipper</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span><span class="n">xy</span><span class="p">[</span><span class="n">j</span><span class="p">,:,:])))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c"># Pair is in LOS, instead of triangular VO, use darttip</span>
+                        <span class="c"># Check if bearing should be mirrored</span>
+                        <span class="c"># i.e FPF = 0.25</span>
+                        <span class="k">if</span> <span class="n">i_other</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                            <span class="n">qdr_los</span> <span class="o">=</span> <span class="n">qdr</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">qdr_los</span> <span class="o">=</span> <span class="n">qdr</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+                        <span class="c"># Length of inner-leg of darttip</span>
+                        <span class="n">leg</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="c"># Angles of darttip</span>
+                        <span class="n">angles_los</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">qdr_los</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span><span class="p">,</span> <span class="n">qdr_los</span><span class="p">,</span> <span class="n">qdr_los</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+                        <span class="c"># Calculate coordinates (CCW)</span>
+                        <span class="n">x_los</span> <span class="o">=</span> <span class="n">leg</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angles_los</span><span class="p">)</span>
+                        <span class="n">y_los</span> <span class="o">=</span> <span class="n">leg</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angles_los</span><span class="p">)</span>
+                        <span class="c"># Put in array of correct format</span>
+                        <span class="n">xy_los</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">x_los</span><span class="p">,</span><span class="n">y_los</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+                        <span class="c"># Scale darttip</span>
+                        <span class="n">VO</span> <span class="o">=</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_to_clipper</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span><span class="n">xy_los</span><span class="p">)))</span>
+                    <span class="c"># Add scaled VO to clipper</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">pc</span><span class="o">.</span><span class="n">AddPath</span><span class="p">(</span><span class="n">VO</span><span class="p">,</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">PT_CLIP</span><span class="p">,</span> <span class="k">True</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                <span class="c"># Execute clipper command</span>
+                <span class="n">FRV</span> <span class="o">=</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_from_clipper</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">Execute</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">CT_INTERSECTION</span><span class="p">,</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">PFT_NONZERO</span><span class="p">,</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">PFT_NONZERO</span><span class="p">))</span>
+
+                <span class="n">ARV</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">Execute</span><span class="p">(</span><span class="n">pyclipper</span><span class="o">.</span><span class="n">CT_DIFFERENCE</span><span class="p">,</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">PFT_NONZERO</span><span class="p">,</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">PFT_NONZERO</span><span class="p">)</span>
+
+                <span class="c"># Scale back</span>
+                <span class="n">ARV</span> <span class="o">=</span> <span class="n">pyclipper</span><span class="o">.</span><span class="n">scale_from_clipper</span><span class="p">(</span><span class="n">ARV</span><span class="p">)</span>
+
+                <span class="c"># Check if ARV or FRV is empty</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ARV</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c"># No aircraft in the vicinity</span>
+                    <span class="c"># Map them into the format ARV wants. Outercircle CCW, innercircle CW</span>
+                    <span class="n">ARV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">FRV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">circle_lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">ARV_calc_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="c"># Calculate areas and store in asas</span>
+                    <span class="n">FRV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span> <span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmin&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">ARV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">FRV</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c"># Should not happen with one a/c or no other a/c in the vicinity.</span>
+                    <span class="c"># These are handled earlier. Happens when RotA has removed all</span>
+                    <span class="c"># Map them into the format ARV wants. Outercircle CCW, innercircle CW</span>
+                    <span class="n">ARV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">circle_lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">FRV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">ARV_calc_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">circle_lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="c"># Calculate areas and store in asas</span>
+                    <span class="n">FRV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">ARV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmax&#39;</span><span class="p">]</span> <span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">ac_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;vmin&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># Check multi exteriors, if this layer is not a list, it means it has no exteriors</span>
+                    <span class="c"># In that case, make it a list, such that its format is consistent with further code</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">FRV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                        <span class="n">FRV</span> <span class="o">=</span> <span class="p">[</span><span class="n">FRV</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">ARV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                        <span class="n">ARV</span> <span class="o">=</span> <span class="p">[</span><span class="n">ARV</span><span class="p">]</span>
+                    <span class="c"># Store in asas</span>
+                    <span class="n">FRV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">FRV</span>
+                    <span class="n">ARV_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ARV</span>
+                    <span class="c"># Calculate areas and store in asas</span>
+                    <span class="n">FRV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">FRV</span><span class="p">)</span>
+                    <span class="n">ARV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">ARV</span><span class="p">)</span>
+
+                    <span class="c"># Shortest way out prio, so use full SSD (ARV_calc = ARV)</span>
+                    <span class="n">ARV_calc</span> <span class="o">=</span> <span class="n">ARV</span>
+                    <span class="c"># Update calculatable ARV for resolutions</span>
+                    <span class="n">ARV_calc_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ARV_calc</span>
+                <span class="n">fpf</span> <span class="o">=</span> <span class="n">ARV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">FRV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">ARV_area_loc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">FPFs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">traffic</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;time&#39;</span><span class="p">],</span><span class="n">traffic</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;callsign&#39;</span><span class="p">],</span><span class="n">fpf</span><span class="p">])</span>
+        <span class="n">FPFs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">FPFs</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">FPFs</span></div>
+
+    <span class="c">#Method name executeCommand() should not be changed. It executes the query and displays/returns the output.</span>
+    <span class="k">def</span> <span class="nf">executeCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">airportIATA</span><span class="p">:</span> <span class="c">#use TDDS data around given airport</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT latitude,longitude FROM airports WHERE iata=&#39;%s&#39;&quot;</span> <span class="o">%</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">airportIATA</span><span class="p">))</span>
+            <span class="n">lat</span><span class="p">,</span><span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">lat</span><span class="p">,</span><span class="n">lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span><span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT time,callsign,status,lat,lon FROM smes WHERE lat&gt;&#39;%f&#39; AND lat&lt;&#39;%f&#39; AND lon&gt;&#39;%f&#39; AND lon&lt;&#39;%f&#39;&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">lat</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">lat</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">lon</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">lon</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">traf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">(),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="s">&#39;callsign&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">,</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">NATS_path</span><span class="p">:</span> <span class="c">#use nats sim output</span>
+            <span class="kn">from</span> <span class="nn">PARA_ATM.Commands</span> <span class="k">import</span> <span class="n">readNATS</span> <span class="k">as</span> <span class="n">vn</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">vn</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">NATS_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="o">.</span><span class="n">commandParameters</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="o">.</span><span class="n">initMap</span><span class="p">()</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="o">.</span><span class="n">commandParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c">#convert to radians</span>
+            <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;heading&#39;</span><span class="p">])</span>
+            <span class="c">#extract x and y velocities from tas and heading</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;tas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;tas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">traf</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="s">&#39;callsign&#39;</span><span class="p">,</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;rocd&#39;</span><span class="p">,</span><span class="s">&#39;tas&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;x&#39;</span><span class="p">:</span><span class="n">x</span><span class="p">,</span><span class="s">&#39;y&#39;</span><span class="p">:</span><span class="n">y</span><span class="p">}))</span>
+            <span class="c">#add simulation start time to delta t</span>
+            <span class="n">traf</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">1121238067</span><span class="o">+</span><span class="n">traf</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span><span class="n">unit</span><span class="o">=</span><span class="s">&#39;s&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">IFF_path</span><span class="p">:</span> <span class="c">#use sherlock data</span>
+            <span class="kn">from</span> <span class="nn">PARA_ATM.Commands</span> <span class="k">import</span> <span class="n">readIFF</span> <span class="k">as</span> <span class="n">ir</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">ir</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">IFF_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="o">.</span><span class="n">commandParameters</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="o">.</span><span class="n">initMap</span><span class="p">()</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="o">.</span><span class="n">commandParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c">#convert heading to radians</span>
+            <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;heading&#39;</span><span class="p">])</span>
+            <span class="c">#extract x and y velocities from heading and tas</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;tas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;tas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">traf</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="s">&#39;callsign&#39;</span><span class="p">,</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;rocd&#39;</span><span class="p">,</span><span class="s">&#39;tas&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;x&#39;</span><span class="p">:</span><span class="n">x</span><span class="p">,</span><span class="s">&#39;y&#39;</span><span class="p">:</span><span class="n">y</span><span class="p">}))</span>
+            <span class="n">traf</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">traf</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span><span class="n">unit</span><span class="o">=</span><span class="s">&#39;s&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Enter an airport, IFF file, or NATS sim file name&#39;</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c">#convert to milliseconds</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookahead</span><span class="p">)</span><span class="o">*</span><span class="mi">1</span><span class="n">e3</span><span class="p">)</span>
+        <span class="c">#group aircraft by time</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">traf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="n">freq</span><span class="o">=</span><span class="s">&#39;%dms&#39;</span><span class="o">%</span><span class="n">timestep</span><span class="p">)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="c">#find vmin and vmax</span>
+            <span class="n">ac_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">load_BADA</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;status&#39;</span><span class="p">]))</span>
+            <span class="c">#conflict returns a list of lists with timestamp, acid, and FPF of the aircraft.</span>
+            <span class="n">fpf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conflict</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">ac_info</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fpf</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">fpf</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="k">None</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fpf</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fpf</span><span class="p">)</span>
+    
+        <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="s">&#39;callsign&#39;</span><span class="p">,</span><span class="s">&#39;fpf&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s">&#39;SSD&#39;</span><span class="p">,</span><span class="n">results</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">airportIATA</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">NATS_path</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">IFF_path</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Southwest Research Institute.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

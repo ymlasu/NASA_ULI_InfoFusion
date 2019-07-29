@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to NASA_ULI_InfoFusion’s documentation! &mdash; NASA_ULI_InfoFusion  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="NASA_ULI_InfoFusion  documentation" href="#"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="#" class="fa fa-home"> NASA_ULI_InfoFusion</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to NASA_ULI_InfoFusion’s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">NASA_ULI_InfoFusion</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>Welcome to NASA_ULI_InfoFusion’s documentation!</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="welcome-to-nasa-uli-infofusion-s-documentation">
+<h1>Welcome to NASA_ULI_InfoFusion’s documentation!<a class="headerlink" href="#welcome-to-nasa-uli-infofusion-s-documentation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="LaunchApp.ParaATM">
+<em class="property">class </em><code class="descclassname">LaunchApp.</code><code class="descname">ParaATM</code><a class="reference internal" href="_modules/LaunchApp.html#ParaATM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LaunchApp.ParaATM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class ParaATM wraps the entire application together with all the layout and features tied
+together with the functionality.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="groundSSD.Command">
+<em class="property">class </em><code class="descclassname">groundSSD.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>cursor</em>, <em>map_object</em>, <em>args=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundSSD.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundSSD.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class Command wraps the command methods and functions to be executed. For user-defined commands, this name
+should be kept the same (Command).</p>
+<dl class="method">
+<dt id="groundSSD.Command.area">
+<code class="descname">area</code><span class="sig-paren">(</span><em>vset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundSSD.html#Command.area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundSSD.Command.area" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculates the area of the set of FRV or ARV</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="groundSSD.Command.conflict">
+<code class="descname">conflict</code><span class="sig-paren">(</span><em>traffic</em>, <em>ac_info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundSSD.html#Command.conflict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundSSD.Command.conflict" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs SSDs for the current timeframe, populates FRV and ARV, and calculates FPF for aircraft in conflict
+:param traffic = pandas dataframe at the current time:
+:param ac_info = the output of load_bada command:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">FPF = pandas dataframe of aircraft in the current timeframe and each respective FPF measure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="groundSSD.Command.load_BADA">
+<code class="descname">load_BADA</code><span class="sig-paren">(</span><em>statuses</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundSSD.html#Command.load_BADA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundSSD.Command.load_BADA" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns dynamic sep dist and velocity constraints based on phase of flight</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>= a list of phases of flight</strong> (<em>statuses</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">knots,’vmax’:knots,’sep’:meters}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of dicts of form {‘vmin’</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="groundSSD.Command.qdrdist_matrix">
+<code class="descname">qdrdist_matrix</code><span class="sig-paren">(</span><em>lat1</em>, <em>lon1</em>, <em>lat2</em>, <em>lon2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundSSD.html#Command.qdrdist_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundSSD.Command.qdrdist_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate bearing and distance vectors, using WGS‘84
+In:
+latd1,lond1 en latd2, lond2 [deg] :positions 1 &amp; 2 (vectors)
+Out:
+qdr [deg] = heading from 1 to 2 (matrix)
+d [nm]= distance from 1 to 2 in nm (matrix)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="groundSSD.Command.qdrdist_matrix_indices">
+<code class="descname">qdrdist_matrix_indices</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundSSD.html#Command.qdrdist_matrix_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundSSD.Command.qdrdist_matrix_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate pairwise combinations between n objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="groundSSD.Command.rwgs84_matrix">
+<code class="descname">rwgs84_matrix</code><span class="sig-paren">(</span><em>latd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundSSD.html#Command.rwgs84_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundSSD.Command.rwgs84_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the earths radius with WGS‘84 geoid definition
+In:  lat [deg] (latitude)
+Out: R   [m]   (earth radius)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="readNATS.Command">
+<em class="property">class </em><code class="descclassname">readNATS.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>cursor</em>, <em>filename</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/readNATS.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#readNATS.Command" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>= name of the NATS simulation output csv</strong> (<em>filename</em>) – </td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="readNATS.Command.executeCommand">
+<code class="descname">executeCommand</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/readNATS.html#Command.executeCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#readNATS.Command.executeCommand" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">command name to be passed to MapView, etc.
+results = dataframe of shape (# position records, 12)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="readIFF.Command">
+<em class="property">class </em><code class="descclassname">readIFF.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>cursor</em>, <em>filename</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/readIFF.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#readIFF.Command" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>= name of the NATS simulation output csv</strong> (<em>filename</em>) – </td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="readIFF.Command.executeCommand">
+<code class="descname">executeCommand</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/readIFF.html#Command.executeCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#readIFF.Command.executeCommand" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">command name to be passed to MapView, etc.
+results = dataframe of shape (# position records, 12)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="readTDDS.Command">
+<em class="property">class </em><code class="descclassname">readTDDS.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>cursor</em>, <em>airportIATA</em>, <em>db=('smes'</em>, <em>)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/readTDDS.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#readTDDS.Command" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>= airport to center on</strong> (<em>airportIATA</em>) – </li>
+<li><strong>= which tables to query</strong> (<em>db</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="readTDDS.Command.executeCommand">
+<code class="descname">executeCommand</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/readTDDS.html#Command.executeCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#readTDDS.Command.executeCommand" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Name of command to pass to MapView, etc.
+results = dataframe of shape (# aircraft, 5)<blockquote>
+<div>columns = time UTC, aircraft id, smes status, lat, lon</div></blockquote>
+<p>airport = airport passed in as argument</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Reliability.Command">
+<em class="property">class </em><code class="descclassname">Reliability.</code><code class="descname">Command</code><span class="sig-paren">(</span><em>cursor</em>, <em>airportIATA</em>, <em>analysis_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Reliability.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Reliability.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class Command wraps the command methods and functions to be executed. For user-defined commands, this name
+should be kept the same (Command).</p>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Southwest Research Institute.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

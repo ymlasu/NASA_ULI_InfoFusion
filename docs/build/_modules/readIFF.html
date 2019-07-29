@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>readIFF &mdash; NASA_ULI_InfoFusion  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="NASA_ULI_InfoFusion  documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> NASA_ULI_InfoFusion</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">NASA_ULI_InfoFusion</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>readIFF</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for readIFF</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">NASA NextGen NAS ULI Information Fusion</span>
+<span class="sd">        </span>
+<span class="sd">@organization: Southwest Research Institute</span>
+<span class="sd">@author: Michael Hartnett</span>
+<span class="sd">@date: 04/16/2019</span>
+
+<span class="sd">Visualize IFF file</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">PARA_ATM</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Lock</span><span class="p">,</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Queue</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">create_engine</span>
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../index.html#readIFF.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        args:</span>
+<span class="sd">            filename = name of the NATS simulation output csv</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c">#Here, the database connector and the parameter are passed as arguments. This can be changed as per need.</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">cursor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_procs</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">last_index</span><span class="p">,</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">last_index</span><span class="o">+</span><span class="mi">2</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c">#copy origin</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="n">last_index</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+        <span class="c">#copy destination</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="s">&#39;cid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="n">last_index</span><span class="p">,</span><span class="mi">11</span><span class="p">]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;PUSHBACK&#39;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">30</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;TAXI&#39;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">200</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;TAKEOFF/LANDING&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;coord1&#39;</span><span class="p">,</span><span class="s">&#39;coord2&#39;</span><span class="p">,</span><span class="s">&#39;alt&#39;</span><span class="p">,</span><span class="s">&#39;rateOfClimb&#39;</span><span class="p">,</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">,</span><span class="s">&#39;course&#39;</span><span class="p">,</span><span class="s">&#39;EvType&#39;</span><span class="p">]])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&#39;done&#39;</span><span class="p">)</span>
+
+    <span class="c">#Method name executeCommand() should not be changed. It executes the query and displays/returns the output.</span>
+<div class="viewcode-block" id="Command.executeCommand"><a class="viewcode-back" href="../index.html#readIFF.Command.executeCommand">[docs]</a>    <span class="k">def</span> <span class="nf">executeCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            returns:</span>
+<span class="sd">                command name to be passed to MapView, etc.</span>
+<span class="sd">                results = dataframe of shape (# position records, 12)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#check for table</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT * FROM </span><span class="se">\&quot;</span><span class="s">%s</span><span class="se">\&quot;</span><span class="s"> WHERE altitude=&#39;1.00&#39;&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="c">#self.cursor.execute(&quot;SELECT * FROM \&quot;%s\&quot;&quot;%(self.filename))</span>
+            <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">rowcount</span><span class="p">):</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">,</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="s">&#39;callsign&#39;</span><span class="p">,</span><span class="s">&#39;origin&#39;</span><span class="p">,</span><span class="s">&#39;destination&#39;</span><span class="p">,</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;rocd&#39;</span><span class="p">,</span><span class="s">&#39;tas&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">]</span>
+                <span class="k">del</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span>
+                <span class="n">results</span><span class="p">[[</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[[</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">r&#39;[^0-9,.,-]+&#39;</span><span class="p">,</span><span class="s">&#39;0&#39;</span><span class="p">,</span><span class="n">regex</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+                <span class="n">results</span><span class="p">[[</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[[</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">results</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s">&#39;TAKEOFF/LANDING&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">[</span><span class="s">&#39;readIFF&#39;</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c">#src directory</span>
+        <span class="n">parentPath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="c">#trajectory record rows have different fields than header rows</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span>
+                <span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;coord1&#39;</span><span class="p">,</span><span class="s">&#39;coord2&#39;</span><span class="p">,</span><span class="s">&#39;alt&#39;</span><span class="p">,</span><span class="s">&#39;significance&#39;</span><span class="p">,</span>
+                <span class="s">&#39;coord1Accur&#39;</span><span class="p">,</span><span class="s">&#39;coord2Accur&#39;</span><span class="p">,</span><span class="s">&#39;altAccur&#39;</span><span class="p">,</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">,</span><span class="s">&#39;course&#39;</span><span class="p">,</span>
+                <span class="s">&#39;rateOfClimb&#39;</span><span class="p">,</span><span class="s">&#39;altQualifier&#39;</span><span class="p">,</span><span class="s">&#39;altIndicator&#39;</span><span class="p">,</span><span class="s">&#39;trackPtStatus&#39;</span><span class="p">,</span>
+                <span class="s">&#39;leaderDir&#39;</span><span class="p">,</span><span class="s">&#39;scratchPad&#39;</span><span class="p">,</span><span class="s">&#39;msawInhibitInd&#39;</span><span class="p">,</span><span class="s">&#39;assignedAltString&#39;</span><span class="p">,</span>
+                <span class="s">&#39;controllingFac&#39;</span><span class="p">,</span><span class="s">&#39;controllingSeg&#39;</span><span class="p">,</span><span class="s">&#39;receivingFac&#39;</span><span class="p">,</span><span class="s">&#39;receivingSec&#39;</span><span class="p">,</span>
+                <span class="s">&#39;activeContr&#39;</span><span class="p">,</span><span class="s">&#39;primaryContr&#39;</span><span class="p">,</span><span class="s">&#39;kybrdSubset&#39;</span><span class="p">,</span><span class="s">&#39;kybrdSymbol&#39;</span><span class="p">,</span><span class="s">&#39;adsCode&#39;</span>
+                <span class="s">&#39;opsType&#39;</span><span class="p">,</span><span class="s">&#39;airportCode&#39;</span><span class="p">,</span><span class="s">&#39;trackNumber&#39;</span><span class="p">,</span><span class="s">&#39;tptReturnType&#39;</span><span class="p">,</span><span class="s">&#39;modeSCode&#39;</span><span class="p">,</span>
+                <span class="s">&#39;sensorTrackNumberList&#39;</span><span class="p">,</span><span class="s">&#39;spi&#39;</span><span class="p">,</span><span class="s">&#39;dvs&#39;</span><span class="p">,</span><span class="s">&#39;dupM3a&#39;</span><span class="p">,</span><span class="s">&#39;tid&#39;</span><span class="p">,</span><span class="s">&#39;EvType&#39;</span><span class="p">]</span>
+        
+        <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="c">#skip the initial header of the csv file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">parentPath</span> <span class="o">+</span> <span class="s">&quot;/../data/Sherlock/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">),</span><span class="n">header</span><span class="o">=</span><span class="k">None</span><span class="p">,</span><span class="n">names</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">low_memory</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+        <span class="c">#ev = pd.read_csv(open(parentPath + &quot;/../data/Sherlock/&quot; + &#39;EV_&#39;+&#39;_&#39;.join(self.filename.split(&#39;_&#39;)[1:]),&#39;r&#39;),header=0,low_memory=False)</span>
+        <span class="c">#column to match to time in IFF</span>
+        <span class="c">#ev[&#39;time&#39;] = ev[&#39;tStartSecs&#39;] + ev[&#39;tEv&#39;] - ev[&#39;tStart&#39;]</span>
+        <span class="c">#ev = ev[[&#39;time&#39;,&#39;AcId&#39;,&#39;EvType&#39;]]</span>
+        
+        <span class="c">#cycle through header rows</span>
+        <span class="n">last_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;recType&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">last_index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">last_index</span> <span class="o">=</span> <span class="n">index</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">procs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_procs</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                    <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs</span><span class="p">:</span>
+                    <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">procs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">last_index</span><span class="p">,</span><span class="n">index</span><span class="p">))</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">procs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">last_index</span> <span class="o">=</span> <span class="n">index</span>
+    
+        <span class="k">while</span> <span class="k">True</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">timeout</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">timeout</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">timeout</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">procs</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="c">#print(results)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="s">&#39;callsign&#39;</span><span class="p">,</span><span class="s">&#39;origin&#39;</span><span class="p">,</span><span class="s">&#39;destination&#39;</span><span class="p">,</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;rocd&#39;</span><span class="p">,</span><span class="s">&#39;tas&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">]</span>
+        <span class="c">#add to database</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s">&#39;postgresql://paraatm_user:paraatm_user@localhost:5432/paraatm&#39;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s">&#39;Table already exists&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="p">[</span><span class="s">&quot;IFF_Reader&quot;</span><span class="p">,</span> <span class="n">results</span><span class="p">]</span>
+
+        <span class="c">#TODO Erin&#39;s better way, need to integrate</span>
+
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;comment&#39;</span><span class="p">],</span>
+                <span class="mi">1</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;fileType&#39;</span><span class="p">,</span><span class="s">&#39;fileFormatVersion&#39;</span><span class="p">],</span>
+                <span class="mi">2</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;acType&#39;</span><span class="p">,</span><span class="s">&#39;Orig&#39;</span><span class="p">,</span><span class="s">&#39;Dest&#39;</span><span class="p">,</span><span class="s">&#39;opsType&#39;</span><span class="p">,</span><span class="s">&#39;estOrig&#39;</span><span class="p">,</span><span class="s">&#39;estDest&#39;</span><span class="p">,</span><span class="s">&#39;modeSCode&#39;</span><span class="p">],</span>
+                <span class="mi">3</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;coord1&#39;</span><span class="p">,</span><span class="s">&#39;coord2&#39;</span><span class="p">,</span><span class="s">&#39;alt&#39;</span><span class="p">,</span><span class="s">&#39;significance&#39;</span><span class="p">,</span><span class="s">&#39;coord1Accur&#39;</span><span class="p">,</span><span class="s">&#39;coord2Accur&#39;</span><span class="p">,</span><span class="s">&#39;altAccur&#39;</span><span class="p">,</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">,</span><span class="s">&#39;course&#39;</span><span class="p">,</span><span class="s">&#39;rateOfClimb&#39;</span><span class="p">,</span><span class="s">&#39;altQualifier&#39;</span><span class="p">,</span><span class="s">&#39;altIndicator&#39;</span><span class="p">,</span><span class="s">&#39;trackPtStatus&#39;</span><span class="p">,</span><span class="s">&#39;leaderDir&#39;</span><span class="p">,</span><span class="s">&#39;scratchPad&#39;</span><span class="p">,</span><span class="s">&#39;msawInhibitInd&#39;</span><span class="p">,</span><span class="s">&#39;assignedAltString&#39;</span><span class="p">,</span><span class="s">&#39;controllingFac&#39;</span><span class="p">,</span><span class="s">&#39;controllingSeg&#39;</span><span class="p">,</span><span class="s">&#39;receivingFac&#39;</span><span class="p">,</span><span class="s">&#39;receivingSec&#39;</span><span class="p">,</span><span class="s">&#39;activeContr&#39;</span><span class="p">,</span><span class="s">&#39;primaryContr&#39;</span><span class="p">,</span><span class="s">&#39;kybrdSubset&#39;</span><span class="p">,</span><span class="s">&#39;kybrdSymbol&#39;</span><span class="p">,</span><span class="s">&#39;adsCode&#39;</span><span class="p">,</span><span class="s">&#39;opsType&#39;</span><span class="p">,</span><span class="s">&#39;airportCode&#39;</span><span class="p">,</span><span class="s">&#39;trackNumber&#39;</span><span class="p">,</span><span class="s">&#39;tptReturnType&#39;</span><span class="p">,</span><span class="s">&#39;modeSCode&#39;</span><span class="p">,</span><span class="s">&#39;sensorTrackNumberList&#39;</span><span class="p">,</span><span class="s">&#39;spi&#39;</span><span class="p">,</span><span class="s">&#39;dvs&#39;</span><span class="p">,</span><span class="s">&#39;dupM3a&#39;</span><span class="p">,</span><span class="s">&#39;tid&#39;</span><span class="p">],</span>
+                <span class="mi">4</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;acType&#39;</span><span class="p">,</span><span class="s">&#39;Orig&#39;</span><span class="p">,</span><span class="s">&#39;Dest&#39;</span><span class="p">,</span><span class="s">&#39;altcode&#39;</span><span class="p">,</span><span class="s">&#39;alt&#39;</span><span class="p">,</span><span class="s">&#39;maxAlt&#39;</span><span class="p">,</span><span class="s">&#39;assignedAltString&#39;</span><span class="p">,</span><span class="s">&#39;requestedAltString&#39;</span><span class="p">,</span><span class="s">&#39;route&#39;</span><span class="p">,</span><span class="s">&#39;estTime&#39;</span><span class="p">,</span><span class="s">&#39;fltCat&#39;</span><span class="p">,</span><span class="s">&#39;perfCat&#39;</span><span class="p">,</span><span class="s">&#39;opsType&#39;</span><span class="p">,</span><span class="s">&#39;equipList&#39;</span><span class="p">,</span><span class="s">&#39;coordinationTime&#39;</span><span class="p">,</span><span class="s">&#39;coordinationTimeType&#39;</span><span class="p">,</span><span class="s">&#39;leaderDir&#39;</span><span class="p">,</span><span class="s">&#39;scratchPad1&#39;</span><span class="p">,</span><span class="s">&#39;scratchPad2&#39;</span><span class="p">,</span><span class="s">&#39;fixPairScratchPad&#39;</span><span class="p">,</span><span class="s">&#39;prefDepArrRoute&#39;</span><span class="p">,</span><span class="s">&#39;prefDepRoute&#39;</span><span class="p">,</span><span class="s">&#39;prefArrRoute&#39;</span><span class="p">,</span><span class="s">&#39;coordinationPoint&#39;</span><span class="p">,</span><span class="s">&#39;coordinationPointType&#39;</span><span class="p">,</span><span class="s">&#39;trackNumber&#39;</span><span class="p">,</span><span class="s">&#39;modeSCode&#39;</span><span class="p">],</span>
+                <span class="mi">5</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;dataSource&#39;</span><span class="p">,</span><span class="s">&#39;programName&#39;</span><span class="p">,</span><span class="s">&#39;programVersion&#39;</span><span class="p">],</span>
+                <span class="mi">6</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;rectypeCat&#39;</span><span class="p">,</span><span class="s">&#39;sectorizationString&#39;</span><span class="p">],</span>
+                <span class="mi">7</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;coord1&#39;</span><span class="p">,</span><span class="s">&#39;coord2&#39;</span><span class="p">,</span><span class="s">&#39;alt&#39;</span><span class="p">,</span><span class="s">&#39;significance&#39;</span><span class="p">,</span><span class="s">&#39;coord1Accur&#39;</span><span class="p">,</span><span class="s">&#39;coord2Accur&#39;</span><span class="p">,</span><span class="s">&#39;altAccur&#39;</span><span class="p">,</span><span class="s">&#39;msawtype&#39;</span><span class="p">,</span><span class="s">&#39;msawTimeCat&#39;</span><span class="p">,</span><span class="s">&#39;msawLocCat&#39;</span><span class="p">,</span><span class="s">&#39;msawMinSafeAlt&#39;</span><span class="p">,</span><span class="s">&#39;msawIndex1&#39;</span><span class="p">,</span><span class="s">&#39;msawIndex2&#39;</span><span class="p">,</span><span class="s">&#39;msawVolID&#39;</span><span class="p">],</span>
+                <span class="mi">8</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;acType&#39;</span><span class="p">,</span><span class="s">&#39;Orig&#39;</span><span class="p">,</span><span class="s">&#39;Dest&#39;</span><span class="p">,</span><span class="s">&#39;depTime&#39;</span><span class="p">,</span><span class="s">&#39;depTimeType&#39;</span><span class="p">,</span><span class="s">&#39;arrTime&#39;</span><span class="p">,</span><span class="s">&#39;arrTimeType&#39;</span><span class="p">],</span>
+                <span class="mi">9</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;coord1&#39;</span><span class="p">,</span><span class="s">&#39;coord2&#39;</span><span class="p">,</span><span class="s">&#39;alt&#39;</span><span class="p">,</span><span class="s">&#39;pitchAngle&#39;</span><span class="p">,</span><span class="s">&#39;trueHeading&#39;</span><span class="p">,</span><span class="s">&#39;rollAngle&#39;</span><span class="p">,</span><span class="s">&#39;trueAirSpeed&#39;</span><span class="p">,</span><span class="s">&#39;fltPhaseIndicator&#39;</span><span class="p">],</span>
+                <span class="mi">10</span><span class="p">:[</span><span class="s">&#39;recType&#39;</span><span class="p">,</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;fltKey&#39;</span><span class="p">,</span><span class="s">&#39;bcnCode&#39;</span><span class="p">,</span><span class="s">&#39;cid&#39;</span><span class="p">,</span><span class="s">&#39;Source&#39;</span><span class="p">,</span><span class="s">&#39;msgType&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;recTypeCat&#39;</span><span class="p">,</span><span class="s">&#39;configType&#39;</span><span class="p">,</span><span class="s">&#39;configSpec&#39;</span><span class="p">]}</span>
+    
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)):</span>
+            <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                       
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">parentPath</span> <span class="o">+</span> <span class="s">&quot;/../data/Sherlock/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span><span class="n">encoding</span><span class="o">=</span><span class="s">&#39;latin9&#39;</span><span class="p">),</span><span class="n">low_memory</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="k">None</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dfIdx</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">dfIdx</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">dfIdx</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+            <span class="n">nCols</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="n">dfIdx</span><span class="p">]),</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nCols</span><span class="p">]]</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="n">dfIdx</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">nCols</span><span class="p">]</span>
+            <span class="n">dfs</span><span class="p">[</span><span class="n">dfIdx</span><span class="p">]</span><span class="o">=</span><span class="n">df</span>
+                                  
+        <span class="n">data</span> <span class="o">=</span> <span class="n">dfs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="n">data</span><span class="p">[</span><span class="s">&#39;Orig&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&#39;Dest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        
+        <span class="c">#cycle through header rows</span>
+        <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">fltKey</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">fltKey</span><span class="o">==</span><span class="n">fp</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">orig</span> <span class="o">=</span> <span class="n">dfs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">dfs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">fltKey</span><span class="o">==</span><span class="n">fp</span><span class="p">][</span><span class="s">&#39;Orig&#39;</span><span class="p">]</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">dfs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">dfs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">fltKey</span><span class="o">==</span><span class="n">fp</span><span class="p">][</span><span class="s">&#39;Dest&#39;</span><span class="p">]</span>
+            
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Orig&#39;</span><span class="p">:</span><span class="n">orig</span><span class="p">,</span><span class="s">&#39;Dest&#39;</span><span class="p">:</span><span class="n">dest</span><span class="p">}</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,[</span><span class="s">&#39;Orig&#39;</span><span class="p">,</span><span class="s">&#39;Dest&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">values</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+                        
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[[</span><span class="s">&#39;recTime&#39;</span><span class="p">,</span><span class="s">&#39;AcId&#39;</span><span class="p">,</span><span class="s">&#39;Orig&#39;</span><span class="p">,</span><span class="s">&#39;Dest&#39;</span><span class="p">,</span><span class="s">&#39;coord1&#39;</span><span class="p">,</span><span class="s">&#39;coord2&#39;</span><span class="p">,</span><span class="s">&#39;alt&#39;</span><span class="p">,</span><span class="s">&#39;rateOfClimb&#39;</span><span class="p">,</span><span class="s">&#39;groundSpeed&#39;</span><span class="p">,</span><span class="s">&#39;course&#39;</span><span class="p">]]</span>   
+        <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">,</span><span class="s">&#39;callsign&#39;</span><span class="p">,</span><span class="s">&#39;origin&#39;</span><span class="p">,</span><span class="s">&#39;destination&#39;</span><span class="p">,</span><span class="s">&#39;latitude&#39;</span><span class="p">,</span><span class="s">&#39;longitude&#39;</span><span class="p">,</span><span class="s">&#39;altitude&#39;</span><span class="p">,</span><span class="s">&#39;rocd&#39;</span><span class="p">,</span><span class="s">&#39;tas&#39;</span><span class="p">,</span><span class="s">&#39;heading&#39;</span><span class="p">,</span><span class="s">&#39;mode&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="s">&quot;readIFF&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">]</span></div></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Southwest Research Institute.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
