@@ -12,12 +12,12 @@ import os
 try:
     import xml.etree.ElementTree as ET
 except ImportError:
-    print 'Please install XML element tree'
+    print('Please install XML element tree')
 
 try:
     import matplotlib.pyplot as plt
 except ImportError:
-    print 'Please install matplotlib'   
+    print('Please install matplotlib'   )
 
 import matplotlib 
 from matplotlib.ticker import FormatStrFormatter
@@ -50,9 +50,9 @@ class PostProcessor:
         '''MODIFY THIS TO THE LOCATION WHERE MC FILES ARE SITTING'''
         self.path_to_csv = file_path;
         if not os.path.exists(self.path_to_csv):
-            print self.path_to_csv,' no such path exists.'
+            print(self.path_to_csv,' no such path exists.')
             if not self.searchAndChangePath():
-                print 'No NATS server folder found. Exiting.'
+                print('No NATS server folder found. Exiting.')
                 quit();
         
         '''THIS IS THE FILE TYPE IN WHICH THE OUTPUTS ARE SAVED'''
@@ -92,7 +92,7 @@ class PostProcessor:
             return False;
         else:
             self.path_to_csv = parent +'/'+ foldname;
-            print 'Changing directory to',self.path_to_csv;
+            print('Changing directory to',self.path_to_csv)
             return True;
             
                 
@@ -108,7 +108,7 @@ class PostProcessor:
             if fl.endswith("."+self.file_type):                
                 self.filepath.append(self.path_to_csv+'/'+ fl)
         if self.filepath == []:
-            print 'No such files found'
+            print('No such files found')
             quit();
     
     
@@ -120,7 +120,7 @@ class PostProcessor:
         self.all_sample_dict = {}
         cnt = 0
         for fp in self.filepath:
-            print 'Reading ',cnt+1,' file: ', fp
+            print('Reading ',cnt+1,' file: ', fp)
             cnt = cnt+1
             fid = open(fp,'r');
             lines = fid.readlines()
@@ -227,7 +227,7 @@ class PostProcessor:
                 acid =  s.get('callsign')        
                 if acid != self.ac_mod:
                     continue;
-                #         print acid
+                #         print(acid)
                 for p in s:
                     Trajpt = []
                     for r in p:                
@@ -365,7 +365,7 @@ class PostProcessor:
         self.all_sample_dict = {}
         cnt = 0;
         for fp in self.filepath:            
-            print 'Reading ',cnt+1,' file: ', fp
+            print('Reading ',cnt+1,' file: ', fp)
             cnt = cnt+1            
             fid = open(fp,'r');
             lines = fid.readlines()
