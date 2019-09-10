@@ -2,9 +2,15 @@ try:
     from jpype import startJVM,getDefaultJVMPath,JPackage
 except ImportError:
     pass
+from pathlib import Path
+import os
+
 #------------PUT THE FOLLOWING IN EACH PROGRAM--------------------
 
-classpath = "dist/nats-client.jar:dist/nats-shared.jar"
+client = str(Path(__file__).parent)+'/'
+os.environ['NATS_CLIENT_HOME'] = client
+
+classpath = client+"dist/nats-client.jar:"+client+"dist/nats-shared.jar:"+client+"dist/rmiio-2.1.2.jar:"+client+"dist/json.jar"
 
 startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % classpath)
 

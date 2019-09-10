@@ -13,6 +13,8 @@ from NATS_header import NATS_SIMULATION_STATUS_ENDED, NATS_SIMULATION_STATUS_PAU
 import time
 import numpy as np
 import PostProcessor as pp
+import centaur
+centaur.CentaurUtils.initialize_centaur()
 
 '''This is the same arg_dict variable that is used in Example_MC_code.'''
 args_dict = {1:'latitude', \
@@ -624,14 +626,17 @@ if __name__ == '__main__':
     std_dev_lat = 0.01*mean_lat;
     sample_sz_lat = 5;
     k=0;
-    lat_vec = np.random.normal(mean_lat,std_dev_lat,sample_sz_lat)
+    
+    rv = centaur.Distribution()
+    rv.new_Normal(mean_lat,std_dev_lat)
+    lat_vec = rv.sample(sample_sz_lat)
     
     '''args = [ac_name, var_name, var_vals, fpindex (optional)]'''
         
     args = [[curr_ac],args_dict[6],lat_vec,fpwpidx]
     MC_interface.runMCSims(args)
     
-    post_process = pp.PostProcessor(file_path = "../Server/", \
+    post_process = pp.PostProcessor(file_path = "/home/dyn.datasys.swri.edu/mhartnett/NASA_ULI/NASA_ULI_InfoFusion/src/NATS/Server/", \
                  ac_name = curr_ac);
     
     post_process.plotRoutine();
