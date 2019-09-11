@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIB_DIR=${PWD}/../lib
+LIB_DIR=${PWD}/../dist
 
 unzip jasper-1.900.1.zip
 

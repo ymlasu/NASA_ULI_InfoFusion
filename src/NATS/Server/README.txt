@@ -1,6 +1,6 @@
 National Airspace Trajectory-Prediction System(NATS)
 
-Version beta 1.4
+Version beta 1.6
 
 Server Program Module
 
@@ -32,28 +32,11 @@ Operating System/Software Enviroment Requirements
 =================================================
 1. Linux 64bit
    This software has been tested on:
-   # Ubuntu v12.04, v16.04 with gcc 4.8
+   # Ubuntu v12.04, v16.04 with gcc 5.5
    # CentOS 6.9 with gcc 4.4
    # CentOS 7 with gcc 4.8
 2. Java 1.7 and later
-3. Jasper
-   We have tested the software with v1.900.1(Please see directory "dependency_library")
-   You can use the dependency_library/install_jasper.sh to install it.
-4. Grib API
-   We have tested the software with v1.11.0(Please see directory "dependency_library")
-   You can use dependency_library/install_grib.sh to install it.
-5. HDF5
-   We have tested the software with v1.8.11
-   Library files are already in NATS_Server/dist folder.
-
-   Please try to run NATS_Server first.  If it is not running, you can use the pre-compiled HDF5 library or build it from scratch.
-   # Use pre-compiled library
-     Please refer to the "Using NATS Pre-compiled Dependency Libraries" below.
-   # Build it fresh
-     Enter "dependency_library" directory.
-     Read README_Install_HDF5 file.  It's a working procedure based on our experience.  However, it is not guaranteed to suit all Linux platforms.
-     You can use dependency_library/install_hdf5.sh to install it from scratch.
-6. Python 2.7
+3. Python 2.7
 
 
 Starting the NATS server
@@ -76,6 +59,13 @@ Stopping the NATS server
 This is generally the last step while using the NATS software. The NATS software can be stopped by pressing [Ctrl]-C in the command-line terminal. 
 
 
+Network Setting
+===============
+NATS Server utilizes the following ports for data communication with clients.  Please ensure they are accessible from the outside network by configuring your network setting.
+TCP port 2017
+TCP port 2019
+
+
 
 
 Using NATS Pre-compiled Dependency Libraries(Optional. Only do this if the NATS_Server is not running.)
@@ -83,7 +73,7 @@ Using NATS Pre-compiled Dependency Libraries(Optional. Only do this if the NATS_
 Notice: Users don't have to do this unless NATS Server is unable to run on the built-in libraries which came with the distribution.
 
 There are several pre-compiled dependency library zip files in NATS_Server/lib_precomp directory.
-Users can use them for running NATS Server if they meet anyobstacles while building dependency libraries on Linux systems.
+Users can use them for running NATS Server if they meet any obstacle while building dependency libraries on Linux systems.
 
 Example
 We can use Ubuntu pre-compiled hdf5 library.

@@ -4,7 +4,20 @@ except ImportError:
     pass
 #------------PUT THE FOLLOWING IN EACH PROGRAM--------------------
 
-classpath = "dist/nats-client.jar:dist/nats-shared.jar:dist/json.jar:dist/rmiio-2.1.2.jar:dist/commons-logging-1.2.jar"
+import os
+
+env_NATS_CLIENT_HOME = os.environ.get('NATS_CLIENT_HOME')
+
+str_NATS_CLIENT_HOME = ""
+
+if not(env_NATS_CLIENT_HOME is None) :
+    str_NATS_CLIENT_HOME = env_NATS_CLIENT_HOME + "/"
+
+classpath = str_NATS_CLIENT_HOME + "dist/nats-client.jar"
+classpath = classpath + ":" + str_NATS_CLIENT_HOME + "dist/nats-shared.jar"
+classpath = classpath + ":" + str_NATS_CLIENT_HOME + "dist/json.jar"
+classpath = classpath + ":" + str_NATS_CLIENT_HOME + "dist/rmiio-2.1.2.jar"
+classpath = classpath + ":" + str_NATS_CLIENT_HOME + "dist/commons-logging-1.2.jar"
 
 startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % classpath)
 

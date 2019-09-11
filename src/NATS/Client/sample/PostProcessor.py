@@ -4,8 +4,12 @@
           
 Author: Parikshit Dutta
 Date: 2018-04-02
+
+Update: 2019.06.18
 '''
 from __future__ import division
+
+import math
 import numpy as np
 import os
 
@@ -116,7 +120,6 @@ class PostProcessor:
     output folder'''
     def createCSVSamples(self):
         
-
         self.all_sample_dict = {}
         cnt = 0
         for fp in self.filepath:
@@ -143,7 +146,6 @@ class PostProcessor:
         
                 if '*' in lines[k] or len(lines[k]) == 0 or lines[k] == '\n':
                     continue;
-        
                 
                 if 'AC' in lines[k]:            
                     currac = lines[k][2];
@@ -165,12 +167,6 @@ class PostProcessor:
                     if tpoints != []: 
                         self.ac_traj_map[prevac] = tpoints;
                     tpoints = [];
-                                   
-                    '''AC,flight_index,callsign,actype,origin_airport,destination_airport,
-                    start_time,simulation_interval_ground,simulation_interval_airborne,
-                    cruise_altitude_ft,cruise_tas_knots,origin_airport_elevation_ft,
-                    destination_airport_elevation_ft,number_of_trajectory_rec'''
-            
                 elif currac != '':        
 
                     timestamp = np.float(lines[k][0])            
@@ -180,17 +176,25 @@ class PostProcessor:
                     rocd_fps = np.float(lines[k][4])
                     tas_kts = np.float(lines[k][5])
                     tas_kts_gnd = np.float(lines[k][6]) 
-                    heading_deg = np.float(lines[k][7])
-                    fpa_deg = np.float(lines[k][8])
+                    heading_rad = np.float(lines[k][7])
+                    fpa_rad = np.float(lines[k][8])
                     sector_idx = np.int(lines[k][9])
                     sector_names = lines[k][10]
-                    flight_mode = lines[k][11]            
-                    traj_prop = [timestamp,lat_deg,lon_deg,alt_ft,rocd_fps,tas_kts, tas_kts_gnd,
-                                 heading_deg,fpa_deg,sector_idx,sector_names,flight_mode];
+                    flight_phase = lines[k][11]            
+                    traj_prop = [timestamp,
+                                 lat_deg,
+                                 lon_deg,
+                                 alt_ft,
+                                 rocd_fps,
+                                 tas_kts,
+                                 tas_kts_gnd,
+                                 heading_rad * 180 / math.pi,
+                                 fpa_rad * 180 / math.pi,
+                                 sector_idx,
+                                 sector_names,
+                                 flight_phase];
             
                     tpoints.append(traj_prop)
-                    '''timestamp,latitude_deg,longitude_deg,altitude_ft,rocd_fps,
-                    tas_knots,heading_deg,fpa_deg,sector_index,sector_name,flight_mode'''
                 else:
                     pass                      
         
@@ -410,12 +414,6 @@ class PostProcessor:
                     if tpoints != []: 
                         self.ac_traj_map[prevac] = tpoints;
                     tpoints = [];
-                                   
-                    '''AC,flight_index,callsign,actype,origin_airport,destination_airport,
-                    start_time,simulation_interval_ground,simulation_interval_airborne,
-                    cruise_altitude_ft,cruise_tas_knots,origin_airport_elevation_ft,
-                    destination_airport_elevation_ft,number_of_trajectory_rec'''
-            
                 elif currac != '':        
 
                     timestamp = np.float(lines[k][0])            
@@ -425,17 +423,25 @@ class PostProcessor:
                     rocd_fps = np.float(lines[k][4])
                     tas_kts = np.float(lines[k][5])
                     tas_kts_gnd = np.float(lines[k][6]) 
-                    heading_deg = np.float(lines[k][7])
-                    fpa_deg = np.float(lines[k][8])
+                    heading_rad = np.float(lines[k][7])
+                    fpa_rad = np.float(lines[k][8])
                     sector_idx = np.int(lines[k][9])
                     sector_names = lines[k][10]
-                    flight_mode = lines[k][11]            
-                    traj_prop = [timestamp,lat_deg,lon_deg,alt_ft,rocd_fps,tas_kts, tas_kts_gnd,
-                                 heading_deg,fpa_deg,sector_idx,sector_names,flight_mode];
+                    flight_phase = lines[k][11]            
+                    traj_prop = [timestamp,
+                                 lat_deg,
+                                 lon_deg,
+                                 alt_ft,
+                                 rocd_fps,
+                                 tas_kts,
+                                 tas_kts_gnd,
+                                 heading_rad * 180 / math.pi,
+                                 fpa_rad * 180 / math.pi,
+                                 sector_idx,
+                                 sector_names,
+                                 flight_phase];
             
                     tpoints.append(traj_prop)
-                    '''timestamp,latitude_deg,longitude_deg,altitude_ft,rocd_fps,
-                    tas_knots,heading_deg,fpa_deg,sector_index,sector_name,flight_mode'''
                 else:
                     pass                      
         
@@ -642,9 +648,9 @@ class PostProcessor:
                 idx = 2;
             elif varname == 'altitude':
                 idx = 3;
-            elif varname == 'course_deg':
+            elif varname == 'course':
                 idx = 6;
-            elif varname == 'fpa_deg':
+            elif varname == 'fpa':
                 idx = 7;
             else:
                 idx = -1;
