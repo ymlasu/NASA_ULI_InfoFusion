@@ -1,44 +1,21 @@
 National Airspace Trajectory-Prediction System(NATS)
 
-Version: beta 1.4
+Version: beta 1.6
 
 Changes in this release:
 
-1. Added connection management between NATS Server and Client
-   (1) New Java library files must be included when writing client program.
-       Example,
-           In Python,
-               classpath = "dist/nats-client.jar:dist/nats-shared.jar:dist/json.jar:dist/rmiio-2.1.2.jar:dist/commons-logging-1.2.jar"
-           In MATLAB,
-               javaaddpath('dist/commons-logging-1.2.jar','-end');
-               javaaddpath('dist/json.jar','-end');
-               javaaddpath('dist/rmiio-2.1.2.jar','-end');
+1. Upgraded data communication mechanism between NATS Server and Client.
 
-   (2) When writing client programs with NATS server running on a different machine, users have to add
-           natsClient.login("authentication_id")
-       functions to run API functions.
+2. Total 79 US airports database provided.
 
-2. Provides Multi-User Simulation feature
-   A real-time simulation can process trajectory simulation synchronized with Universal Time (UTC) serving multiple clients.
-   Multi-user simulation allows normal users to get/set aircraft states, external aircrafts to send state data to NATS Server, and finally all trajectory data can be output together as a whole.  Sample files in NATS_Client/sample/DEMO_MultiUser are showing how the simulation is processed by multiple clients.  Different clients play as various roles to control the simulation and/or participate in it.
-   Please see detail in NATS_Client/sample/DEMO_MultiUser/README.doc
+3. API function to get wind vector value
+   weatherInterface.getWind
+   This function returns an array of size two.  The first element refers to the north vector value of the wind.  The second one refers to the east vector value of the wind.
 
-   Reminder: Please configure the firewall setting of the computer where NATS Server resides so the TCP port can be visited.
+   Sample code: NATS_Client/sample/DEMO_Weather_Functions_beta1.6.py
 
-3. Strategic Weather Avoidance
-   (1) Added SIGMET file support in Strategic Weather Avoidance
-   (2) Improved algorithm for generating weather avoidance route.
+4. API function to get weather polygons during simulation
+   weatherInterface.getWeatherPolygons
+   This function can only be executed during the pause status of simulation.  It returns an array of polygons.  Please see the sample code for detail usage.
 
-4. ADS-B live flight data acquisition and trajectory propagation within NATS. An RTL-SDR dongle (contact OSI for details) and antenna setup is required for this. 
-
-5. Functions for aircraft and cargo cost in $.
-
-6. Wake Vortex Hazard Envelope modeling.
-
-7. Merging and spacing of aircraft at the STAR entry meter fixes.
-
-8. Trajectory File Downloading
-   After simulation, clients can request to download the latest trajectory file from the server.
-   Please see sample file: NATS_Client/sample/DEMO_Gate_To_Gate_Simulation_SFO_PHX_beta1.4.py
-   
-9. Gate To Gate Flight Plan generator code updated, please read documentation at NATS_Client/sample/GateToGateFpReadMe.pdf for details.
+   Sample code: NATS_Client/sample/DEMO_Weather_Functions_beta1.6.py

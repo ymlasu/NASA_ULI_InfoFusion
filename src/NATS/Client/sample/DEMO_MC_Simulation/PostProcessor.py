@@ -8,6 +8,7 @@ Date: 2018-04-02
 from __future__ import division
 import numpy as np
 import os
+from difflib import SequenceMatcher
 
 try:
     import xml.etree.ElementTree as ET
@@ -35,6 +36,10 @@ def linear_interpolation(xlow,xhigh,flow,fhigh,xeval):
     feval = flow + (xeval-xlow)/(xhigh-xlow)*(fhigh-flow)
     return feval;
     
+
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
 
 '''This class read the output files at the given file path and plots histograms. 
     '''
@@ -110,8 +115,9 @@ class PostProcessor:
         
         self.filepath = [];
         for fl in os.listdir(self.path_to_csv):
-            if fl.endswith("."+self.file_type):                
+            if (fl.endswith("."+self.file_type)) and ("_groundVehicleSimulation" not in fl):                
                 self.filepath.append(self.path_to_csv+'/'+ fl)
+        
         if self.filepath == []:
             print 'No such files found'
             quit();
@@ -133,6 +139,7 @@ class PostProcessor:
             sim_start_time = -100;
             self.ac_info_map = {}
             self.ac_traj_map = {}
+            self.ac_traj_metadata = {}
     
             currac = ''
             prevac = ''
@@ -148,6 +155,14 @@ class PostProcessor:
         
                 if '*' in lines[k] or len(lines[k]) == 0 or lines[k] == '\n':
                     continue;
+                
+                if len(lines[k]) > 1:
+                    if '**' in lines[k][0] and 'UTC' in lines[k][0]:
+                        for j in range(len(lines[k])):
+                            lines[k][j] = lines[k][j].replace("*","")
+                            lines[k][j] = lines[k][j].strip()
+                            
+                            self.ac_traj_metadata[j] = lines[k][j]
         
                 
                 if 'AC' in lines[k]:            
@@ -223,6 +238,7 @@ class PostProcessor:
             root_array.append(tree.getroot())
             self.ac_info_map = {}
             self.ac_traj_map = {}
+            self.ac_traj_metadata = {}
         
         self.LatLonAltSamp = []
         for root in root_array:
@@ -378,6 +394,7 @@ class PostProcessor:
             sim_start_time = -100;
             self.ac_info_map = {}
             self.ac_traj_map = {}
+            self.ac_traj_metadata = {}
     
             currac = ''
             prevac = ''
@@ -390,9 +407,18 @@ class PostProcessor:
                         sim_start_time = np.float(lines[k][0])
                     else:
                         continue;
-        
+                
                 if '*' in lines[k] or len(lines[k]) == 0 or lines[k] == '\n':
                     continue;
+                
+                if len(lines[k]) > 1:
+                    if '**' in lines[k][0] and 'UTC' in lines[k][0]:
+                        for j in range(len(lines[k])):
+                            lines[k][j] = lines[k][j].replace("*","")
+                            lines[k][j] = lines[k][j].strip()
+                            
+                            self.ac_traj_metadata[j] = lines[k][j]
+                            
         
                 
                 if 'AC' in lines[k]:            
@@ -450,7 +476,8 @@ class PostProcessor:
             
             
             self.all_sample_dict[fp] = [self.ac_traj_map,self.ac_info_map];
-    
+        
+        
         return self.ac_traj_map,self.ac_info_map;
     
     
@@ -601,6 +628,7 @@ class PostProcessor:
             elif varname == 'initial_latitude':
                 idx = 1;
             
+            
             var.append( [value[0][idx],value[int(idxf/2)][idx],value[-1][idx]] )
             
             tm= [];lat = []; lon = []; alt = [];
@@ -631,6 +659,70 @@ class PostProcessor:
         fig2.subplots_adjust(top=0.9)
         plt.show();
     
+    
+    '''ONLY PLOTS THE FINAL TIME HISTOGRAMS.  
+    timestamp,latitude_deg,longitude_deg,altitude_ft,rocd_fps,
+    tas_knots,heading_deg,fpa_deg,sector_index,sector_name,flight_mode.'''
+    def plotFinalHistograms(self,vars):
+
+        
+        idxs = [];
+        for var in vars:
+            maxsim = 0.0;
+            key = 0;
+            for k in self.ac_traj_metadata.keys():
+                sim_val = similar(self.ac_traj_metadata[k],var);
+                print self.ac_traj_metadata[k],var,sim_val
+                if sim_val <= 0.75:
+                    continue;
+                if sim_val >= maxsim:
+                    maxsim = sim_val;
+                    key = k;
+#             print var, self.ac_traj_metadata[key]
+            if maxsim < 0.75:
+                print 'Variable entries not recognized.'
+                quit();
+            idxs.append(key) 
+            print '\n\n'
+        var = []
+                
+        for fp in self.filepath:
+            [ac_traj_map,ac_info_map] = self.all_sample_dict[fp]
+            value = ac_traj_map[self.ac_mod];
+            idxf = len(value)
+            
+            tvar = [];
+            for idx in idxs:
+                tvar.append(value[-1][idx])    
+            var.append( tvar )
+            
+            tm= [];lat = []; lon = []; alt = [];
+         
+            
+        
+        
+        
+        var = np.array(var,dtype = np.float)
+        
+        nr = 1;
+        nc = len(vars)
+        if len(vars) > 3 and len(vars) <= 8:
+            nr = 2;
+            nc = np.int8(np.ceil(len(vars)/2.));
+        if len(vars) > 6:
+            nr = 3  
+            nc = np.int8(np.ceil(len(vars)/3.));
+        fig1,axs = plt.subplots(nrows = nr, ncols = nc);
+        axs = axs.ravel()
+        
+        for k in range(len(vars)):
+            axs[k].hist((var[:,k]),bins = 30,normed=False,label = vars[k])
+            axs[k].set_xlabel(vars[k])
+            
+        fig1.tight_layout()      
+        fig1.subplots_adjust(top=0.9)
+        plt.show();
+        
     '''timestamp,latitude_deg,longitude_deg,altitude_ft,rocd_fps,
     tas_knots,heading_deg,fpa_deg,sector_index,sector_name,flight_mode'''
     def plot_var_at_time(self, t_to_plt,inp_array,ac,varname = 'latitude'):

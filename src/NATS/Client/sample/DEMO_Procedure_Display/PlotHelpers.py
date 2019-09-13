@@ -1345,10 +1345,10 @@ class AirportLayout:
         #self.nodes=[None for ii in range(num_nodes)]
         for ii in range(num_nodes):
             node_name=nodemap[ii][0]
-            node_num=nodemap[ii][1].value
-            assert(node_num==nodedata[ii][0].value)
-            lat_deg=nodedata[ii][1].value
-            lon_deg=nodedata[ii][2].value
+            node_num=nodemap[ii][1]
+            assert(node_num==nodedata[ii][0])
+            lat_deg=nodedata[ii][1]
+            lon_deg=nodedata[ii][2]
             #if node_num==0 or node_num==1:
             #print("ii:{},node_name:{},node_num:{},lat:{},lon:{}".format(ii,node_name,node_num,lat_deg,lon_deg))
             node_instance = Node(node_num, node_name, lat_deg, lon_deg)
@@ -1372,8 +1372,8 @@ class AirportLayout:
 
         num_links = len(linkdata)
         for ii in range(num_links):
-            node1_num = linkdata[ii][0].value
-            node2_num = linkdata[ii][1].value
+            node1_num = linkdata[ii][0]
+            node2_num = linkdata[ii][1]
             # print("node1_num:{},node2_num:{}".format(node1_num,node2_num))
             # 1.create a link instance
             link_instance = Link(node1_num, node2_num)

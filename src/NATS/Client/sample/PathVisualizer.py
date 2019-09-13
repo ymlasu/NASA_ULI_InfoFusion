@@ -6,6 +6,7 @@ Author: Hari Iyer
 Date: 01/12/2019
 """
 
+import math
 import os
 import csv
 from glob import glob
@@ -19,6 +20,7 @@ def plotOnGoogleMap(FLIGHT_CALLSIGN, csvFile):
 
     #Get CSV with Geo-cordinates, parsing them into Google Maps format
     natsServerDirName = glob("../*NATS_Server*/")[0]
+
     latLonFile = list(csv.reader(open(natsServerDirName + "/" + csvFile), delimiter=','))
         
     latLonData = []
@@ -28,13 +30,13 @@ def plotOnGoogleMap(FLIGHT_CALLSIGN, csvFile):
     for flight in FLIGHT_CALLSIGN:
         latLonSubData = []
         for row in latLonFile:
-            if(len(row) > 3):
+            if (len(row) > 3):
                 time, latitude, longitude= row[0], row[1], row[2]
-                if(row[0] == "AC" and row[2] == flight):
+                if (row[0] == "AC" and row[2] == flight):
                     startIndex = latLonFile.index(row) + 1
-    
+                    
         for index in range(startIndex, len(latLonFile)):
-            if(latLonFile[index] == []):
+            if (latLonFile[index] == []):
                 break
             time, latitude, longitude= latLonFile[index][0], latLonFile[index][1], latLonFile[index][2]
             if [float(latitude), float(longitude)] != [0.0,0.0]:
