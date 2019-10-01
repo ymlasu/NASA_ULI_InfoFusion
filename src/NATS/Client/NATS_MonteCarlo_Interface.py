@@ -9,7 +9,7 @@ import sys
 sys.path.append('/home/dyn.datasys.swri.edu/mhartnett/NASA_ULI/NASA_ULI_InfoFusion/src/NATS/Client/')
 
 from jpype import JClass,shutdownJVM
-from NATS_header import NATS_SIMULATION_STATUS_ENDED, NATS_SIMULATION_STATUS_PAUSE
+from NATS_header import NATS_Config, NATS_SIMULATION_STATUS_ENDED, NATS_SIMULATION_STATUS_PAUSE
 import time
 import numpy as np
 import PostProcessor as pp
@@ -30,68 +30,9 @@ args_dict = {1:'latitude', \
 '''This class initializes the NATS client, accepts MC samples as inputs,
 runs the NATS simulation and produces .csv output.'''
 class NATS_MonteCarlo_Interface:
-    def __init__(self, duration = 86400,
-                 interval = 30, 
-                 client_dir = '/home/dyn.datasys.swri.edu/mhartnett/NASA_ULI/NASA_ULI_InfoFusion/src/NATS/Client/', 
-                 wind_dir = 'share/tg/rap', 
-                 track_file = "share/tg/trx/swim_example_aug.trx", 
-                 max_flt_lev_file = "share/tg/trx/swim_example_mfl.trx"):
-        self.endTime = duration;
-        self.interval = interval;
-        self.initializeJVM(client_dir);
-        self.wind_dir = wind_dir;
-        self.trx_file = track_file;
-        self.mfl_file = max_flt_lev_file;
-
-    '''Initialize the NATS client'''    
-    def initializeJVM(self, client_dir = '/home/dyn.datasys.swri.edu/mhartnett/NASA_ULI/NASA_ULI_InfoFusion/src/NATS/Client/'):
-
-        self.NATS_SIMULATION_STATUS_ENDED = NATS_SIMULATION_STATUS_ENDED;
-        NATSClientFactory = JClass('NATSClientFactory')
-        self.natsClient = NATSClientFactory.getNATSClient()
-        
-        self.equipmentInterface = self.natsClient.getEquipmentInterface();
-
-
-        # Get EnvironmentInterface
-        self.environmentInterface = self.natsClient.getEnvironmentInterface();
-        # Get AirportInterface
-        self.airportInterface = self.environmentInterface.getAirportInterface()
-        # Get TerminalAreaInterface
-        self.terminalAreaInterface = self.environmentInterface.getTerminalAreaInterface()
-        
-        self.sim = self.natsClient.getSimulationInterface()
-                
-        self.aircraftInterface = self.equipmentInterface.getAircraftInterface(); 
-    
-    def shutdownJVM(self):
-        shutdownJVM()
-    
-    def getNATSClient(self):
-        return self.natsClient;
-    
-    def getNATSEquipmentInterface(self):
-        return self.equipmentInterface;
-    
-    def getNATSEnvironmentInterface(self):
-        return self.environmentInterface;
-    
-    def getNATSAirportInterface(self):
-        return self.airportInterface;
-    
-    def getNATSTerminalAreaInterface(self):
-        return self.terminalAreaInterface;
-    
-    def getNATSSimulationInterface(self):
-        return self.sim
-    
-    def getAircraftInterface(self):
-        if self.aircraftInterface == None:
-            self.aircraftInterface = self.equipmentInterface.getAircraftInterface(); 
-        self.aircraftInterface.load_aircraft(self.trx_file,self.mfl_file)
-        return self.aircraftInterface
-    
-    
+    def __init__(self,config):
+        self.__dict__ = config.__dict__.copy()
+        print(self.__dict__)
     
     '''This function sets the value the chosen random variable to 
     the prescribed value, before running simulation.'''
@@ -244,6 +185,91 @@ class NATS_MonteCarlo_Interface:
             
             raise ValueError('%s currently not implemented. Just generate samples on your own.\n',str(var_name))    
             
+    
+    def runMCSim(self,args):
+        '''args = [ac_name, var_name, var_vals, index (optional)]'''
+        if len(args) < 3 or len(args) > 4:
+            print(' Incorrect args size. Please check')
+            return 0;        
+        ac_list = args[0];
+        var_name = args[1];
+        var = args[2];
+        
+        if len(args) == 4:
+            fpwpidx = args[3];
+        else:
+            fpwpidx = [-1]*len(ac_list) ;
+        
+        print('Running simulation')
+        self.sim.clear_trajectory()
+
+    
+        print('Loading wind and aircraft')
+        #self.environmentInterface.load_rap(self.wind_dir) # Here the parameters specify the file and path on server.  Please don't change it.
+
+
+        # Get AircraftInterface
+        self.aircraftInterface = self.equipmentInterface.getAircraftInterface();    
+        self.aircraftInterface.load_aircraft(self.trx_file,self.mfl_file)
+        if self.aircraftInterface is None:
+            print('Aircraft interface not found. Quitting...')
+            quit();
+                    
+        if len(ac_list) == 1:
+            curr_ac = ac_list[0]
+            try:
+                self.ac = self.aircraftInterface.select_aircraft(curr_ac);
+            except ValueError:
+                print('Cannot assign aircraft\n')
+
+            if type(var_name) != list:
+                self.setValue(var,var_name,fpwpidx)
+            elif len(var_name) == 1:
+                self.setValue(var,var_name[0],fpwpidx)
+            else:
+                assert len(var) == len(var_name) == len(fpwpidx)                    
+                for vval,vname,fpidx in zip(var,var_name,fpwpidx):
+                    print('at t=0s.')
+                    self.setValue(vval,vname,fpidx)
+            
+        else:                
+            for j in range(len(ac_list)):
+                curr_ac = ac_list[j]
+                try:
+                    self.ac = self.aircraftInterface.select_aircraft(curr_ac);
+                except ValueError:
+                    print('Cannot assign aircraft\n')
+   
+                self.setValue(var[j],var_name[j],fpwpidx[j])
+        
+
+        self.sim.setupSimulation(self.endTime, self.interval);
+        time.sleep(2);
+        self.sim.start();
+
+        '''This loop checks if the server is running.Leave it as it is.'''
+        #---------PUT THE FOLLOWING IN EACH PROGRAM------------
+        while True:
+            server_runtime_sim_status = self.sim.get_runtime_sim_status()
+            if (server_runtime_sim_status == self.NATS_SIMULATION_STATUS_ENDED) :
+                break
+            else:
+                time.sleep(1)
+        #---------PUT THE ABOVE IN EACH PROGRAM------------    
+        print("Outputting trajectory data.  Please wait....")
+        # The trajectory output file will be saved on NATS_Server side
+#         self.sim.write_trajectories("output_trajectory_" + str(var) + "_" + curr_ac + ".csv")
+        write_path = 'output_trajectory_'+str(time.time())+'_'+curr_ac+'.csv'
+        self.sim.write_trajectories(write_path)
+
+        time.sleep(2);
+
+        print('Releasing previous data and clearing trajectories')
+        self.aircraftInterface.release_aircraft()
+        self.environmentInterface.release_rap()
+
+        return write_path
+
     '''This is the main file being called. args are 
     
     :ac_name: The callsign of the aircraft being experimented, 
@@ -278,7 +304,7 @@ class NATS_MonteCarlo_Interface:
 
         
             print('Loading wind and aircraft')
-            self.environmentInterface.load_rap(self.wind_dir) # Here the parameters specify the file and path on server.  Please don't change it.
+            #self.environmentInterface.load_rap(self.wind_dir) # Here the parameters specify the file and path on server.  Please don't change it.
     
     
             # Get AircraftInterface
@@ -417,7 +443,7 @@ class NATS_MonteCarlo_Interface:
             self.sim.clear_trajectory()
             
             print('Loading wind and aircraft')
-            self.environmentInterface.load_rap(self.wind_dir)
+            #self.environmentInterface.load_rap(self.wind_dir)
             
             self.aircraftInterface = self.equipmentInterface.getAircraftInterface();    
             self.aircraftInterface.load_aircraft(self.trx_file,self.mfl_file)
@@ -500,7 +526,7 @@ class NATS_MonteCarlo_Interface:
             self.sim.clear_trajectory()
             
             print('Loading wind and aircraft')
-            self.environmentInterface.load_rap(self.wind_dir) # Here the parameters specify the file and path on server.  Please don't change it.
+            #self.environmentInterface.load_rap(self.wind_dir) # Here the parameters specify the file and path on server.  Please don't change it.
     
             # Get AircraftInterface
             self.aircraftInterface = self.equipmentInterface.getAircraftInterface();    
