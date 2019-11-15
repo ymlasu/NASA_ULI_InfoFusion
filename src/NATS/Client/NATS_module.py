@@ -37,16 +37,16 @@ def main(arg):
                          max_flt_lev_file = "share/tg/trx/"+mfl)
     MC_interface = NATS_MonteCarlo_Interface(config);
     
-    curr_ac = "AC0001";
+    curr_ac = "SWA1898";
     
     '''Flight Plan Latitude'''
     fpwpidx = 1;
-    uncertain_value = arg[2][0]
+    uncertain_value = arg[2]
     print(uncertain_value)
     
     '''args = [ac_name, var_name, var_vals, fpindex (optional)]'''
         
-    args = [[curr_ac],args_dict[6],uncertain_value,fpwpidx]
+    args = [[curr_ac],args_dict[9],uncertain_value]
     filename = MC_interface.runMCSim(args)
     return filename
 

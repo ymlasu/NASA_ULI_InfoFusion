@@ -7,9 +7,10 @@ Date: 2018-04-02
 '''
 import sys
 sys.path.append('/home/dyn.datasys.swri.edu/mhartnett/NASA_ULI/NASA_ULI_InfoFusion/src/NATS/Client/')
+import os
 
 from jpype import JClass,shutdownJVM
-from NATS_header import NATS_Config, NATS_SIMULATION_STATUS_ENDED, NATS_SIMULATION_STATUS_PAUSE
+import NATS_header
 import time
 import numpy as np
 import PostProcessor as pp
@@ -251,7 +252,7 @@ class NATS_MonteCarlo_Interface:
         #---------PUT THE FOLLOWING IN EACH PROGRAM------------
         while True:
             server_runtime_sim_status = self.sim.get_runtime_sim_status()
-            if (server_runtime_sim_status == self.NATS_SIMULATION_STATUS_ENDED) :
+            if (server_runtime_sim_status == self.NATS_header.NATS_SIMULATION_STATUS_ENDED) :
                 break
             else:
                 time.sleep(1)
@@ -350,7 +351,7 @@ class NATS_MonteCarlo_Interface:
             #---------PUT THE FOLLOWING IN EACH PROGRAM------------
             while True:
                 server_runtime_sim_status = self.sim.get_runtime_sim_status()
-                if (server_runtime_sim_status == self.NATS_SIMULATION_STATUS_ENDED) :
+                if (server_runtime_sim_status == self.NATS_header.NATS_SIMULATION_STATUS_ENDED) :
                     break
                 else:
                     time.sleep(1)
@@ -366,6 +367,89 @@ class NATS_MonteCarlo_Interface:
             self.aircraftInterface.release_aircraft()
             self.environmentInterface.release_rap()
     
+    
+    def runMCSimWithPause(self,args):
+        self.sim.clear_trajectory()
+
+        #self.environmentInterface.load_rap("share/tg/rap")
+    
+        self.aircraftInterface.load_aircraft(self.trx_file,self.mfl_file)
+    
+        # Controller to set human error: delay time
+        # Users can try the following setting and see the difference in trajectory
+        delays = [NATS_header.AIRCRAFT_CLEARANCE_PUSHBACK, NATS_header.AIRCRAFT_CLEARANCE_TAXI_DEPARTING, 
+          NATS_header.AIRCRAFT_CLEARANCE_TAKEOFF, NATS_header.AIRCRAFT_CLEARANCE_ENTER_ARTC, 
+          NATS_header.AIRCRAFT_CLEARANCE_DESCENT_FROM_CRUISE, NATS_header.AIRCRAFT_CLEARANCE_ENTER_TRACON,
+          NATS_header.AIRCRAFT_CLEARANCE_APPROACH, NATS_header.AIRCRAFT_CLEARANCE_TOUCHDOWN, 
+          NATS_header.AIRCRAFT_CLEARANCE_TAXI_LANDING, NATS_header.AIRCRAFT_CLEARANCE_RAMP_LANDING]
+        for ac in self.aircraftInterface.getAllAircraftId():
+            print('Changing controllerInterface parameters for {}'.format(ac))
+            for i,d in enumerate(delays):
+                print('Setting {} to {}'.format(d,args[0][i]))
+                self.controllerInterface.setDelayPeriod(ac, d, int(np.round(args[0][i])))
+    
+        self.sim.setupSimulation(self.endTime,self.interval) # SFO - PHX
+        time.sleep(5)
+        self.sim.start()
+    
+        # Use a while loop to constantly check simulation status.  When the simulation finishes, continue to output the trajectory data
+        '''
+        while self.sim.get_runtime_sim_status() != NATS_header.NATS_SIMULATION_STATUS_PAUSE:
+            time.sleep(1)
+            print('1st status: ',self.sim.get_runtime_sim_status())
+    
+        # Pilot to set error scenarios
+        # Users can try the following setting and see the difference in trajectory
+        for ac in self.aircraftInterface.getAllAircraftId():
+            print('Changing pilotInterface parameters for {}'.format(ac))
+            self.pilotInterface.setActionLag(ac, 'COURSE', 10, 0.0, 60)
+            self.pilotInterface.setActionLag(ac, 'ALTITUDE', 10, 0.0, 60)
+            self.pilotInterface.setActionLag(ac, 'VERTICAL_SPEED', 10, 0.0, 60)
+        '''
+        #self.sim.resume()
+        
+        while True:
+            x = self.sim.get_runtime_sim_status()
+            print('status: ', x,'time: ', self.sim.get_curr_sim_time())
+            if x == NATS_header.NATS_SIMULATION_STATUS_ENDED:
+                break
+            else:
+                time.sleep(1)
+        
+        millis = int(round(time.time() * 1000)) 
+        print("Outputting trajectory data.  Please wait....")
+    
+        planned_dirname = os.path.splitext(os.path.basename(__file__))[0] + "_" + str(millis)
+        output_filename = planned_dirname + ".csv"
+    
+        # Output the trajectory result file
+        self.sim.write_trajectories(output_filename)
+    
+        self.aircraftInterface.release_aircraft()
+        self.environmentInterface.release_rap()
+
+        # =========================================================
+        
+        # The following statements read the result trajectory files and display plotting.
+        
+        # Create temp directory and copy the result trajectory file into it
+        planned_dirname = "tmp_" + planned_dirname
+        os.makedirs(planned_dirname)
+        
+        return output_filename
+
+        local_trajectory_filename = output_filename
+        
+        copyfile(local_trajectory_filename, planned_dirname + "/" + local_trajectory_filename)
+        
+        post_process = pp.PostProcessor(file_path = planned_dirname,
+                                        ac_name = 'SWA1897');
+        
+        post_process.plotSingleAircraftTrajectory();
+        
+        # Delete temp directory
+        print("Deleting directory:", planned_dirname)
+        rmtree(planned_dirname)
     
     '''This is the main file being called. args are 
     
@@ -460,7 +544,7 @@ class NATS_MonteCarlo_Interface:
             #---------WAIT FOR PAUSE------------
             while True:
                 server_runtime_sim_status = self.sim.get_runtime_sim_status()
-                if (server_runtime_sim_status == NATS_SIMULATION_STATUS_PAUSE) :
+                if (server_runtime_sim_status == NATS_header.NATS_SIMULATION_STATUS_PAUSE) :
                     break
                 else:
                     time.sleep(1)
@@ -478,7 +562,7 @@ class NATS_MonteCarlo_Interface:
                         
                     while True:
                         server_runtime_sim_status = self.sim.get_runtime_sim_status()
-                        if (server_runtime_sim_status == NATS_SIMULATION_STATUS_PAUSE) :
+                        if (server_runtime_sim_status == NATS_header.NATS_SIMULATION_STATUS_PAUSE) :
                             break
                         else:
                             time.sleep(1) 
@@ -497,7 +581,7 @@ class NATS_MonteCarlo_Interface:
             #---------PUT THE FOLLOWING IN EACH PROGRAM------------
             while True:
                 server_runtime_sim_status = self.sim.get_runtime_sim_status()
-                if (server_runtime_sim_status == self.NATS_SIMULATION_STATUS_ENDED) :
+                if (server_runtime_sim_status == self.NATS_header.NATS_SIMULATION_STATUS_ENDED) :
                     break
                 else:
                     time.sleep(1)                                    
@@ -543,7 +627,7 @@ class NATS_MonteCarlo_Interface:
             #---------WAIT FOR PAUSE------------
             while True:
                 server_runtime_sim_status = self.sim.get_runtime_sim_status()
-                if (server_runtime_sim_status == NATS_SIMULATION_STATUS_PAUSE) :
+                if (server_runtime_sim_status == NATS_header.NATS_SIMULATION_STATUS_PAUSE) :
                     break
                 else:
                     time.sleep(1)
@@ -560,7 +644,7 @@ class NATS_MonteCarlo_Interface:
                         
                     while True:
                         server_runtime_sim_status = self.sim.get_runtime_sim_status()
-                        if (server_runtime_sim_status == NATS_SIMULATION_STATUS_PAUSE) :
+                        if (server_runtime_sim_status == NATS_header.NATS_SIMULATION_STATUS_PAUSE) :
                             break
                         else:
                             time.sleep(1)
@@ -579,7 +663,7 @@ class NATS_MonteCarlo_Interface:
             #---------PUT THE FOLLOWING IN EACH PROGRAM------------
             while True:
                 server_runtime_sim_status = self.sim.get_runtime_sim_status()
-                if (server_runtime_sim_status == self.NATS_SIMULATION_STATUS_ENDED) :
+                if (server_runtime_sim_status == self.NATS_header.NATS_SIMULATION_STATUS_ENDED) :
                     break
                 else:
                     time.sleep(1)
