@@ -374,7 +374,11 @@ class NATS_MonteCarlo_Interface:
         #self.environmentInterface.load_rap("share/tg/rap")
     
         self.aircraftInterface.load_aircraft(self.trx_file,self.mfl_file)
-    
+        
+        self.sim.setupSimulation(self.endTime,self.interval)
+        self.sim.start(600)
+        while self.sim.get_runtime_sim_status() != NATS_header.NATS_SIMULATION_STATUS_PAUSE:
+            time.sleep(1)
         # Controller to set human error: delay time
         # Users can try the following setting and see the difference in trajectory
         delays = [NATS_header.AIRCRAFT_CLEARANCE_PUSHBACK, NATS_header.AIRCRAFT_CLEARANCE_TAXI_DEPARTING, 
@@ -387,10 +391,7 @@ class NATS_MonteCarlo_Interface:
             for i,d in enumerate(delays):
                 print('Setting {} to {}'.format(d,args[0][i]))
                 self.controllerInterface.setDelayPeriod(ac, d, int(np.round(args[0][i])))
-    
-        self.sim.setupSimulation(self.endTime,self.interval) # SFO - PHX
-        time.sleep(5)
-        self.sim.start()
+        self.sim.resume()
     
         # Use a while loop to constantly check simulation status.  When the simulation finishes, continue to output the trajectory data
         '''
@@ -406,8 +407,7 @@ class NATS_MonteCarlo_Interface:
             self.pilotInterface.setActionLag(ac, 'ALTITUDE', 10, 0.0, 60)
             self.pilotInterface.setActionLag(ac, 'VERTICAL_SPEED', 10, 0.0, 60)
         '''
-        #self.sim.resume()
-        
+        timeout = 0
         while True:
             x = self.sim.get_runtime_sim_status()
             print('status: ', x,'time: ', self.sim.get_curr_sim_time())
@@ -415,41 +415,21 @@ class NATS_MonteCarlo_Interface:
                 break
             else:
                 time.sleep(1)
-        
+                timeout+=1
+                if timeout >= 10:
+                    break
         millis = int(round(time.time() * 1000)) 
         print("Outputting trajectory data.  Please wait....")
-    
-        planned_dirname = os.path.splitext(os.path.basename(__file__))[0] + "_" + str(millis)
-        output_filename = planned_dirname + ".csv"
-    
-        # Output the trajectory result file
-        self.sim.write_trajectories(output_filename)
-    
+        write_path = 'output_trajectory_'+str(time.time())+'.csv'
+        self.sim.write_trajectories(write_path)
+
+        time.sleep(2);
+
+        print('Releasing previous data and clearing trajectories')
         self.aircraftInterface.release_aircraft()
         self.environmentInterface.release_rap()
 
-        # =========================================================
-        
-        # The following statements read the result trajectory files and display plotting.
-        
-        # Create temp directory and copy the result trajectory file into it
-        planned_dirname = "tmp_" + planned_dirname
-        os.makedirs(planned_dirname)
-        
-        return output_filename
-
-        local_trajectory_filename = output_filename
-        
-        copyfile(local_trajectory_filename, planned_dirname + "/" + local_trajectory_filename)
-        
-        post_process = pp.PostProcessor(file_path = planned_dirname,
-                                        ac_name = 'SWA1897');
-        
-        post_process.plotSingleAircraftTrajectory();
-        
-        # Delete temp directory
-        print("Deleting directory:", planned_dirname)
-        rmtree(planned_dirname)
+        return write_path
     
     '''This is the main file being called. args are 
     
