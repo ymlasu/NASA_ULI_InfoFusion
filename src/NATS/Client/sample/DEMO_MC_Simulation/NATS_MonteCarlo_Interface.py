@@ -75,9 +75,6 @@ class NATS_MonteCarlo_Interface:
         
     
     def shutdownJVM(self):        
-        # Close connection from NATS Server
-        self.natsClient.disConnect()
-        
         shutdownJVM()
     
     def getNATSClient(self):

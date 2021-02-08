@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Reliability &mdash; NASA_ULI_InfoFusion  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="NASA_ULI_InfoFusion  documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> NASA_ULI_InfoFusion</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">NASA_ULI_InfoFusion</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>Reliability</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for Reliability</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">NASA NextGen NAS ULI Information Fusion</span>
+<span class="sd">        </span>
+<span class="sd">@organization: Southwest Research Institute</span>
+<span class="sd">@author: Michael Hartnett</span>
+<span class="sd">@date: 28/02/2019</span>
+
+<span class="sd">Conduct reliability analysis</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">PARA_ATM</span> <span class="k">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../index.html#Reliability.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Class Command wraps the command methods and functions to be executed. For user-defined commands, this name </span>
+<span class="sd">        should be kept the same (Command).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c">#Here, the database connector and the parameter are passed as arguments. This can be changed as per need.</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">airportIATA</span><span class="p">,</span> <span class="n">analysis_type</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">cursor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">AirportIATA</span> <span class="o">=</span> <span class="n">airportIATA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_type</span> <span class="o">=</span> <span class="n">analysis_type</span>
+        <span class="kn">import</span> <span class="nn">uli_pyre_gp</span>
+        
+    <span class="c">#Method name executeCommand() should not be changed. It executes the query and displays/returns the output.</span>
+    <span class="k">def</span> <span class="nf">executeCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c">#TODO: Replace what we can with real data</span>
+        <span class="n">capacity_probs</span> <span class="o">=</span> <span class="p">[</span><span class="o">.</span><span class="mi">57</span><span class="p">,</span> <span class="o">.</span><span class="mi">18</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">]</span>
+        <span class="n">capacity_vals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">96</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">72</span><span class="p">]</span>        
+        <span class="n">demand_mean</span> <span class="o">=</span> <span class="mf">64.</span>
+        <span class="n">demand_stdv</span> <span class="o">=</span> <span class="mf">8.</span>
+
+        <span class="c">#format capacity and demand to initialize analysis</span>
+        <span class="n">capacity</span> <span class="o">=</span> <span class="p">(</span><span class="n">capacity_probs</span><span class="p">,</span><span class="n">capacity_vals</span><span class="p">)</span>
+        <span class="n">demand</span> <span class="o">=</span> <span class="p">(</span><span class="n">demand_mean</span><span class="p">,</span><span class="n">demand_stdv</span><span class="p">)</span>
+
+        <span class="n">reliability</span> <span class="o">=</span> <span class="n">uli_pyre_gp</span><span class="o">.</span><span class="n">ReliabilityAnalysis</span><span class="p">(</span><span class="n">capacity</span><span class="p">,</span><span class="n">demand</span><span class="p">)</span>
+        <span class="c">#pass custom limit state function and</span>
+        <span class="c">#analysis type. options:</span>
+        <span class="c">#                       &#39;MC&#39; : Monte Carlo</span>
+        <span class="c">#                       &#39;EGRA&#39; : EGRA</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">reliability</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">custom_limit_state</span><span class="o">=</span><span class="k">None</span><span class="p">,</span><span class="n">analysis_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Southwest Research Institute.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

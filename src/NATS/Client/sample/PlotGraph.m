@@ -27,6 +27,7 @@ function plotRouteineCalled = PlotGraph(callsign, userTrajectoryCount, platform,
         if(platform == 'Octave')
             FlightParameters(end) = [];
         end
+        
         %Initialize flight parameter variables
         trueAirSpeedReadings = cell(length(FlightParameters) - 10, 1);
         altitudeReadings = cell(length(FlightParameters) - 10, 1);
@@ -58,7 +59,7 @@ function plotRouteineCalled = PlotGraph(callsign, userTrajectoryCount, platform,
             latitudeReadings{count - 8} = str2num(char(trajectoryPoint(2)));
             longitudeReadings{count - 8} = str2num(char(trajectoryPoint(3)));
             rocdReadings{count - 8} = str2num(char(trajectoryPoint(5)));
-            courseReadings{count - 8} = str2num(char(trajectoryPoint(7)));
+            courseReadings{count - 8} = str2num(char(trajectoryPoint(8)));
         end
 
         %Convert cells to matrix in order to plot graphs
@@ -88,7 +89,7 @@ function plotRouteineCalled = PlotGraph(callsign, userTrajectoryCount, platform,
         title(tasSubplot, 'True Airspeed vs. Time');
         plot(timestampMatrix, trueAirSpeedMatrix);
         xlabel('Time (s)');
-        ylabel('Cruise True Airspeed (knots)');
+        ylabel('True Airspeed (knots)');
         %xlim([9000 11000])
         hold on;
         grid on;

@@ -1,0 +1,550 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>LaunchApp &mdash; NASA_ULI_InfoFusion  documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="NASA_ULI_InfoFusion  documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> NASA_ULI_InfoFusion</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">NASA_ULI_InfoFusion</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>LaunchApp</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for LaunchApp</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">NASA NextGen NAS ULI Information Fusion</span>
+<span class="sd">        </span>
+<span class="sd">@organization: PARA Lab, Arizona State University (PI Dr. Yongming Liu)</span>
+<span class="sd">@author: Hari Iyer</span>
+<span class="sd">@date: 01/19/2018</span>
+
+<span class="sd">Run this module to invoke the application. It contains the main features and functions to execute the system.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;/home/dyn.datasys.swri.edu/mhartnett/NASA_ULI/NASA_ULI_InfoFusion/src/&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">PARA_ATM</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PARA_ATM.Commands</span> <span class="k">import</span> <span class="n">readNATS</span><span class="p">,</span><span class="n">readIFF</span><span class="p">,</span><span class="n">readTDDS</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">class</span> <span class="nc">GitHub</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        When instantiated, this class provides a view of the GitHub Code repository</span>
+<span class="sd">        and documentation for reference.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Initialize the popup window</span>
+        <span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubPopup</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubView</span> <span class="o">=</span> <span class="n">QWebView</span><span class="p">()</span>
+        
+        <span class="c">#Set URL to the project GitHub resource</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubView</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="s">&quot;https://github.com/ymlasu/NASA_ULI_InfoFusion&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubLayout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+        <span class="c">#Add the view to main application</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">githubView</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="ParaATM"><a class="viewcode-back" href="../index.html#LaunchApp.ParaATM">[docs]</a><span class="k">class</span> <span class="nc">ParaATM</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Class ParaATM wraps the entire application together with all the layout and features tied </span>
+<span class="sd">        together with the functionality.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Initialize application window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">application</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapView</span> <span class="o">=</span> <span class="n">QWebView</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ParaATM</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        
+        <span class="c">#Set connection to postgres database based on the credentials mentioned</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">database</span><span class="o">=</span><span class="s">&quot;paraatm&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="s">&quot;paraatm_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s">&quot;paraatm_user&quot;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s">&quot;5432&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        
+        <span class="c">#Application-level data definition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flightSelected</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tableList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTableList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dateRangeSelected</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterToggles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        
+        <span class="c">#Build and launch application UI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buildUI</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">menu_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">()</span>
+        <span class="n">acid</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s">&#39;../../NATS/Server/&#39;</span><span class="o">+</span><span class="n">table</span><span class="p">):</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">readNATS</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,[</span><span class="n">table</span><span class="p">,</span><span class="s">&#39;callsign=&#39;</span><span class="o">+</span><span class="n">acid</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s">&#39;../../../data/Sherlock/&#39;</span><span class="o">+</span><span class="n">table</span><span class="p">):</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">readIFF</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,[</span><span class="n">table</span><span class="p">,</span><span class="s">&#39;callsign=&#39;</span><span class="o">+</span><span class="n">acid</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initMap</span><span class="p">()</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        buildUI() adds the UI elements and includes definitions for functional execution</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">buildUI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Setting UI layouts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutMain</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuLayout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapLayout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="c">#self.flightSelectionLayout = QVBoxLayout()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionsLayout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlightsLayout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c">#Make menu</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">QMenuBar</span><span class="p">()</span>
+        <span class="n">display</span> <span class="o">=</span> <span class="n">bar</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s">&quot;View&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tableList</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">display</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;SELECT DISTINCT callsign FROM </span><span class="se">\&quot;</span><span class="s">%s</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="o">%</span><span class="n">table</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">flightList</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+            <span class="k">for</span> <span class="n">acid</span> <span class="ow">in</span> <span class="n">flightList</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">acid</span><span class="p">)</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menu_trajectory</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        #Populate table list for trajectory selection</span>
+<span class="sd">        self.tablePickerLayout = QHBoxLayout()    </span>
+<span class="sd">        self.tableSelection = QComboBox()</span>
+<span class="sd">        self.tableSelection.addItems(self.tableList)</span>
+<span class="sd">        self.tablePickerLayout.addWidget(QLabel(&quot;Available Tables: &quot;))</span>
+<span class="sd">        self.tablePickerLayout.addWidget(self.tableSelection)</span>
+<span class="sd">        </span>
+<span class="sd">        def show_trajectory():</span>
+<span class="sd">            table = self.tableSelection.currentText()</span>
+<span class="sd">            acid = self.flightSelection.currentText()</span>
+<span class="sd">            cmd = readNATS.Command(self.cursor,table,callsign=acid)</span>
+<span class="sd">            self.commandParameters = cmd.executeCommand()</span>
+<span class="sd">            self.initMap()</span>
+
+<span class="sd">        def populate_flights():</span>
+<span class="sd">            query = &quot;SELECT DISTINCT callsign FROM \&quot;%s\&quot;&quot;%self.tableSelection.currentText()</span>
+<span class="sd">            print(query)</span>
+<span class="sd">            self.cursor.execute(query)</span>
+<span class="sd">            flightList = [i[0] for i in self.cursor.fetchall()]</span>
+<span class="sd">            self.flightPickerLayout = QHBoxLayout()</span>
+<span class="sd">            self.flightSelection = QComboBox()</span>
+<span class="sd">            self.flightSelection.addItems(flightList)</span>
+<span class="sd">            self.flightPickerLayout.addWidget(QLabel(&quot;Flights: &quot;))</span>
+<span class="sd">            self.flightPickerLayout.addWidget(self.flightSelection)</span>
+<span class="sd">            self.flightSelection.activated.connect(show_trajectory)</span>
+<span class="sd">            self.flightSelectionLayout.addLayout(self.flightPickerLayout)</span>
+
+<span class="sd">        self.tableSelection.activated.connect(populate_flights)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        #Data range start for trajectory plotting</span>
+<span class="sd">        self.fromDatePicker = QHBoxLayout()</span>
+<span class="sd">        self.simulationStartMonth = QComboBox(self)</span>
+<span class="sd">        self.simulationStartDate = QComboBox(self)</span>
+<span class="sd">        self.simulationStartYear = QComboBox(self)</span>
+<span class="sd">        self.fromDatePicker.addWidget(QLabel(&quot;From: &quot;))</span>
+<span class="sd">        self.fromDatePicker.addWidget(self.simulationStartMonth)</span>
+<span class="sd">        self.fromDatePicker.addWidget(self.simulationStartDate)</span>
+<span class="sd">        self.fromDatePicker.addWidget(self.simulationStartYear)</span>
+<span class="sd">        </span>
+<span class="sd">        #Data range end for trajectory plotting</span>
+<span class="sd">        self.toDatePicker = QHBoxLayout()</span>
+<span class="sd">        self.simulationEndMonth = QComboBox(self)</span>
+<span class="sd">        self.simulationEndDate = QComboBox(self)</span>
+<span class="sd">        self.simulationEndYear = QComboBox(self)</span>
+<span class="sd">        self.toDatePicker.addWidget(QLabel(&quot;To:     &quot;))</span>
+<span class="sd">        self.toDatePicker.addWidget(self.simulationEndMonth)</span>
+<span class="sd">        self.toDatePicker.addWidget(self.simulationEndDate)</span>
+<span class="sd">        self.toDatePicker.addWidget(self.simulationEndYear)</span>
+<span class="sd">        </span>
+<span class="sd">        #Widget size scaling for better UI</span>
+<span class="sd">        #self.flightSelection.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)</span>
+<span class="sd">        self.simulationStartMonth.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)</span>
+<span class="sd">        self.simulationStartDate.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)</span>
+<span class="sd">        self.simulationStartYear.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)</span>
+<span class="sd">        self.simulationEndMonth.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)</span>
+<span class="sd">        self.simulationEndDate.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)</span>
+<span class="sd">        self.simulationEndYear.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)</span>
+<span class="sd">        </span>
+<span class="sd">        #Adding date picker UI elements and populate them</span>
+<span class="sd">        for month in months:</span>
+<span class="sd">            self.simulationStartMonth.addItem(month)</span>
+<span class="sd">            self.simulationEndMonth.addItem(month)</span>
+<span class="sd">        for date in dates:</span>
+<span class="sd">            self.simulationStartDate.addItem(date)</span>
+<span class="sd">            self.simulationEndDate.addItem(date)</span>
+<span class="sd">        for year in years:</span>
+<span class="sd">            self.simulationStartYear.addItem(year)</span>
+<span class="sd">            self.simulationEndYear.addItem(year)</span>
+<span class="sd">        </span>
+<span class="sd">        #Button to trigger and plot trajectories</span>
+<span class="sd">        self.plotButton = QPushButton(&quot;Plot Trajectory&quot;)</span>
+<span class="sd">        self.plotButton.clicked.connect(self.plotTrajectory)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c">#Add flight selection widgets to UI</span>
+        <span class="c">#self.flightSelectionLayout.addLayout(self.tablePickerLayout)</span>
+        
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        self.flightSelectionLayout.addLayout(self.fromDatePicker)</span>
+<span class="sd">        self.flightSelectionLayout.addLayout(self.toDatePicker)</span>
+<span class="sd">        self.flightSelectionLayout.addWidget(self.plotButton)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c">#Command line UI elements with action upon execution request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commandInput</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commandInput</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">)</span>
+        <span class="c">#self.commandExecute = QPushButton(&quot;Execute Command&quot;)</span>
+        <span class="c">#self.commandExecute.clicked.connect(self.executeCommand)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionsLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&quot;Command Line: &quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionsLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commandInput</span><span class="p">)</span>
+        <span class="c">#self.actionsLayout.addWidget(self.commandExecute)</span>
+        
+        <span class="c">#Adding toggles for map filters and overlays with action upon execution request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutOptions</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutControls</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weatherToggle</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="s">&quot;Weather&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">airportToggle</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="s">&quot;Airports&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">waypointToggle</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="s">&quot;Waypoints&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sectorToggle</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="s">&quot;Sectors&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutOptions</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weatherToggle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutOptions</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">airportToggle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutOptions</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">waypointToggle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutOptions</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sectorToggle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">applyFilters</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s">&quot;Apply Filters&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">applyFilters</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plotTrajectory</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutControls</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutOptions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutControls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">applyFilters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionsLayout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filterLayoutControls</span><span class="p">)</span>
+        
+        <span class="c">#Query air crash ontology from the application UI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologyQuery</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runQuery</span><span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s">&quot;Run Query&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlightsLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ontologyQuery</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlightsLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runQuery</span><span class="p">)</span>
+        
+        <span class="c">#Live flights view</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlights</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s">&quot;Live Flights&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlights</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">liveFlightsLayer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlights</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+        
+        <span class="c">#Help and documentation access from the application</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helpButton</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s">&quot;Documentation and Help&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helpButton</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+        
+        <span class="c">#Button click action definitions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runQuery</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queryOntology</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helpButton</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">openGitHub</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlightsLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">liveFlights</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liveFlightsLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">helpButton</span><span class="p">)</span>
+        
+        <span class="c">#Initialize map based on the constraints and parameters provided above</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initMap</span><span class="p">()</span>
+        
+        <span class="c">#Add parent elements to the base UI</span>
+        <span class="c">#self.menuLayout.addLayout(self.flightSelectionLayout)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuLayout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actionsLayout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuLayout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">liveFlightsLayout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutMain</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menuLayout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutMain</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapLayout</span><span class="p">)</span>
+        
+        <span class="c">#Show application window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layoutMain</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&quot;PARA-ATM&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">showMaximized</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+        
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        initmap() pulls in the leaflet map to the application from MapView module.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">initMap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Set the toggle values based on user selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterToggles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">airportToggle</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterToggles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">waypointToggle</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterToggles</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weatherToggle</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterToggles</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sectorToggle</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span>
+        
+        <span class="c">#Invoke MapView to plot the map onto the application layout based on the user&#39;s preferences as parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapHTML</span> <span class="o">=</span> <span class="n">MapView</span><span class="o">.</span><span class="n">buildMap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flightSelected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dateRangeSelected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filterToggles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapView</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapHTML</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapView</span><span class="p">)</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        getTableList() fetches the callsign list of flights to be displayed for selection</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">getTableList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Execute query to fetch flight data</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;SELECT t.table_name </span><span class="se">\</span>
+<span class="s">                 FROM information_schema.tables t </span><span class="se">\</span>
+<span class="s">                 JOIN information_schema.columns c ON c.table_name = t.table_name </span><span class="se">\</span>
+<span class="s">                 WHERE c.column_name LIKE &#39;callsign&#39;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        plotTrajectory() is used to either initialize, or update the trajectory plot upon a new  </span>
+<span class="sd">        every request </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">plotTrajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Formulate date range and flight from selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dateRangeSelected</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flightSelected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flightSelection</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startDateSelected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationStartYear</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationStartMonth</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationStartDate</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endDateSelected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationEndYear</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationEndMonth</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationEndDate</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">fromDate</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulationStartYear</span><span class="o">.</span><span class="n">currentText</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulationStartMonth</span><span class="o">.</span><span class="n">currentText</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulationStartDate</span><span class="o">.</span><span class="n">currentText</span><span class="p">()))</span>
+        <span class="n">toDate</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulationEndYear</span><span class="o">.</span><span class="n">currentText</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulationEndMonth</span><span class="o">.</span><span class="n">currentText</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulationEndDate</span><span class="o">.</span><span class="n">currentText</span><span class="p">()))</span>
+        
+        <span class="c">#Update to new trajectory parameters</span>
+        <span class="k">for</span> <span class="n">dateInstance</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flightDateRange</span><span class="p">(</span><span class="n">fromDate</span><span class="p">,</span> <span class="n">toDate</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dateRangeSelected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dateInstance</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%Y-%m-%d&quot;</span><span class="p">))</span>
+        
+        <span class="c">#Plot or re-plot trajectory data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initMap</span><span class="p">()</span>
+        
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        flightDateRange() returns a list of dates between two selected dates</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">flightDateRange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fromDate</span><span class="p">,</span> <span class="n">toDate</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span> <span class="p">((</span><span class="n">toDate</span> <span class="o">-</span> <span class="n">fromDate</span><span class="p">)</span><span class="o">.</span><span class="n">days</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">fromDate</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        liveFlightsLayer() overlays the live flight map onto the application layout</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">liveFlightsLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapView</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/Map/web/LiveFlights.html&quot;</span><span class="p">))</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        openGitHub() pops up the help window with the code documentation and repository</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">openGitHub</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubPopup</span> <span class="o">=</span> <span class="n">GitHub</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubPopup</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&quot;PARA-ATM Help&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">githubPopup</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        queryOntology() shows up the results from the ontology search in a popup window. This function </span>
+<span class="sd">        is under development for completeness.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">queryOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Invoke the QueryOntology class method to run the query</span>
+        <span class="n">queryOutput</span> <span class="o">=</span> <span class="n">QueryOntology</span><span class="o">.</span><span class="n">query</span><span class="p">()</span>
+        
+        <span class="c">#Display output in popup window</span>
+        <span class="n">outputDisplay</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">queryOutput</span><span class="p">)</span>
+        <span class="n">outputDisplay</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        executeCommand() calls the relevant command code under the Commands package.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">executeCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c">#Get the command name and argument inputs</span>
+        <span class="n">commandInput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">commandInput</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> 
+        <span class="n">commandName</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">commandInput</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;PARA_ATM.Commands&#39;</span><span class="p">,</span><span class="n">fromlist</span><span class="o">=</span><span class="p">[</span><span class="n">commandName</span><span class="p">]),</span> <span class="n">commandName</span><span class="p">)</span>
+        <span class="n">commandArguments</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">commandInput</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;,&#39;</span> <span class="ow">in</span> <span class="n">commandArguments</span><span class="p">:</span>
+            <span class="n">commandArguments</span> <span class="o">=</span> <span class="n">commandArguments</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">commandName</span> <span class="o">==</span> <span class="s">&#39;groundSSD&#39;</span><span class="p">:</span>
+            <span class="n">commandClass</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span><span class="bp">self</span><span class="p">,</span><span class="n">commandArguments</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">commandClass</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="n">commandArguments</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span> <span class="o">=</span> <span class="n">commandClass</span><span class="o">.</span><span class="n">executeCommand</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">&#39;command %s executed&#39;</span><span class="o">%</span><span class="n">commandName</span><span class="p">)</span>
+        
+        <span class="c">#Command specific conditions</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">commandName</span> <span class="o">==</span> <span class="s">&quot;Airport&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mapView</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="o">+</span>  <span class="s">&quot;/Map/web/LiveFlights.html?latitude=&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;&amp;longitude=&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">commandName</span> <span class="o">==</span> <span class="s">&quot;NATS_GateToGateSim&quot;</span><span class="p">):</span>
+            <span class="n">parentPath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">parentPath</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/NATS/Server/DEMO_Gate_To_Gate_SFO_PHX_trajectory_beta_1.0.csv&quot;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">content_file</span><span class="p">:</span>
+                <span class="n">CSVData</span> <span class="o">=</span> <span class="n">content_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">question</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">&#39;NATS Output&#39;</span><span class="p">,</span> <span class="s">&quot;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">CSVData</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5000</span><span class="p">])</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s">&#39;NATS output error&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">showFullScreen</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">commandName</span><span class="o">==</span><span class="s">&#39;groundSSD&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initMap</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commandParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    main() instantiates the ParaATM Class to run the application</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">paraAtm</span> <span class="o">=</span> <span class="n">ParaATM</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Southwest Research Institute.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

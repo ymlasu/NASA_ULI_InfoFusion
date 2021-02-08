@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIB_DIR=${PWD}/../lib
+LIB_DIR=${PWD}/../dist
 
 tar -xvf grib_api-1.11.0.tar.gz
 

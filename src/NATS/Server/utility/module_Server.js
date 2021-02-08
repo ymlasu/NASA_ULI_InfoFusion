@@ -10,7 +10,10 @@ module.exports = {
 	  
 	  var NATS_SERVER_HOME = process.env.NATS_SERVER_HOME;
 	  //console.log("Environment variable: NATS_SERVER_HOME = " + NATS_SERVER_HOME);
-
+	  
+	  var cors = require('cors');
+	  app.use(cors());
+	  
 	  app.use('/web', express.static(__dirname + '/web'));
 
 	  app.get('/', function(req, res) {

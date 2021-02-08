@@ -3,6 +3,8 @@
 dir=${PWD}
 
 #PARA-ATM dependencies
+sudo apt-get update
+sudo apt-get install libcurl3
 sudo apt-get install default-jdk
 sudo apt-get install wget
 sudo apt-get install libgtkmm-2.4
@@ -60,8 +62,7 @@ cd ../../../
 
 #NATS client dependencies
 which conda || export PATH="/home/${USER}/anaconda3/bin:$PATH"
-conda install -c conda-forge jpype1
-conda install pyqt=4
+conda create -f paraatm_env.yml
 pip install --user pyclipper
 
 echo "done installing NATS Client, starting database setup"

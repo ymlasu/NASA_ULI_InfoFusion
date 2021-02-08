@@ -37,7 +37,7 @@ def daterange( start_date, end_date ):
             yield start_date - datetime.timedelta( n )
 
 def downloadWindFilesinFolder(ftp,rapdir,dirtodnld,filestodnld):
-
+    
     ftp.cwd(rapdir)
     filenames = ftp.nlst() # get filenames within the directorys
 
@@ -58,6 +58,7 @@ def downloadManager(dirtodnld = os.getcwd(), \
                       hour1 = -100,day1 = -100,month1 = -100,year1=-100, \
                       hour2 = -100,day2 = -100,month2 = -100,year2=-100):
     if not os.path.exists(dirtodnld):
+        print "Creating directory: ", dirtodnld
         os.mkdir(dirtodnld)
     
     NOAAwebsite = 'ftpprd.ncep.noaa.gov'

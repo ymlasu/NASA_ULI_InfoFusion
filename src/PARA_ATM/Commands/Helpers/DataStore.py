@@ -1,10 +1,15 @@
-from PARA_ATM import *
+import psycopg2
+import pandas as pd
+import centaur
+
+class dbError(Exception):
+    def __init__(self):
+        Exception.__init__(self,'empty query')
 
 class Access:
     
-    def __init__(self, API_key):
-        self.API_key = API_key
-        self.connection = psycopg2.connect('dbname=paraatm user=paraatm_user password=paraatm_user')
+    def __init__(self):
+        self.connection = psycopg2.connect(database="paraatm", user="paraatm_user", password="paraatm_user", host="localhost", port="5432")
         self.cursor = self.connection.cursor()
         
     def getAirportLocation(self, airportCode):
@@ -14,76 +19,75 @@ class Access:
         longitude = results[0][2]
         return latitude, longitude
         
-    def getHumanFactorsData(self, callsign, date):
-        self.cursor.execute("SELECT * FROM human_factors WHERE callsign = %s AND date = %s", ("" + callsign,"" + date,))
-        results = self.cursor.fetchall()
-        return results
-
-    def getAtcData(self, callsign, date):
-        self.cursor.execute("SELECT * FROM atc WHERE callsign = %s AND date = %s", ("" + callsign,"" + date,))
-        results = self.cursor.fetchall()
-        return results
-    
-    def getFlightParameters(self, callsign, date):
-        self.cursor.execute("SELECT * FROM flight_parameters WHERE callsign = %s AND date = %s", ("" + callsign,"" + date,))
-        results = self.cursor.fetchall()
-        return results
-    
-    def getSchedule(self, callsign, date):
-        self.cursor.execute("SELECT * FROM schedule WHERE callsign = %s AND date = %s", ("" + callsign,"" + date,))
-        results = self.cursor.fetchall()
-        return results
-
-    def getTrajectory(self, callsign, date):
-        self.cursor.execute("SELECT * FROM trajectory WHERE callsign = %s AND date = %s", ("" + callsign,"" + date,))
-        results = self.cursor.fetchall()
-        return results
-    
     def getFlightHistory(self, callsign):
         self.cursor.execute("SELECT * FROM flight_data WHERE callsign = %s", ("" + callsign,))
         results = self.cursor.fetchall()
         return results
     
-    def addHumanFactorsData(self, callsign, date, atc_recording_transcript, pilot_recording_transcript, computer_vision_derivation):
-        self.cursor.execute("INSERT INTO human_factors (callsign, date, atc_recording_transcript, pilot_recording_transcript, computer_vision_derivation) VALUES ('" + callsign + "', '" + date + "', '" + atc_recording_transcript + "', '" + pilot_recording_transcript + "', '" + computer_vision_derivation + "')")
-        self.connection.commit()
-        
-    def addAtcLogs(self, callsign, date, waypoints, communication_timestamps):
-        self.cursor.execute("INSERT INTO atc (callsign, date, waypoints, communication_timestamps) VALUES ('" + callsign + "', '" + date + "', '" + waypoints + "', '" + communication_timestamps + "')")
-        self.connection.commit()
-        
-    def addFlightParameters(self, callsign, date, altitude, squawk, velocity, vertical_speed, heading):
-        self.cursor.execute("INSERT INTO flight_parameters(callsign, date, altitude, squawk, velocity, vertical_speed, heading) VALUES ('" + callsign + "', '" + date + "', '" + altitude + "', '" + squawk  + "', '" +  velocity+"', '" +  vertical_speed + "', '" + heading + "')")
-        self.connection.commit()
-        
-    def addFlightSchedule(self, callsign, date, arrival_time, departure_time):
-        self.cursor.execute("INSERT INTO schedule(callsign, date, arrival_time, departure_time) VALUES ('" + callsign + "', '" + date + "', '" + arrival_time + "', '" + departure_time + "')")
-        self.connection.commit()
-        
-    def addTrajectoryData(self, callsign, date, timestamp, latitude, longitude):
-        self.cursor.execute("INSERT INTO trajectory(callsign, date, timestamp, latitude, longitude) VALUES ('" + callsign + "', '" + date + "', '" + timestamp + "', '" + latitude + "', '" + longitude + "')")
-        self.connection.commit()
-    
+    def getIFFdata(self, filename, kwargs):
+        query = "SELECT * FROM \"%s\""%filename
+        conditions = []
+        for k,v in kwargs.items():
+            conditions.append("%s='%s'"%(k,v))
+        if kwargs:
+            query += " WHERE "
+            query += " AND ".join(conditions)
+        self.cursor.execute(query)
+        if bool(self.cursor.rowcount):
+            results = pd.DataFrame(self.cursor.fetchall())
+            results.columns = ['id','time','callsign','origin','destination','latitude','longitude','altitude','rocd','tas','heading','status']
+            del results['id']
+            results[['latitude','longitude','altitude','heading']] = results[['latitude','longitude','altitude','heading']].replace(r'[^0-9,.,-]+','0',regex=True)
+            results[['latitude','longitude','altitude','heading']] = results[['latitude','longitude','altitude','heading']].astype(float)
+            results['status'] = results['status'].fillna('TAKEOFF/LANDING')
+            results = results[results['latitude'] != -100]
+            return ['readIFF', results, filename]
+        else: raise dbError
+
+    def getNATSdata(self, filename, kwargs):
+        query = "SELECT * FROM \"%s\""%filename
+        conditions = []
+        for k,v in kwargs.items():
+            conditions.append("%s='%s'"%(k,v))
+        if kwargs:
+            query += " WHERE "
+            query += " AND ".join(conditions)
+        self.cursor.execute(query)
+        results = pd.DataFrame(self.cursor.fetchall())
+        results.columns = ['id','time','callsign','origin','destination','latitude','longitude','altitude','rocd','tas','heading','sector','status']
+        del results['id']
+        del results['sector']
+        return ['readNATS',results,filename]
+
     def getSMESData(self, airport):
-        self.cursor.execute('SELECT * FROM smes WHERE airport = %s' %airport)
+        self.cursor.execute("SELECT * FROM smes WHERE airport = %s" %airport)
         results = self.cursor.fetchall()
         return results
 
+    def getCentaurDist(self,table='distributionDB',key=''):
+        """
+        get the distribution of reaction times for a given subject
+        args:
+            table (str): table name
+            key (str): the primary key of the table
+        returns:
+            dist_type (str),
+            loc (float),
+            scale (float),
+            args (list)
+        """
 
-        
-'''      
-dataStoreAccess = Access("APIKEY")
-#Example Server URL: http://localhost/connect/dataStoreAccess/addAtcLogs
-latitude, longitude = dataStoreAccess.getAirportLocation("PHX")
-humanFactors = dataStoreAccess.getHumanFactorsData("AAL429", "12111111")
-atcLogs = dataStoreAccess.getAtcData("AAL429", "12111111")
-flightParameters = dataStoreAccess.getFlightParameters("AAL429", "12111111")
-flightSchedule = dataStoreAccess.getSchedule("AAL429", "12111111")
-flightTrajectory = dataStoreAccess.getTrajectory("AAL429", "12111111")
+        self.cursor.execute("SELECT * FROM %s WHERE variable='%s'"%(table,key))
+        #self.cursor.execute("SELECT * FROM %s_uncertainty WHERE state='%s'"
+        #        %(table.lower(),key.lower()))
+        results = self.cursor.fetchall()[0]
+        index,dist_type,params = results
+        params = params.split(',')
+        args = [float(p) for p in params[:-2]]
+        scale = float(params[-1])
+        loc = float(params[-2])
 
-dataStoreAccess.addHumanFactorsData('AAL1077', '12141412', 'ATCRECORDING', 'PILOTRECORDING', 'COMPUTERVISIONDATA')
-dataStoreAccess.addAtcLogs('AAL1077', '12141412', 'ATCRECORDING', 'PILOTRECORDING')
-dataStoreAccess.addFlightParameters('AAL1077', '12141412', 'ATCRECORDING', 'PILOTRECORDING', 'COMPUTERVISIONDATA', 'COMPUTERVISIONDATA', 'COMPUTERVISIONDATA')
-dataStoreAccess.addFlightSchedule('AAL1077', '12141412', 'ATCRECORDING', 'PILOTRECORDING')
-dataStoreAccess.addTrajectoryData('AAL1077', '12141412', 'ATCRECORDING', 'PILOTRECORDING', 'COMPUTERVISIONDATA')
-'''
+        rv=centaur.Distribution()
+
+        getattr(rv,'new_%s'%dist_type)(loc,scale,*args)
+        return rv

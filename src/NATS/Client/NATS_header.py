@@ -1,12 +1,59 @@
 try:
-    from jpype import startJVM,getDefaultJVMPath,JPackage
+    from jpype import startJVM,getDefaultJVMPath,JPackage,JClass,shutdownJVM
 except ImportError:
     pass
+from pathlib import Path
+import os
+
 #------------PUT THE FOLLOWING IN EACH PROGRAM--------------------
 
-classpath = "dist/nats-client.jar:dist/nats-shared.jar"
+client = str(Path(__file__).parent)+'/'
+os.environ['NATS_CLIENT_HOME'] = client
+
+classpath = client+"dist/nats-client.jar:"+client+"dist/nats-shared.jar:"+client+"dist/rmiio-2.1.2.jar:"+client+"dist/json.jar"
 
 startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % classpath)
+
+'''This class initializes the NATS client.'''
+class NATS_Config:
+    def __init__(self, duration = 86400,
+                 interval = 1,
+                 client_dir = client,
+                 wind_dir = 'share/tg/rap',
+                 track_file = "share/tg/trx/swim_example_aug.trx",
+                 max_flt_lev_file = "share/tg/trx/swim_example_mfl.trx"):
+        self.endTime = duration
+        self.interval = interval
+        self.initializeJVM(client_dir)
+        self.wind_dir = wind_dir
+        self.trx_file = track_file
+        self.mfl_file = max_flt_lev_file
+
+    '''Initialize the NATS client'''
+    def initializeJVM(self, client_dir = client):
+
+        self.NATS_SIMULATION_STATUS_ENDED = NATS_SIMULATION_STATUS_ENDED;
+        NATSClientFactory = JClass('NATSClientFactory')
+        self.natsClient = NATSClientFactory.getNATSClient()
+
+        self.equipmentInterface = self.natsClient.getEquipmentInterface()
+
+        # Get EnvironmentInterface
+        self.environmentInterface = self.natsClient.getEnvironmentInterface()
+        # Get AirportInterface
+        self.airportInterface = self.environmentInterface.getAirportInterface()
+        # Get TerminalAreaInterface
+        self.terminalAreaInterface = self.environmentInterface.getTerminalAreaInterface()
+
+        self.sim = self.natsClient.getSimulationInterface()
+
+        self.aircraftInterface = self.equipmentInterface.getAircraftInterface()
+
+        self.entityInterface = self.natsClient.getEntityInterface()
+
+        self.controllerInterface = self.entityInterface.getControllerInterface()
+        
+        self.pilotInterface = self.entityInterface.getPilotInterface()
 
 # Flight phase value definition
 # You can detect and know the flight phase by checking its value
